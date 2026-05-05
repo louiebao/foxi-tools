@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Life in Months</title>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f8f8f5;
+    color: #444;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr 20%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  header {
+    padding: 16px 32px 12px;
+    border-bottom: 1px solid #d0d0cc;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+    grid-column: 1 / -1;
+  }
+  header h1 {
+    font-size: 13px;
+    font-weight: normal;
+    letter-spacing: 0.2em;
+    color: #444;
+    text-transform: uppercase;
+  }
+  .born-label { color: #555; font-size: 11px; }
+  #birthdate-display {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #bbb;
+    color: #555;
+    font-family: inherit;
+    font-size: 12px;
+    padding: 2px 4px;
+    outline: none;
+    width: auto;
+    min-width: 72px;
+    field-sizing: content;
+    cursor: pointer;
+  }
+  #birthdate-display:focus { border-bottom-color: #777; color: #333; }
+
+
+  .grid-section {
+    padding: 16px 32px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    grid-row: 2;
+    grid-column: 1;
+  }
+
+  .grid-outer {
+    display: flex;
+    gap: 0;
+  }
+
+  .month-axis {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-right: 8px;
+    margin-top: 22px;
+    flex-shrink: 0;
+  }
+  .month-label {
+    height: 12px;
+    width: 22px;
+    font-size: 9px;
+    color: #777;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .grid-inner {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .year-row {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 6px;
+    height: 16px;
+    align-items: flex-end;
+  }
+  .year-label {
+    width: 12px;
+    font-size: 8px;
+    color: #777;
+    text-align: left;
+    flex-shrink: 0;
+    overflow: visible;
+    white-space: nowrap;
+  }
+
+  .month-row {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+
+  .cell {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: border-color 0.1s;
+  }
+  .cell.pre-birth     { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
+  .cell.future        { background: #e8e8e6; border-color: #ddd; }
+  .cell.lived         { background: #aaa;    border-color: #999; }
+  .cell.has-note      { background: #999;    border-color: #888; }
+  .cell.cat-life      { background: #6ba870; border-color: #5a9360; }
+  .cell.cat-work      { background: #5a8ec4; border-color: #4a7ab4; }
+  .cell.cat-investment{ background: #d46a6a; border-color: #c45a5a; }
+  .cell.cat-business  { background: #9456c8; border-color: #8446b8; }
+  .cell.current       { background: #444;    border-color: #333; }
+  .cell.selected      { outline: 1px solid #444; outline-offset: 1px; }
+  .cell:hover         { border-color: #888 !important; }
+
+  #panel {
+    border-left: 1px solid #d0d0cc;
+    padding: 14px 32px;
+    background: #efefec;
+    overflow: auto;
+    grid-row: 2;
+    grid-column: 2;
+  }
+  .panel-placeholder {
+    color: #888;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 14px 0;
+    text-align: center;
+  }
+  .panel-open {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .panel-meta .month-name { font-size: 11px; color: #555; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .panel-meta .age        { font-size: 32px; color: #555; letter-spacing: -0.03em; line-height: 1; }
+  .panel-meta .age-label  { font-size: 9px; color: #888; letter-spacing: 0.1em; margin-top: 3px; }
+  .field-wrap      { display: flex; flex-direction: column; }
+  .categories-wrap { display: flex; flex-direction: column; }
+  .field-label {
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: #666; margin-bottom: 6px;
+  }
+  .category-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .category-check input[type="checkbox"] { cursor: pointer; width: 14px; height: 14px; accent-color: #666; }
+  .category-check label { cursor: pointer; color: #555; }
+  textarea {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    color: #444;
+    font-family: inherit;
+    font-size: 11px;
+    line-height: 1.6;
+    resize: none;
+    width: 100%;
+    outline: none;
+    padding: 2px 0;
+    height: 60px;
+  }
+  textarea:focus { border-bottom-color: #888; color: #222; }
+  textarea::placeholder { color: #aaa; }
+
+  footer {
+    padding: 8px 32px;
+    border-top: 1px solid #d0d0cc;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+    grid-column: 1 / -1;
+  }
+  footer button {
+    background: transparent;
+    border: 1px solid #bbb;
+    color: #666;
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    cursor: pointer;
+  }
+  footer button:hover { border-color: #888; color: #333; }
+  input[type="file"] { display: none; }
+  .legend { margin-left: auto; display: flex; gap: 16px; }
+  .li { display: flex; align-items: center; gap: 5px; font-size: 9px; color: #888; letter-spacing: 0.05em; }
+  .dot { width: 8px; height: 8px; border: 1px solid transparent; flex-shrink: 0; }
+  .dot.future     { background: #e8e8e6; border-color: #ddd; }
+  .dot.lived      { background: #aaa;    border-color: #999; }
+  .dot.life       { background: #6ba870; border-color: #5a9360; }
+  .dot.work       { background: #5a8ec4; border-color: #4a7ab4; }
+  .dot.investment { background: #d46a6a; border-color: #c45a5a; }
+  .dot.business   { background: #9456c8; border-color: #8446b8; }
+  .dot.current    { background: #444;    border-color: #333; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Life in Months</h1>
+  <span class="born-label">Born</span>
+  <input type="text" id="birthdate-display" placeholder="dd/mm/yyyy" />
+
+</header>
+
+<div class="grid-section">
+  <div class="grid-outer">
+    <div class="month-axis" id="monthAxis1"></div>
+    <div class="grid-inner">
+      <div class="year-row" id="yearRow1"></div>
+      <div id="monthRows1"></div>
+    </div>
+  </div>
+  <div class="grid-outer">
+    <div class="month-axis" id="monthAxis2"></div>
+    <div class="grid-inner">
+      <div class="year-row" id="yearRow2"></div>
+      <div id="monthRows2"></div>
+    </div>
+  </div>
+</div>
+
+<div id="panel">
+  <div class="panel-placeholder">click any month to add a note</div>
+</div>
+
+<footer>
+  <button id="btnReset">RESET</button>
+  <button id="btnExport">EXPORT</button>
+  <button id="btnImport">IMPORT</button>
+  <input type="file" id="fileInput" accept=".json">
+  <div class="legend">
+    <div class="li"><div class="dot future"></div>Future</div>
+    <div class="li"><div class="dot lived"></div>Lived</div>
+    <div class="li"><div class="dot life"></div>Life</div>
+    <div class="li"><div class="dot work"></div>Work</div>
+    <div class="li"><div class="dot investment"></div>Investment</div>
+    <div class="li"><div class="dot business"></div>Business</div>
+    <div class="li"><div class="dot current"></div>Now</div>
+  </div>
+</footer>
+
+<script>
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const STORAGE_KEY = 'life-months';
+
+let state = { birthdate: '', cells: {} };
+
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) state = JSON.parse(raw);
+} catch (e) {
+  Swal.fire({ icon: 'error', title: 'Corrupted data', text: 'Saved data could not be loaded. Starting fresh.' });
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+let saveTimer;
+let saveBlocked = false;
+function scheduleSave() {
+  if (saveBlocked) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        saveBlocked = true;
+        Swal.fire({ icon: 'warning', title: 'Storage full', text: 'Export your data to continue saving.' });
+      }
+    }
+  }, 300);
+}
+
+function buildMonthAxis(id) {
+  const container = document.getElementById(id);
+  MONTHS.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'month-label';
+    el.textContent = m.slice(0, 3);
+    container.appendChild(el);
+  });
+}
+buildMonthAxis('monthAxis1');
+buildMonthAxis('monthAxis2');
+
+function buildYearRow(id, count) {
+  const container = document.getElementById(id);
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'year-label';
+    container.appendChild(el);
+  }
+}
+buildYearRow('yearRow1', 50);
+buildYearRow('yearRow2', 50);
+
+let selectedEl = null;
+let selectedKey = null;
+const cellEls = [];
+
+for (let mo = 0; mo < 12; mo++) {
+  const row1 = document.createElement('div');
+  row1.className = 'month-row';
+  const row2 = document.createElement('div');
+  row2.className = 'month-row';
+
+  for (let yr = 0; yr < 50; yr++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell future';
+    cell.dataset.yr = yr;
+    cell.dataset.mo = mo;
+    cell.addEventListener('click', () => onCellClick(cell, yr, mo));
+    row1.appendChild(cell);
+    cellEls.push(cell);
+  }
+  for (let yr = 50; yr < 100; yr++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell future';
+    cell.dataset.yr = yr;
+    cell.dataset.mo = mo;
+    cell.addEventListener('click', () => onCellClick(cell, yr, mo));
+    row2.appendChild(cell);
+    cellEls.push(cell);
+  }
+
+  document.getElementById('monthRows1').appendChild(row1);
+  document.getElementById('monthRows2').appendChild(row2);
+}
+
+function renderGrid() {
+  const bd = state.birthdate;
+  const now = new Date();
+
+  if (!bd) {
+    document.getElementById('yearRow1').querySelectorAll('.year-label').forEach(el => el.textContent = '');
+    document.getElementById('yearRow2').querySelectorAll('.year-label').forEach(el => el.textContent = '');
+    cellEls.forEach(cell => {
+      cell.className = 'cell future';
+      if (cell === selectedEl) cell.classList.add('selected');
+    });
+    return;
+  }
+
+  const parts = bd.split('-');
+  const birthYear  = parseInt(parts[0]);
+  const birthMonth = parseInt(parts[1]) - 1;
+  const currentKey = (now.getFullYear() - birthYear) * 12 + (now.getMonth() - birthMonth);
+
+  const yearLabels1 = document.getElementById('yearRow1').querySelectorAll('.year-label');
+  yearLabels1.forEach((el, i) => {
+    el.textContent = (i % 10 === 0 || i === 49) ? String(birthYear + i) : '';
+  });
+
+  const yearLabels2 = document.getElementById('yearRow2').querySelectorAll('.year-label');
+  yearLabels2.forEach((el, i) => {
+    const y = i + 50;
+    el.textContent = (y % 10 === 0 || y === 99) ? String(birthYear + y) : '';
+  });
+
+  cellEls.forEach(cell => {
+    const yr = parseInt(cell.dataset.yr);
+    const mo = parseInt(cell.dataset.mo);
+    const key = yr * 12 + (mo - birthMonth);
+
+    let cls = 'cell';
+    if (key < 0) {
+      cls += ' pre-birth';
+    } else if (key > 1199) {
+      cls += ' future';
+    } else if (key < currentKey) {
+      cls += ' lived';
+    } else if (key === currentKey) {
+      cls += ' current';
+    } else {
+      cls += ' future';
+    }
+
+    if (state.cells[key] !== undefined && state.cells[key] !== null) {
+      const c = state.cells[key];
+      if (c.business)        cls += ' cat-business';
+      else if (c.investment) cls += ' cat-investment';
+      else if (c.work)       cls += ' cat-work';
+      else if (c.life)       cls += ' cat-life';
+      else                   cls += ' has-note';
+    }
+
+    cell.className = cls;
+    if (cell === selectedEl) cell.classList.add('selected');
+  });
+}
+
+function onCellClick(cell, yr, mo) {
+  const bd = state.birthdate;
+
+  if (selectedEl) selectedEl.classList.remove('selected');
+  cell.classList.add('selected');
+  selectedEl = cell;
+
+  if (!bd) {
+    document.getElementById('panel').innerHTML =
+      '<div class="panel-placeholder">Enter your birth date above to annotate months.</div>';
+    return;
+  }
+
+  const parts = bd.split('-');
+  const birthYear  = parseInt(parts[0]);
+  const birthMonth = parseInt(parts[1]) - 1;
+  const key = yr * 12 + (mo - birthMonth);
+  selectedKey = key;
+
+  if (key < 0 || key > 1199) {
+    document.getElementById('panel').innerHTML =
+      '<div class="panel-placeholder">This month is outside your 100-year span.</div>';
+    return;
+  }
+
+  const note = state.cells[key] ?? { notes: '', life: false, work: false, investment: false, business: false };
+  const calYear   = birthYear + yr;
+  const monthName = MONTHS[mo];
+  let age = yr;
+  if (mo < birthMonth) age -= 1;
+
+  document.getElementById('panel').innerHTML = `
+    <div class="panel-open">
+      <div class="panel-meta">
+        <div class="month-name">${monthName} ${calYear}</div>
+        <div class="age">${age}</div>
+        <div class="age-label">years old</div>
+      </div>
+      <div class="field-wrap">
+        <textarea id="ta-notes" placeholder="Enter a note...">${escHtml(note.notes)}</textarea>
+      </div>
+      <div class="categories-wrap">
+        <div class="field-label">Categories</div>
+        <div class="category-check">
+          <input type="checkbox" id="cat-life" ${note.life ? 'checked' : ''}>
+          <label for="cat-life">Life</label>
+        </div>
+        <div class="category-check">
+          <input type="checkbox" id="cat-work" ${note.work ? 'checked' : ''}>
+          <label for="cat-work">Work</label>
+        </div>
+        <div class="category-check">
+          <input type="checkbox" id="cat-investment" ${note.investment ? 'checked' : ''}>
+          <label for="cat-investment">Investment</label>
+        </div>
+        <div class="category-check">
+          <input type="checkbox" id="cat-business" ${note.business ? 'checked' : ''}>
+          <label for="cat-business">Business</label>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('ta-notes').addEventListener('input', () => onNoteInput(key, cell));
+
+  ['life', 'work', 'investment', 'business'].forEach(cat => {
+    document.getElementById(`cat-${cat}`).addEventListener('change', e => {
+      if (e.target.checked) {
+        ['life', 'work', 'investment', 'business'].forEach(other => {
+          if (other !== cat) document.getElementById(`cat-${other}`).checked = false;
+        });
+        cell.classList.remove('cat-life', 'cat-work', 'cat-investment', 'cat-business', 'has-note');
+        cell.classList.add(`cat-${cat}`);
+      } else {
+        cell.classList.remove(`cat-${cat}`);
+        if (document.getElementById('ta-notes')?.value) cell.classList.add('has-note');
+      }
+      if (cell === selectedEl) cell.classList.add('selected');
+      onNoteInput(key, cell);
+    });
+  });
+}
+
+function onNoteInput(key, cell) {
+  const notes      = document.getElementById('ta-notes')?.value ?? '';
+  const life       = document.getElementById('cat-life')?.checked ?? false;
+  const work       = document.getElementById('cat-work')?.checked ?? false;
+  const investment = document.getElementById('cat-investment')?.checked ?? false;
+  const business   = document.getElementById('cat-business')?.checked ?? false;
+
+  if (notes || life || work || investment || business) {
+    state.cells[key] = { notes, life, work, investment, business };
+    cell.classList.add('has-note');
+  } else {
+    delete state.cells[key];
+    cell.classList.remove('has-note');
+  }
+  scheduleSave();
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function updateBirthdateDisplay(dateStr) {
+  const parts = dateStr.split('-');
+  const formatted = `${String(parseInt(parts[2])).padStart(2,'0')} ${MONTHS[parseInt(parts[1]) - 1]} ${parts[0]}`;
+  document.getElementById('birthdate-display').value = formatted;
+}
+
+function clearBirthdateDisplay() {
+  document.getElementById('birthdate-display').value = '';
+}
+
+function loadBirthdateUI() {
+  if (state.birthdate) updateBirthdateDisplay(state.birthdate);
+}
+
+const displayInput = document.getElementById('birthdate-display');
+
+function commitBirthdate() {
+  const val = displayInput.value.trim();
+
+  if (!val) {
+    state.birthdate = '';
+    renderGrid();
+    scheduleSave();
+    return;
+  }
+
+  if (/^\d{2} [A-Z][a-z]{2} \d{4}$/.test(val)) return;
+
+  const match = val.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!match) {
+    state.birthdate ? updateBirthdateDisplay(state.birthdate) : clearBirthdateDisplay();
+    return;
+  }
+
+  const dd = parseInt(match[1]), mm = parseInt(match[2]), yyyy = parseInt(match[3]);
+  const date = new Date(yyyy, mm - 1, dd);
+  if (date.getFullYear() !== yyyy || date.getMonth() !== mm - 1 || date.getDate() !== dd) {
+    state.birthdate ? updateBirthdateDisplay(state.birthdate) : clearBirthdateDisplay();
+    return;
+  }
+
+  const iso = `${yyyy}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+  state.birthdate = iso;
+  updateBirthdateDisplay(iso);
+  renderGrid();
+  scheduleSave();
+}
+
+displayInput.addEventListener('blur', commitBirthdate);
+displayInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); commitBirthdate(); displayInput.blur(); }
+});
+
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && selectedEl) {
+    selectedEl.classList.remove('selected');
+    selectedEl = null;
+    selectedKey = null;
+  }
+
+  if (!selectedEl || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+
+  const currentYr = parseInt(selectedEl.dataset.yr);
+  const currentMo = parseInt(selectedEl.dataset.mo);
+  let newYr = currentYr;
+  let newMo = currentMo;
+
+  switch (e.key) {
+    case 'ArrowUp':    e.preventDefault(); newMo--; if (newMo < 0)  { newMo = 11; newYr--; } break;
+    case 'ArrowDown':  e.preventDefault(); newMo++; if (newMo > 11) { newMo = 0;  newYr++; } break;
+    case 'ArrowLeft':  e.preventDefault(); newYr--; break;
+    case 'ArrowRight': e.preventDefault(); newYr++; break;
+  }
+
+  if (newYr < 0 || newYr > 99) return;
+  const newCell = cellEls.find(c => parseInt(c.dataset.yr) === newYr && parseInt(c.dataset.mo) === newMo);
+  if (newCell) { newCell.click(); newCell.scrollIntoView({ block: 'nearest' }); }
+});
+
+document.getElementById('btnReset').addEventListener('click', async () => {
+  const { isConfirmed } = await Swal.fire({
+    title: 'Clear all data?',
+    text: 'This cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Clear',
+    cancelButtonText: 'Cancel',
+  });
+  if (!isConfirmed) return;
+
+  const { isConfirmed: wantsSave } = await Swal.fire({
+    title: 'Save a backup first?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Save',
+    cancelButtonText: 'Skip',
+  });
+  if (wantsSave) document.getElementById('btnExport').click();
+
+  state = { birthdate: '', cells: {} };
+  clearBirthdateDisplay();
+  if (selectedEl) selectedEl.classList.remove('selected');
+  selectedEl = null;
+  selectedKey = null;
+
+  renderGrid();
+  scheduleSave();
+});
+
+document.getElementById('btnExport').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'life-months.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('btnImport').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = '';
+
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    let parsed;
+    try {
+      parsed = JSON.parse(ev.target.result);
+    } catch {
+      Swal.fire({ icon: 'error', title: 'Invalid file', text: 'Could not read file — invalid JSON.' });
+      return;
+    }
+
+    if (!parsed.cells && !parsed.birthdate) {
+      Swal.fire({ icon: 'error', title: 'Wrong file', text: "This doesn't look like a life-months export file." });
+      return;
+    }
+
+    const incoming = parsed.cells || {};
+    const conflicts = Object.keys(incoming).filter(k => state.cells[k] !== undefined).length;
+
+    if (conflicts > 0) {
+      const { isConfirmed } = await Swal.fire({
+        title: 'Overwrite existing months?',
+        text: `Import will overwrite ${conflicts} existing month${conflicts === 1 ? '' : 's'}. Unaffected months are kept.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Import',
+        cancelButtonText: 'Cancel',
+      });
+      if (!isConfirmed) return;
+    }
+
+    if (parsed.birthdate) state.birthdate = parsed.birthdate;
+    Object.assign(state.cells, incoming);
+    Object.keys(state.cells).forEach(k => {
+      const c = state.cells[k];
+      if (!c.notes && !c.life && !c.work && !c.investment && !c.business) delete state.cells[k];
+    });
+
+    loadBirthdateUI();
+    renderGrid();
+    scheduleSave();
+
+    if (selectedEl) {
+      selectedEl.classList.remove('selected');
+      selectedEl = null;
+      selectedKey = null;
+    
+    }
+  };
+  reader.readAsText(file);
+});
+
+loadBirthdateUI();
+renderGrid();
+</script>
+</body>
+</html>
