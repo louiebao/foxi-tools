@@ -43,6 +43,11 @@
   }
   .back-link:hover { color: #333; }
   .born-label { color: #333; font-size: 13px; }
+  @keyframes dob-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  .dob-hint { animation: dob-pulse 1.6s ease-in-out infinite; }
   #birthdate-display {
     background: transparent;
     border: none;
@@ -188,7 +193,6 @@
   textarea {
     background: transparent;
     border: none;
-    border-bottom: 1px solid #ccc;
     color: #222;
     font-family: inherit;
     font-size: 13px;
@@ -197,9 +201,10 @@
     width: 100%;
     outline: none;
     padding: 2px 0;
-    height: 60px;
+    height: calc(14 * var(--cell) - 48px);
+    min-height: 60px;
   }
-  textarea:focus { border-bottom-color: #888; color: #222; }
+  textarea:focus { color: #222; }
   textarea::placeholder { color: #888; }
 
   footer {
@@ -316,6 +321,11 @@ try {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+function updateDobHint() {
+  const els = [document.querySelector('.born-label'), document.getElementById('birthdate-display')];
+  els.forEach(el => el.classList.toggle('dob-hint', !state.birthdate));
+}
+
 let saveTimer;
 let saveBlocked = false;
 function scheduleSave() {
@@ -424,6 +434,7 @@ function onCellHover(yr, mo) {
 }
 
 function renderGrid() {
+  updateDobHint();
   const bd = state.birthdate;
   const now = new Date();
 
@@ -503,7 +514,7 @@ function onCellClick(cell, yr, mo) {
 
   if (key < 0 || key > 1199) {
     document.getElementById('panel').innerHTML =
-      '<div class="panel-placeholder">This month is outside your 100-year span.</div>';
+      '<div class="panel-placeholder">This was from your previous life...</div>';
     return;
   }
 
@@ -646,6 +657,13 @@ document.addEventListener('keydown', e => {
     selectedKey = null;
   }
 
+  if (e.key === 'Enter' && selectedEl && document.activeElement !== document.getElementById('ta-notes')) {
+    e.preventDefault();
+    const ta = document.getElementById('ta-notes');
+    if (ta) ta.focus();
+    return;
+  }
+
   if (!selectedEl || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
 
   const currentYr = parseInt(selectedEl.dataset.yr);
@@ -690,6 +708,7 @@ document.getElementById('btnReset').addEventListener('click', async () => {
   if (selectedEl) selectedEl.classList.remove('selected');
   selectedEl = null;
   selectedKey = null;
+  document.getElementById('panel').innerHTML = '<div class="panel-placeholder">Click any month to add a note</div>';
 
   renderGrid();
   scheduleSave();
@@ -751,15 +770,23 @@ document.getElementById('fileInput').addEventListener('change', e => {
       if (!c.notes && !c.life && !c.work && !c.investment && !c.business) delete state.cells[k];
     });
 
-    loadBirthdateUI();
-    renderGrid();
-    scheduleSave();
-
     if (selectedEl) {
       selectedEl.classList.remove('selected');
       selectedEl = null;
       selectedKey = null;
-    
+    }
+    document.getElementById('panel').innerHTML = '<div class="panel-placeholder">Click any month to add a note</div>';
+
+    loadBirthdateUI();
+    renderGrid();
+    scheduleSave();
+
+    if (state.birthdate) {
+      const p = state.birthdate.split('-');
+      const curYr = new Date().getFullYear() - parseInt(p[0]);
+      const curMo = new Date().getMonth();
+      const cell = cellEls.find(c => parseInt(c.dataset.yr) === curYr && parseInt(c.dataset.mo) === curMo);
+      if (cell) { cell.click(); cell.scrollIntoView({ block: 'nearest' }); }
     }
   };
   reader.readAsText(file);
@@ -767,6 +794,17 @@ document.getElementById('fileInput').addEventListener('change', e => {
 
 loadBirthdateUI();
 renderGrid();
+
+if (state.birthdate) {
+  const parts = state.birthdate.split('-');
+  const birthYear  = parseInt(parts[0]);
+  const birthMonth = parseInt(parts[1]) - 1;
+  const now = new Date();
+  const curYr = now.getFullYear() - birthYear;
+  const curMo = now.getMonth();
+  const cell = cellEls.find(c => parseInt(c.dataset.yr) === curYr && parseInt(c.dataset.mo) === curMo);
+  if (cell) { cell.click(); cell.scrollIntoView({ block: 'nearest' }); }
+}
 </script>
 </body>
 </html>
