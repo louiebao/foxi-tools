@@ -6,6 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --cell: clamp(12px, 1.2vw, 22px); }
   body {
     background: #f8f8f5;
     color: #222;
@@ -34,6 +35,13 @@
     color: #222;
     text-transform: uppercase;
   }
+  .back-link {
+    font-size: 11px;
+    color: #888;
+    text-decoration: none;
+    letter-spacing: 0.06em;
+  }
+  .back-link:hover { color: #333; }
   .born-label { color: #333; font-size: 13px; }
   #birthdate-display {
     background: transparent;
@@ -74,12 +82,12 @@
     flex-direction: column;
     gap: 2px;
     margin-right: 8px;
-    margin-top: 22px;
+    margin-top: calc(var(--cell) + 10px);
     flex-shrink: 0;
   }
   .month-label {
-    height: 12px;
-    width: 22px;
+    height: var(--cell);
+    width: calc(var(--cell) + 10px);
     font-size: 10px;
     color: #555;
     letter-spacing: 0.04em;
@@ -99,11 +107,11 @@
     display: flex;
     gap: 2px;
     margin-bottom: 6px;
-    height: 16px;
+    height: calc(var(--cell) + 4px);
     align-items: flex-end;
   }
   .year-label {
-    width: 12px;
+    width: var(--cell);
     font-size: 9px;
     color: #555;
     text-align: left;
@@ -119,8 +127,8 @@
   }
 
   .cell {
-    width: 12px;
-    height: 12px;
+    width: var(--cell);
+    height: var(--cell);
     flex-shrink: 0;
     cursor: pointer;
     border: 1px solid transparent;
@@ -134,6 +142,7 @@
   .cell.cat-work      { background: #5a8ec4; border-color: #4a7ab4; }
   .cell.cat-investment{ background: #d46a6a; border-color: #c45a5a; }
   .cell.cat-business  { background: #9456c8; border-color: #8446b8; }
+  .cell.cat-multi     { background: #c8a830; border-color: #b89020; }
   .cell.current       { background: #444;    border-color: #333; }
   .cell.selected      { outline: 1px solid #444; outline-offset: 1px; }
   .cell:hover         { border-color: #888 !important; }
@@ -224,7 +233,25 @@
   .dot.work       { background: #5a8ec4; border-color: #4a7ab4; }
   .dot.investment { background: #d46a6a; border-color: #c45a5a; }
   .dot.business   { background: #9456c8; border-color: #8446b8; }
+  .dot.multi      { background: #c8a830; border-color: #b89020; }
   .dot.current    { background: #444;    border-color: #333; }
+
+  #tooltip {
+    position: fixed;
+    display: none;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #333;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    max-width: 200px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    pointer-events: none;
+    z-index: 100;
+  }
 </style>
 </head>
 <body>
@@ -233,7 +260,6 @@
   <h1>Life in Months</h1>
   <span class="born-label">Born</span>
   <input type="text" id="birthdate-display" placeholder="dd/mm/yyyy" />
-
 </header>
 
 <div class="grid-section">
@@ -254,24 +280,27 @@
 </div>
 
 <div id="panel">
-  <div class="panel-placeholder">click any month to add a note</div>
+  <div class="panel-placeholder">Click any month to add a note</div>
 </div>
 
 <footer>
+  <a class="back-link" href="../">< Home</a>
   <button id="btnReset">RESET</button>
   <button id="btnExport">EXPORT</button>
   <button id="btnImport">IMPORT</button>
   <input type="file" id="fileInput" accept=".json">
   <div class="legend">
-    <div class="li"><div class="dot future"></div>Future</div>
     <div class="li"><div class="dot lived"></div>Lived</div>
     <div class="li"><div class="dot life"></div>Life</div>
     <div class="li"><div class="dot work"></div>Work</div>
     <div class="li"><div class="dot investment"></div>Investment</div>
     <div class="li"><div class="dot business"></div>Business</div>
-    <div class="li"><div class="dot current"></div>Now</div>
+    <div class="li"><div class="dot multi"></div>Multi</div>
+    <div class="li"><div class="dot future"></div>Future</div>
   </div>
 </footer>
+
+<div id="tooltip"></div>
 
 <script>
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -331,6 +360,25 @@ let selectedEl = null;
 let selectedKey = null;
 const cellEls = [];
 
+const tooltip = document.getElementById('tooltip');
+let mouseX = 0, mouseY = 0;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+function showTooltip(text) {
+  tooltip.textContent = text;
+  tooltip.style.display = 'block';
+  positionTooltip();
+}
+function positionTooltip() {
+  const pad = 12;
+  let x = mouseX + pad, y = mouseY + pad;
+  if (x + tooltip.offsetWidth > window.innerWidth - 8) x = mouseX - tooltip.offsetWidth - pad;
+  if (y + tooltip.offsetHeight > window.innerHeight - 8) y = mouseY - tooltip.offsetHeight - pad;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+function hideTooltip() { tooltip.style.display = 'none'; }
+
 for (let mo = 0; mo < 12; mo++) {
   const row1 = document.createElement('div');
   row1.className = 'month-row';
@@ -343,6 +391,8 @@ for (let mo = 0; mo < 12; mo++) {
     cell.dataset.yr = yr;
     cell.dataset.mo = mo;
     cell.addEventListener('click', () => onCellClick(cell, yr, mo));
+    cell.addEventListener('mouseenter', () => onCellHover(yr, mo));
+    cell.addEventListener('mouseleave', hideTooltip);
     row1.appendChild(cell);
     cellEls.push(cell);
   }
@@ -352,12 +402,25 @@ for (let mo = 0; mo < 12; mo++) {
     cell.dataset.yr = yr;
     cell.dataset.mo = mo;
     cell.addEventListener('click', () => onCellClick(cell, yr, mo));
+    cell.addEventListener('mouseenter', () => onCellHover(yr, mo));
+    cell.addEventListener('mouseleave', hideTooltip);
     row2.appendChild(cell);
     cellEls.push(cell);
   }
 
   document.getElementById('monthRows1').appendChild(row1);
   document.getElementById('monthRows2').appendChild(row2);
+}
+
+function onCellHover(yr, mo) {
+  const bd = state.birthdate;
+  if (!bd) return;
+  const parts = bd.split('-');
+  const birthMonth = parseInt(parts[1]) - 1;
+  const key = yr * 12 + (mo - birthMonth);
+  const c = state.cells[key];
+  if (!c) return;
+  if (c.notes) showTooltip(c.notes);
 }
 
 function renderGrid() {
@@ -400,21 +463,18 @@ function renderGrid() {
       cls += ' pre-birth';
     } else if (key > 1199) {
       cls += ' future';
-    } else if (key < currentKey) {
+    } else if (key <= currentKey) {
       cls += ' lived';
-    } else if (key === currentKey) {
-      cls += ' current';
     } else {
       cls += ' future';
     }
 
-    if (state.cells[key] !== undefined && state.cells[key] !== null) {
-      const c = state.cells[key];
-      if (c.business)        cls += ' cat-business';
-      else if (c.investment) cls += ' cat-investment';
-      else if (c.work)       cls += ' cat-work';
-      else if (c.life)       cls += ' cat-life';
-      else                   cls += ' has-note';
+    const c = state.cells[key];
+    if (c) {
+      const cats = ['life', 'work', 'investment', 'business'].filter(k => c[k]);
+      if      (cats.length > 1)  cls += ' cat-multi';
+      else if (cats.length === 1) cls += ` cat-${cats[0]}`;
+      else                        cls += ' has-note';
     }
 
     cell.className = cls;
@@ -487,21 +547,17 @@ function onCellClick(cell, yr, mo) {
   document.getElementById('ta-notes').addEventListener('input', () => onNoteInput(key, cell));
 
   ['life', 'work', 'investment', 'business'].forEach(cat => {
-    document.getElementById(`cat-${cat}`).addEventListener('change', e => {
-      if (e.target.checked) {
-        ['life', 'work', 'investment', 'business'].forEach(other => {
-          if (other !== cat) document.getElementById(`cat-${other}`).checked = false;
-        });
-        cell.classList.remove('cat-life', 'cat-work', 'cat-investment', 'cat-business', 'has-note');
-        cell.classList.add(`cat-${cat}`);
-      } else {
-        cell.classList.remove(`cat-${cat}`);
-        if (document.getElementById('ta-notes')?.value) cell.classList.add('has-note');
-      }
-      if (cell === selectedEl) cell.classList.add('selected');
-      onNoteInput(key, cell);
-    });
+    document.getElementById(`cat-${cat}`).addEventListener('change', () => onNoteInput(key, cell));
   });
+}
+
+function refreshCellClass(cell, c) {
+  cell.classList.remove('cat-life', 'cat-work', 'cat-investment', 'cat-business', 'cat-multi', 'has-note');
+  if (!c) return;
+  const cats = ['life', 'work', 'investment', 'business'].filter(k => c[k]);
+  if      (cats.length > 1)   cell.classList.add('cat-multi');
+  else if (cats.length === 1) cell.classList.add(`cat-${cats[0]}`);
+  else if (c.notes)           cell.classList.add('has-note');
 }
 
 function onNoteInput(key, cell) {
@@ -513,11 +569,11 @@ function onNoteInput(key, cell) {
 
   if (notes || life || work || investment || business) {
     state.cells[key] = { notes, life, work, investment, business };
-    cell.classList.add('has-note');
   } else {
     delete state.cells[key];
-    cell.classList.remove('has-note');
   }
+  refreshCellClass(cell, state.cells[key]);
+  if (cell === selectedEl) cell.classList.add('selected');
   scheduleSave();
 }
 
