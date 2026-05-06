@@ -62,7 +62,7 @@
     field-sizing: content;
     cursor: pointer;
   }
-  #birthdate-display:focus { border-bottom-color: #555; color: #111; }
+  #birthdate-display:focus { border-bottom-color: #333; border-bottom-width: 2px; color: #111; }
 
 
   .grid-section {
@@ -150,6 +150,7 @@
   .cell.cat-multi     { background: #c8a830; border-color: #b89020; }
   .cell.current       { background: #444;    border-color: #333; }
   .cell.selected      { outline: 1px solid #444; outline-offset: 1px; }
+  .cell:focus-visible { outline: 2px solid #555; outline-offset: 2px; }
   .cell:hover         { border-color: #888 !important; }
 
   #panel {
@@ -204,7 +205,7 @@
     height: calc(14 * var(--cell) - 48px);
     min-height: 60px;
   }
-  textarea:focus { color: #222; }
+  textarea:focus { color: #222; outline: 1px solid #aaa; outline-offset: 4px; }
   textarea::placeholder { color: #888; }
 
   footer {
@@ -401,6 +402,7 @@ for (let mo = 0; mo < 12; mo++) {
     cell.dataset.yr = yr;
     cell.dataset.mo = mo;
     cell.addEventListener('click', () => onCellClick(cell, yr, mo));
+    cell.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onCellClick(cell, yr, mo); } });
     cell.addEventListener('mouseenter', () => onCellHover(yr, mo));
     cell.addEventListener('mouseleave', hideTooltip);
     row1.appendChild(cell);
@@ -412,6 +414,7 @@ for (let mo = 0; mo < 12; mo++) {
     cell.dataset.yr = yr;
     cell.dataset.mo = mo;
     cell.addEventListener('click', () => onCellClick(cell, yr, mo));
+    cell.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onCellClick(cell, yr, mo); } });
     cell.addEventListener('mouseenter', () => onCellHover(yr, mo));
     cell.addEventListener('mouseleave', hideTooltip);
     row2.appendChild(cell);
@@ -496,7 +499,8 @@ function renderGrid() {
 function onCellClick(cell, yr, mo) {
   const bd = state.birthdate;
 
-  if (selectedEl) selectedEl.classList.remove('selected');
+  if (selectedEl) { selectedEl.classList.remove('selected'); selectedEl.removeAttribute('tabindex'); }
+  cell.setAttribute('tabindex', '0');
   cell.classList.add('selected');
   selectedEl = cell;
 
@@ -642,6 +646,11 @@ function commitBirthdate() {
   updateBirthdateDisplay(iso);
   renderGrid();
   scheduleSave();
+
+  const curYr = new Date().getFullYear() - yyyy;
+  const curMo = new Date().getMonth();
+  const cell = cellEls.find(c => parseInt(c.dataset.yr) === curYr && parseInt(c.dataset.mo) === curMo);
+  if (cell) { cell.click(); cell.focus(); cell.scrollIntoView({ block: 'nearest' }); }
 }
 
 displayInput.addEventListener('blur', commitBirthdate);
@@ -651,17 +660,34 @@ displayInput.addEventListener('keydown', e => {
 
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && selectedEl) {
-    selectedEl.classList.remove('selected');
-    selectedEl = null;
-    selectedKey = null;
+  const inInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
+
+  if (e.key === 'Escape') {
+    if (document.activeElement === document.getElementById('ta-notes')) {
+      document.activeElement.blur();
+      if (selectedEl) selectedEl.focus();
+      return;
+    }
+    if (selectedEl) {
+      selectedEl.classList.remove('selected');
+      selectedEl.removeAttribute('tabindex');
+      selectedEl = null;
+      selectedKey = null;
+    }
+    return;
   }
 
-  if (e.key === 'Enter' && selectedEl && document.activeElement !== document.getElementById('ta-notes')) {
+  if (e.key === 'Enter' && selectedEl && !inInput) {
     e.preventDefault();
     const ta = document.getElementById('ta-notes');
     if (ta) ta.focus();
     return;
+  }
+
+  if (!inInput) {
+    if (e.key === 'r') { document.getElementById('btnReset').click(); return; }
+    if (e.key === 'e') { document.getElementById('btnExport').click(); return; }
+    if (e.key === 'i') { document.getElementById('btnImport').click(); return; }
   }
 
   if (!selectedEl || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
@@ -680,7 +706,7 @@ document.addEventListener('keydown', e => {
 
   if (newYr < 0 || newYr > 99) return;
   const newCell = cellEls.find(c => parseInt(c.dataset.yr) === newYr && parseInt(c.dataset.mo) === newMo);
-  if (newCell) { newCell.click(); newCell.scrollIntoView({ block: 'nearest' }); }
+  if (newCell) { newCell.click(); newCell.focus(); newCell.scrollIntoView({ block: 'nearest' }); }
 });
 
 document.getElementById('btnReset').addEventListener('click', async () => {
@@ -719,7 +745,8 @@ document.getElementById('btnExport').addEventListener('click', () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'life-months.json';
+  const dob = state.birthdate ? state.birthdate.replace(/-/g, '') : 'unknown';
+  a.download = `life_in_months_dob_${dob}.json`;
   a.click();
   URL.revokeObjectURL(url);
 });
@@ -786,7 +813,7 @@ document.getElementById('fileInput').addEventListener('change', e => {
       const curYr = new Date().getFullYear() - parseInt(p[0]);
       const curMo = new Date().getMonth();
       const cell = cellEls.find(c => parseInt(c.dataset.yr) === curYr && parseInt(c.dataset.mo) === curMo);
-      if (cell) { cell.click(); cell.scrollIntoView({ block: 'nearest' }); }
+      if (cell) { cell.click(); cell.focus(); cell.scrollIntoView({ block: 'nearest' }); }
     }
   };
   reader.readAsText(file);
@@ -803,7 +830,7 @@ if (state.birthdate) {
   const curYr = now.getFullYear() - birthYear;
   const curMo = now.getMonth();
   const cell = cellEls.find(c => parseInt(c.dataset.yr) === curYr && parseInt(c.dataset.mo) === curMo);
-  if (cell) { cell.click(); cell.scrollIntoView({ block: 'nearest' }); }
+  if (cell) { cell.click(); cell.focus(); cell.scrollIntoView({ block: 'nearest' }); }
 }
 </script>
 </body>
