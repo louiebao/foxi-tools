@@ -95,6 +95,7 @@
     width: calc(var(--cell) + 10px);
     font-size: 10px;
     color: #555;
+    transition: color 0.1s;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     display: flex;
@@ -151,6 +152,7 @@
   .cell.current       { background: #444;    border-color: #333; }
   .cell.selected      { outline: 1px solid #444; outline-offset: 1px; }
   .cell:focus-visible { outline: 2px solid #555; outline-offset: 2px; }
+  .month-label.active { color: #111; font-weight: bold; }
   .cell:hover         { border-color: #888 !important; }
 
   #panel {
@@ -357,6 +359,10 @@ function buildMonthAxis(id) {
 }
 buildMonthAxis('monthAxis1');
 buildMonthAxis('monthAxis2');
+const monthLabelEls = [
+  ...document.getElementById('monthAxis1').querySelectorAll('.month-label'),
+  ...document.getElementById('monthAxis2').querySelectorAll('.month-label'),
+];
 
 function buildYearRow(id, count) {
   const container = document.getElementById(id);
@@ -371,6 +377,12 @@ buildYearRow('yearRow2', 50);
 
 let selectedEl = null;
 let selectedKey = null;
+
+function setActiveMonthLabel(mo, yr) {
+  monthLabelEls.forEach(el => el.classList.remove('active'));
+  if (mo === null) return;
+  monthLabelEls[yr < 50 ? mo : mo + 12].classList.add('active');
+}
 const cellEls = [];
 
 const tooltip = document.getElementById('tooltip');
@@ -505,6 +517,7 @@ function onCellClick(cell, yr, mo) {
   cell.setAttribute('tabindex', '0');
   cell.classList.add('selected');
   selectedEl = cell;
+  setActiveMonthLabel(mo, yr);
 
   if (!bd) {
     document.getElementById('panel').innerHTML =
@@ -675,6 +688,7 @@ document.addEventListener('keydown', e => {
       selectedEl.removeAttribute('tabindex');
       selectedEl = null;
       selectedKey = null;
+      setActiveMonthLabel(null);
     }
     return;
   }
