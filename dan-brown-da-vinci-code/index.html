@@ -322,7 +322,7 @@ footer {
       <text class="loc-label" data-loc="saint-sulpice" x="91" y="262" text-anchor="middle">Saint-Sulpice</text>
 
     </svg>
-    <span class="zoom-hint">scroll to zoom · dbl-click to reset</span>
+    <span class="zoom-hint">scroll to zoom · drag to pan · dbl-click to reset</span>
   </div>
 
   <div class="panel" id="panel-artefacts">
@@ -779,21 +779,50 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ── Zoom ──────────────────────────────────────────────────────────────────
+// ── Zoom + Pan ────────────────────────────────────────────────────────────
 let mapZoom = 1;
+let mapX = 0, mapY = 0;
+let dragging = false, dragStartX = 0, dragStartY = 0, dragOriginX = 0, dragOriginY = 0;
+
 const mapSvg = document.getElementById('map');
 const mapWrap = document.getElementById('map-wrap');
+
+function applyTransform() {
+  mapSvg.style.transform = `translate(${mapX}px, ${mapY}px) scale(${mapZoom})`;
+}
 
 mapWrap.addEventListener('wheel', e => {
   e.preventDefault();
   const factor = e.deltaY < 0 ? 1.18 : 1 / 1.18;
   mapZoom = Math.max(0.4, Math.min(6, mapZoom * factor));
-  mapSvg.style.transform = `scale(${mapZoom})`;
+  applyTransform();
 }, { passive: false });
 
+mapWrap.addEventListener('mousedown', e => {
+  if (e.button !== 0) return;
+  dragging = true;
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
+  dragOriginX = mapX;
+  dragOriginY = mapY;
+  mapWrap.style.cursor = 'grabbing';
+});
+
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  mapX = dragOriginX + (e.clientX - dragStartX);
+  mapY = dragOriginY + (e.clientY - dragStartY);
+  applyTransform();
+});
+
+window.addEventListener('mouseup', () => {
+  dragging = false;
+  mapWrap.style.cursor = '';
+});
+
 mapWrap.addEventListener('dblclick', () => {
-  mapZoom = 1;
-  mapSvg.style.transform = 'scale(1)';
+  mapZoom = 1; mapX = 0; mapY = 0;
+  applyTransform();
 });
 
 // Init
