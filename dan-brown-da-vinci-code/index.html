@@ -198,17 +198,24 @@ header p {
   fill: #d0cec8;
   letter-spacing: 0.14em;
 }
-.loc-node {
+.loc-group .loc-node {
   fill: #e2e0d8;
   stroke: #c0bdb5;
   stroke-width: 1;
   cursor: pointer;
   transition: fill 0.2s;
 }
-.loc-node.active {
+.loc-group.active .loc-node {
   fill: #8b5e2e;
   stroke: #6a4520;
 }
+.loc-seq {
+  font-family: 'Courier New', monospace;
+  font-size: 6px;
+  fill: #aaa;
+  pointer-events: none;
+}
+.loc-group.active .loc-seq { fill: #fff; }
 .loc-label {
   font-family: 'Courier New', monospace;
   font-size: 8px;
@@ -284,41 +291,75 @@ footer {
       <text class="city-label" x="110" y="26"  text-anchor="middle">SCOTLAND</text>
 
       <!-- ── Location nodes (drawn over lines) ── -->
+      <!-- Sequence numbers follow narrative journey order -->
 
       <!-- Scotland -->
-      <circle class="loc-node" data-loc="rosslyn" cx="110" cy="42" r="7"/>
+      <g class="loc-group" data-loc="rosslyn">
+        <circle class="loc-node" cx="110" cy="42" r="7"/>
+        <text class="loc-seq" x="110" y="42" text-anchor="middle" dominant-baseline="central">11</text>
+      </g>
       <text class="loc-label" data-loc="rosslyn" x="120" y="46" text-anchor="start">Rosslyn Chapel</text>
 
       <!-- London -->
-      <circle class="loc-node" data-loc="westminster" cx="82"  cy="136" r="7"/>
+      <g class="loc-group" data-loc="westminster">
+        <circle class="loc-node" cx="82" cy="136" r="7"/>
+        <text class="loc-seq" x="82" y="136" text-anchor="middle" dominant-baseline="central">10</text>
+      </g>
       <text class="loc-label" data-loc="westminster" x="73" y="133" text-anchor="end">Westminster</text>
 
-      <circle class="loc-node" data-loc="temple-church" cx="105" cy="128" r="7"/>
+      <g class="loc-group" data-loc="temple-church">
+        <circle class="loc-node" cx="105" cy="128" r="7"/>
+        <text class="loc-seq" x="105" y="128" text-anchor="middle" dominant-baseline="central">8</text>
+      </g>
       <text class="loc-label" data-loc="temple-church" x="96" y="125" text-anchor="end">Temple Ch.</text>
 
-      <circle class="loc-node" data-loc="kings-college" cx="122" cy="138" r="7"/>
+      <g class="loc-group" data-loc="kings-college">
+        <circle class="loc-node" cx="122" cy="138" r="7"/>
+        <text class="loc-seq" x="122" y="138" text-anchor="middle" dominant-baseline="central">9</text>
+      </g>
       <text class="loc-label" data-loc="kings-college" x="131" y="141" text-anchor="start">King's College</text>
 
-      <circle class="loc-node" data-loc="biggin-hill" cx="148" cy="158" r="7"/>
+      <g class="loc-group" data-loc="biggin-hill">
+        <circle class="loc-node" cx="148" cy="158" r="7"/>
+        <text class="loc-seq" x="148" y="158" text-anchor="middle" dominant-baseline="central">7</text>
+      </g>
       <text class="loc-label" data-loc="biggin-hill" x="157" y="161" text-anchor="start">Biggin Hill</text>
 
       <!-- Paris -->
-      <circle class="loc-node" data-loc="chateau-villette" cx="68"  cy="222" r="7"/>
+      <g class="loc-group" data-loc="chateau-villette">
+        <circle class="loc-node" cx="68" cy="222" r="7"/>
+        <text class="loc-seq" x="68" y="222" text-anchor="middle" dominant-baseline="central">5</text>
+      </g>
       <text class="loc-label" data-loc="chateau-villette" x="59" y="219" text-anchor="end">Villette</text>
 
-      <circle class="loc-node" data-loc="gare-du-nord" cx="88"  cy="232" r="7"/>
+      <g class="loc-group" data-loc="gare-du-nord">
+        <circle class="loc-node" cx="88" cy="232" r="7"/>
+        <text class="loc-seq" x="88" y="232" text-anchor="middle" dominant-baseline="central">6</text>
+      </g>
       <text class="loc-label" data-loc="gare-du-nord" x="79" y="229" text-anchor="end">Gare du Nord</text>
 
-      <circle class="loc-node" data-loc="louvre" cx="110" cy="228" r="7"/>
+      <g class="loc-group" data-loc="louvre">
+        <circle class="loc-node" cx="110" cy="228" r="7"/>
+        <text class="loc-seq" x="110" y="228" text-anchor="middle" dominant-baseline="central">1</text>
+      </g>
       <text class="loc-label" data-loc="louvre" x="119" y="225" text-anchor="start">Louvre</text>
 
-      <circle class="loc-node" data-loc="police-hq" cx="138" cy="240" r="7"/>
+      <g class="loc-group" data-loc="police-hq">
+        <circle class="loc-node" cx="138" cy="240" r="7"/>
+        <text class="loc-seq" x="138" y="240" text-anchor="middle" dominant-baseline="central">3</text>
+      </g>
       <text class="loc-label" data-loc="police-hq" x="147" y="237" text-anchor="start">Police HQ</text>
 
-      <circle class="loc-node" data-loc="depositary-bank" cx="150" cy="250" r="7"/>
+      <g class="loc-group" data-loc="depositary-bank">
+        <circle class="loc-node" cx="150" cy="250" r="7"/>
+        <text class="loc-seq" x="150" y="250" text-anchor="middle" dominant-baseline="central">4</text>
+      </g>
       <text class="loc-label" data-loc="depositary-bank" x="159" y="254" text-anchor="start">Bank</text>
 
-      <circle class="loc-node" data-loc="saint-sulpice" cx="100" cy="248" r="7"/>
+      <g class="loc-group" data-loc="saint-sulpice">
+        <circle class="loc-node" cx="100" cy="248" r="7"/>
+        <text class="loc-seq" x="100" y="248" text-anchor="middle" dominant-baseline="central">2</text>
+      </g>
       <text class="loc-label" data-loc="saint-sulpice" x="91" y="262" text-anchor="middle">Saint-Sulpice</text>
 
     </svg>
@@ -738,12 +779,12 @@ function selectChapter(n) {
   document.getElementById('summary').textContent = ch.summary || '';
 
   // Location nodes
-  document.querySelectorAll('.loc-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.loc-group').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('.loc-label').forEach(l => l.classList.remove('active'));
 
   const activeKeys = ch.locations || (ch.location ? [ch.location] : []);
   activeKeys.forEach(key => {
-    document.querySelector(`.loc-node[data-loc="${key}"]`)?.classList.add('active');
+    document.querySelector(`.loc-group[data-loc="${key}"]`)?.classList.add('active');
     document.querySelector(`.loc-label[data-loc="${key}"]`)?.classList.add('active');
   });
 
