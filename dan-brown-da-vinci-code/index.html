@@ -242,6 +242,61 @@ footer {
   letter-spacing: 0.04em;
 }
 .back-link:hover { color: #222; }
+
+/* ── Easter egg modal ── */
+.egg-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.egg-overlay.open { display: flex; animation: egg-fade 0.25s ease; }
+@keyframes egg-fade { from { opacity: 0; } to { opacity: 1; } }
+.egg-card {
+  background: #131311;
+  border: 1px solid #3a3835;
+  border-radius: 8px;
+  padding: 32px 36px;
+  max-width: 480px;
+  width: 90%;
+  color: #c8c4b8;
+  font-family: 'Courier New', monospace;
+}
+.egg-card h2 {
+  font-size: 14px;
+  font-weight: normal;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #e8e4d8;
+  margin-bottom: 18px;
+}
+.egg-card p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #888;
+  margin-bottom: 12px;
+}
+.egg-card p:last-of-type { margin-bottom: 22px; }
+.egg-card .egg-footnote {
+  font-size: 11px;
+  color: #555;
+  border-top: 1px solid #2e2c28;
+  padding-top: 14px;
+  line-height: 1.6;
+}
+.egg-close {
+  display: block;
+  margin-top: 20px;
+  font-size: 11px;
+  color: #444;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  text-align: right;
+}
+.egg-close:hover { color: #888; }
 </style>
 </head>
 <body>
@@ -866,9 +921,56 @@ mapWrap.addEventListener('dblclick', () => {
   applyTransform();
 });
 
+// ── Easter egg — type "mary" ──────────────────────────────────────────────
+const eggOverlay = document.getElementById('egg-overlay');
+
+function showEgg() { eggOverlay.classList.add('open'); }
+function hideEgg() { eggOverlay.classList.remove('open'); }
+
+document.getElementById('egg-close').addEventListener('click', hideEgg);
+eggOverlay.addEventListener('click', e => { if (e.target === eggOverlay) hideEgg(); });
+
+let eggBuffer = '';
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && eggOverlay.classList.contains('open')) { hideEgg(); return; }
+  if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+  if (e.key.length === 1) {
+    eggBuffer = (eggBuffer + e.key.toLowerCase()).slice(-4);
+    if (eggBuffer === 'mary') { eggBuffer = ''; showEgg(); }
+  }
+});
+
 // Init
 buildStrip();
 selectChapter(1);
 </script>
+
+<div class="egg-overlay" id="egg-overlay">
+  <div class="egg-card">
+    <h2>There Is Something About Mary</h2>
+    <p>
+      Dan Brown never mentioned it. But consider: the 1998 Farrelly Brothers film
+      follows a string of men — a detective, an architect, a doctor, a stalker —
+      each independently obsessed with the same woman. Each convinced she is
+      extraordinary. Each willing to cross ethical lines to find her.
+    </p>
+    <p>
+      Her name is Mary.
+    </p>
+    <p>
+      She turns out to be exactly as remarkable as they believed, and none of them
+      truly deserved her. Sound familiar?
+    </p>
+    <div class="egg-footnote">
+      Brown's Mary: Magdalene — the living Grail, hidden in plain sight, protected
+      by a secret society for two thousand years.<br>
+      The film's Mary: Jensen — chased across America, her secret guarded by a
+      hairdo and a dog named Puffy.<br><br>
+      Both: the subject of a grand obsession no one can quite explain.
+    </div>
+    <span class="egg-close" id="egg-close">[ close ]</span>
+  </div>
+</div>
+
 </body>
 </html>
