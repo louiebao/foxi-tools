@@ -59,7 +59,7 @@ header p {
   justify-content: center;
   font-size: 10px;
   letter-spacing: 0.04em;
-  background: #e2e0d8;
+  background: #fff;
   border: 1px solid #ccc;
   cursor: pointer;
   user-select: none;
@@ -67,7 +67,7 @@ header p {
   color: #555;
   border-radius: 2px;
 }
-.chip:hover { background: #d4d2c8; color: #222; }
+.chip:hover { background: #f0ede6; color: #222; }
 .chip.selected {
   background: #2a2a2a;
   border-color: #111;
@@ -334,9 +334,9 @@ footer {
       <!-- Cross-channel flights (looser dash) -->
       <line class="journey-line journey-flight" x1="88" y1="232" x2="148" y2="158"/>
       <!-- London internal journey -->
-      <line class="journey-line" x1="148" y1="158" x2="82"  y2="136"/>
-      <line class="journey-line" x1="82"  y1="136" x2="105" y2="128"/>
+      <line class="journey-line" x1="148" y1="158" x2="105" y2="128"/>
       <line class="journey-line" x1="105" y1="128" x2="122" y2="138"/>
+      <line class="journey-line" x1="122" y1="138" x2="82"  y2="136"/>
       <!-- London → Scotland -->
       <line class="journey-line journey-flight" x1="82" y1="136" x2="110" y2="42"/>
 
@@ -430,6 +430,33 @@ footer {
 <footer>
   <a class="back-link" href="../">&lt; Home</a>
 </footer>
+
+<div class="egg-overlay" id="egg-overlay">
+  <div class="egg-card">
+    <h2>There Is Something About Mary</h2>
+    <p>
+      Dan Brown never mentioned it. But consider: the 1998 Farrelly Brothers film
+      follows a string of men — a detective, an architect, a doctor, a stalker —
+      each independently obsessed with the same woman. Each convinced she is
+      extraordinary. Each willing to cross ethical lines to find her.
+    </p>
+    <p>
+      Her name is Mary.
+    </p>
+    <p>
+      She turns out to be exactly as remarkable as they believed, and none of them
+      truly deserved her. Sound familiar?
+    </p>
+    <div class="egg-footnote">
+      Brown's Mary: Magdalene — the living Grail, hidden in plain sight, protected
+      by a secret society for two thousand years.<br>
+      The film's Mary: Jensen — chased across America, her secret guarded by a
+      hairdo and a dog named Puffy.<br><br>
+      Both: the subject of a grand obsession no one can quite explain.
+    </div>
+    <span class="egg-close" id="egg-close">[ close ]</span>
+  </div>
+</div>
 
 <script>
 // ── Data ──────────────────────────────────────────────────────────────────
@@ -944,33 +971,6 @@ document.addEventListener('keydown', e => {
 buildStrip();
 selectChapter(1);
 </script>
-
-<div class="egg-overlay" id="egg-overlay">
-  <div class="egg-card">
-    <h2>There Is Something About Mary</h2>
-    <p>
-      Dan Brown never mentioned it. But consider: the 1998 Farrelly Brothers film
-      follows a string of men — a detective, an architect, a doctor, a stalker —
-      each independently obsessed with the same woman. Each convinced she is
-      extraordinary. Each willing to cross ethical lines to find her.
-    </p>
-    <p>
-      Her name is Mary.
-    </p>
-    <p>
-      She turns out to be exactly as remarkable as they believed, and none of them
-      truly deserved her. Sound familiar?
-    </p>
-    <div class="egg-footnote">
-      Brown's Mary: Magdalene — the living Grail, hidden in plain sight, protected
-      by a secret society for two thousand years.<br>
-      The film's Mary: Jensen — chased across America, her secret guarded by a
-      hairdo and a dog named Puffy.<br><br>
-      Both: the subject of a grand obsession no one can quite explain.
-    </div>
-    <span class="egg-close" id="egg-close">[ close ]</span>
-  </div>
-</div>
 
 </body>
 </html>
