@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Da Vinci Code — Chapter Journey</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #f8f8f5;
+  color: #222;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+header {
+  padding: 16px 24px 12px;
+  border-bottom: 1px solid #d0d0cc;
+  flex-shrink: 0;
+}
+header h1 {
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+header p {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 0.06em;
+}
+
+/* ── Chapter Strip ── */
+.strip-wrap {
+  border-bottom: 1px solid #d0d0cc;
+  background: #f2f1ee;
+  flex-shrink: 0;
+  padding: 8px 16px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.strip {
+  display: flex;
+  gap: 3px;
+  width: max-content;
+}
+.chip {
+  min-width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  background: #e2e0d8;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+  color: #555;
+  border-radius: 2px;
+}
+.chip:hover { background: #d4d2c8; color: #222; }
+.chip.selected {
+  background: #2a2a2a;
+  border-color: #111;
+  color: #f8f8f5;
+}
+.chip.prologue, .chip.epilogue {
+  min-width: 22px;
+  font-style: italic;
+  color: #888;
+}
+.chip.prologue.selected, .chip.epilogue.selected { color: #f8f8f5; }
+
+/* ── Summary Strip ── */
+.summary-strip {
+  padding: 8px 24px;
+  border-bottom: 1px solid #d0d0cc;
+  flex-shrink: 0;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #f8f8f5;
+}
+#location-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #888;
+}
+#summary {
+  font-size: 12px;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* ── Main 3-column area ── */
+.main {
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Panels ── */
+.panel {
+  border-right: 1px solid #d8d6d0;
+  overflow-y: auto;
+  padding: 14px;
+  scrollbar-width: thin;
+}
+.panel:last-child { border-right: none; border-left: 1px solid #d8d6d0; }
+.panel-title {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 10px;
+}
+.panel-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+.panel-item:last-child { border-bottom: none; }
+.item-name {
+  display: block;
+  font-size: 12px;
+  color: #222;
+}
+.item-role {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.panel-empty {
+  font-size: 12px;
+  color: #bbb;
+  padding: 4px 0;
+}
+
+/* ── SVG Map ── */
+.map-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f0efe9;
+}
+.map-wrap svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+}
+
+/* Map pins */
+.map-pin {
+  fill: #aaa;
+  cursor: default;
+  transition: fill 0.15s;
+}
+.map-pin.active { fill: #8b5e2e; }
+.pin-label {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  fill: #888;
+  pointer-events: none;
+}
+.pin-label.active { fill: #8b5e2e; font-weight: bold; }
+
+/* Country fills */
+.country { fill: #e4e2da; stroke: #c8c4ba; stroke-width: 0.5; }
+.sea { fill: #dde4e8; }
+
+/* ── Footer ── */
+footer {
+  padding: 10px 24px;
+  border-top: 1px solid #d0d0cc;
+  font-size: 11px;
+  color: #aaa;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.back-link {
+  color: #888;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+.back-link:hover { color: #222; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>The Da Vinci Code</h1>
+  <p>chapter-by-chapter visual guide · 105 chapters</p>
+</header>
+
+<div class="strip-wrap">
+  <div class="strip" id="strip"></div>
+</div>
+
+<div class="summary-strip">
+  <span id="location-label"></span>
+  <p id="summary"></p>
+</div>
+
+<div class="main">
+  <div class="panel" id="panel-chars">
+    <div class="panel-title">Characters</div>
+    <div id="chars-list"></div>
+  </div>
+
+  <div class="map-wrap">
+    <svg id="map" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+      <!-- Sea background -->
+      <rect class="sea" width="500" height="400"/>
+
+      <!-- Simplified country outlines -->
+      <!-- France -->
+      <path class="country" d="
+        M 230,170 L 240,158 L 255,152 L 270,148 L 285,150 L 300,155
+        L 315,160 L 322,172 L 318,185 L 310,195 L 305,210 L 298,225
+        L 285,238 L 270,245 L 255,248 L 242,244 L 230,238 L 220,228
+        L 215,215 L 214,200 L 218,186 L 225,177 Z
+      "/>
+      <!-- UK / Great Britain (simplified) -->
+      <path class="country" d="
+        M 210,90 L 220,84 L 232,82 L 244,86 L 250,96 L 248,108
+        L 240,118 L 228,124 L 218,128 L 210,136 L 205,148 L 206,160
+        L 214,170 L 212,178 L 205,182 L 196,180 L 188,170 L 186,158
+        L 190,146 L 198,136 L 200,124 L 196,112 L 198,100 L 204,93 Z
+      "/>
+      <!-- Scotland (extension of UK) -->
+      <path class="country" d="
+        M 210,90 L 205,78 L 208,66 L 218,58 L 228,56 L 236,62
+        L 238,74 L 232,82 L 220,84 Z
+      "/>
+      <!-- Ireland (simplified) -->
+      <path class="country" d="
+        M 175,108 L 183,102 L 192,104 L 196,114 L 192,124 L 182,128
+        L 174,122 L 172,112 Z
+      "/>
+      <!-- Spain (partial) -->
+      <path class="country" d="
+        M 215,248 L 230,252 L 250,258 L 270,260 L 288,256 L 300,248
+        L 310,238 L 310,256 L 304,272 L 290,282 L 268,288 L 248,286
+        L 228,278 L 215,264 Z
+      "/>
+      <!-- Belgium / Netherlands (partial) -->
+      <path class="country" d="
+        M 295,148 L 308,142 L 318,142 L 324,150 L 322,158 L 315,162
+        L 305,158 L 298,152 Z
+      "/>
+      <!-- Germany (very partial, for context) -->
+      <path class="country" d="
+        M 318,142 L 332,136 L 348,138 L 355,148 L 350,162 L 338,168
+        L 325,165 L 318,155 Z
+      "/>
+      <!-- Switzerland (tiny) -->
+      <path class="country" d="
+        M 305,210 L 318,205 L 328,208 L 330,218 L 320,224 L 308,222 Z
+      "/>
+      <!-- Italy (partial boot tip) -->
+      <path class="country" d="
+        M 310,222 L 325,224 L 338,230 L 345,244 L 340,260 L 328,266
+        L 318,258 L 312,244 L 308,232 Z
+      "/>
+
+      <!-- Location pins (Paris cluster — explicit offsets from spec) -->
+      <!-- louvre cx:283 cy:208 -->
+      <circle class="map-pin" id="pin-louvre" data-loc="louvre" cx="283" cy="208" r="5"/>
+      <text class="pin-label" id="lbl-louvre" x="291" y="211" text-anchor="start">Louvre</text>
+
+      <!-- police-hq cx:283 cy:214 -->
+      <circle class="map-pin" id="pin-police-hq" data-loc="police-hq" cx="289" cy="214" r="5"/>
+      <text class="pin-label" id="lbl-police-hq" x="297" y="217" text-anchor="start">Police HQ</text>
+
+      <!-- saint-sulpice cx:278 cy:216 -->
+      <circle class="map-pin" id="pin-saint-sulpice" data-loc="saint-sulpice" cx="274" cy="218" r="5"/>
+      <text class="pin-label" id="lbl-saint-sulpice" x="266" y="221" text-anchor="end">St-Sulpice</text>
+
+      <!-- depositary-bank cx:289 cy:212 -->
+      <circle class="map-pin" id="pin-depositary-bank" data-loc="depositary-bank" cx="291" cy="208" r="5"/>
+      <text class="pin-label" id="lbl-depositary-bank" x="299" y="211" text-anchor="start">Bank</text>
+
+      <!-- gare-du-nord cx:282 cy:204 -->
+      <circle class="map-pin" id="pin-gare-du-nord" data-loc="gare-du-nord" cx="282" cy="202" r="5"/>
+      <text class="pin-label" id="lbl-gare-du-nord" x="274" y="200" text-anchor="end">Gare du Nord</text>
+
+      <!-- chateau-villette cx:268 cy:200 -->
+      <circle class="map-pin" id="pin-chateau-villette" data-loc="chateau-villette" cx="264" cy="198" r="5"/>
+      <text class="pin-label" id="lbl-chateau-villette" x="256" y="196" text-anchor="end">Villette</text>
+
+      <!-- London cluster -->
+      <!-- temple-church -->
+      <circle class="map-pin" id="pin-temple-church" data-loc="temple-church" cx="230" cy="172" r="5"/>
+      <text class="pin-label" id="lbl-temple-church" x="222" y="170" text-anchor="end">Temple Ch.</text>
+
+      <!-- kings-college -->
+      <circle class="map-pin" id="pin-kings-college" data-loc="kings-college" cx="234" cy="178" r="5"/>
+      <text class="pin-label" id="lbl-kings-college" x="242" y="181" text-anchor="start">King's College</text>
+
+      <!-- westminster -->
+      <circle class="map-pin" id="pin-westminster" data-loc="westminster" cx="228" cy="177" r="5"/>
+      <text class="pin-label" id="lbl-westminster" x="220" y="180" text-anchor="end">Westminster</text>
+
+      <!-- biggin-hill -->
+      <circle class="map-pin" id="pin-biggin-hill" data-loc="biggin-hill" cx="238" cy="182" r="5"/>
+      <text class="pin-label" id="lbl-biggin-hill" x="246" y="185" text-anchor="start">Biggin Hill</text>
+
+      <!-- rosslyn -->
+      <circle class="map-pin" id="pin-rosslyn" data-loc="rosslyn" cx="218" cy="100" r="5"/>
+      <text class="pin-label" id="lbl-rosslyn" x="226" y="103" text-anchor="start">Rosslyn</text>
+
+      <!-- City labels for context -->
+      <text x="280" y="196" font-family="Courier New" font-size="8" fill="#aaa" text-anchor="middle">PARIS</text>
+      <text x="232" y="165" font-family="Courier New" font-size="8" fill="#aaa" text-anchor="middle">LONDON</text>
+      <text x="218" y="93" font-family="Courier New" font-size="8" fill="#aaa" text-anchor="middle">EDINBURGH</text>
+    </svg>
+  </div>
+
+  <div class="panel" id="panel-artefacts">
+    <div class="panel-title">Artefacts &amp; Symbols</div>
+    <div id="artefacts-list"></div>
+  </div>
+</div>
+
+<footer>
+  <a class="back-link" href="../">&lt; Home</a>
+  <span>louie.bao@gmail.com</span>
+</footer>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────
+
+const LOCATIONS = {
+  "louvre":           { label: "Louvre Museum, Paris" },
+  "saint-sulpice":    { label: "Saint-Sulpice, Paris" },
+  "police-hq":        { label: "Police Judiciaire HQ, Paris" },
+  "depositary-bank":  { label: "Depositary Bank of Zurich, Paris" },
+  "chateau-villette": { label: "Château Villette, Normandy" },
+  "gare-du-nord":     { label: "Gare du Nord, Paris" },
+  "temple-church":    { label: "Temple Church, London" },
+  "kings-college":    { label: "King's College, London" },
+  "westminster":      { label: "Westminster Abbey, London" },
+  "biggin-hill":      { label: "Biggin Hill Airfield, Kent" },
+  "rosslyn":          { label: "Rosslyn Chapel, Scotland" },
+};
+
+const CHARACTERS = {
+  "langdon":     { name: "Robert Langdon",     role: "Harvard professor of religious symbology" },
+  "sophie":      { name: "Sophie Neveu",        role: "DCPJ cryptologist; Saunière's granddaughter" },
+  "fache":       { name: "Bezu Fache",          role: "DCPJ captain; pursues Langdon" },
+  "teabing":     { name: "Leigh Teabing",       role: "Holy Grail historian; Langdon's contact" },
+  "silas":       { name: "Silas",               role: "Opus Dei monk; assassin for the Teacher" },
+  "aringarosa":  { name: "Bishop Aringarosa",   role: "Head of Opus Dei" },
+  "sauniere":    { name: "Jacques Saunière",    role: "Louvre curator; Priory Grand Master" },
+  "vernet":      { name: "André Vernet",         role: "Depositary Bank manager" },
+  "remy":        { name: "Rémy Legaludec",       role: "Teabing's manservant" },
+  "collet":      { name: "Jérôme Collet",        role: "Fache's lieutenant" },
+  "sandrine":    { name: "Sister Sandrine",      role: "Saint-Sulpice sacristan; Priory sentinel" },
+  "rosslyn-nun": { name: "Marie Chauvel",        role: "Rosslyn nun; Priory guardian" },
+  "the-teacher": { name: "The Teacher",          role: "Mysterious mastermind behind the plot" },
+  "gettum":      { name: "Sister Gettum",        role: "King's College research librarian" },
+  "mancu":       { name: "Agent Mancu",          role: "Interpol contact; assists Fache" },
+  "grouard":     { name: "Lt. Grouard",          role: "DCPJ officer at the Louvre" },
+};
+
+const ARTEFACTS = {
+  "vitruvian-man":  { name: "Vitruvian Man pose",        desc: "Saunière arranged his own body in Da Vinci's pose" },
+  "pentacle":       { name: "Pentacle",                   desc: "Five-pointed star drawn on Saunière's stomach" },
+  "fleur-key":      { name: "Fleur-de-lis key",           desc: "Saunière's safe-deposit box key, laser-etched PS" },
+  "cryptex":        { name: "Cryptex",                    desc: "Cylindrical vault; dissolves papyrus if forced" },
+  "keystone":       { name: "Keystone",                   desc: "Encoded scroll inside the cryptex" },
+  "rose-line":      { name: "Rose Line (concept)",        desc: "Paris Meridian through Saint-Sulpice; Grail clue" },
+  "atbash":         { name: "Atbash cipher",              desc: "Hebrew substitution cipher on the keystone" },
+  "holy-grail":     { name: "Holy Grail (concept)",       desc: "Not a cup — Mary Magdalene's bloodline & remains" },
+  "priory-docs":    { name: "Priory of Sion documents",   desc: "Sangreal papers; suppressed Magdalene history" },
+  "newton-tomb":    { name: "Newton's tomb clue",         desc: "'Knight a Pope interred' — Westminster Abbey" },
+  "san-graal":      { name: "Sang Réal scroll",           desc: "The keystone's inner message; Grail location" },
+  "ps-box":         { name: "Rosewood box (PS)",          desc: "Saunière's box containing the fleur-de-lis key" },
+  "fibonacci":      { name: "Fibonacci sequence",         desc: "1-1-2-3-5-8-13-21 — anagram key in the message" },
+  "dossiers-secret":{ name: "Les Dossiers Secrets",       desc: "Priory membership list deposited in Bibliothèque" },
+  "shadow-key":     { name: "Shadow of the sword clue",   desc: "Rose Line shadow at midday in Saint-Sulpice" },
+  "orb-clue":       { name: "'Orb that ought be on his tomb'", desc: "The missing sphere from Newton's monument" },
+};
+
+// CHAPTERS: key 1 = Prologue, keys 2–104 = novel ch.1–103, key 105 = Epilogue
+// label field: "P" / "E" for prologue/epilogue; numbered chapters use key-1
+const CHAPTERS = {
+  1: {
+    label: "P",
+    location: "louvre",
+    characters: ["sauniere"],
+    artefacts: ["vitruvian-man", "pentacle", "fleur-key"],
+    summary: "Saunière, shot by Silas, staggers through the Grand Gallery. He arranges himself in the Vitruvian Man pose, draws a pentacle, and hides the fleur-de-lis key before dying."
+  },
+  2: {
+    location: "louvre",
+    characters: ["langdon"],
+    artefacts: [],
+    summary: "Langdon is woken in his Paris hotel and summoned to the Louvre by the police."
+  },
+  3: {
+    location: "louvre",
+    characters: ["silas", "aringarosa"],
+    artefacts: [],
+    summary: "Silas reports to the Teacher that the four Priory sentinels are dead, and the keystone's location is revealed — or so they believe."
+  },
+  4: {
+    location: "louvre",
+    characters: ["langdon", "fache", "grouard"],
+    artefacts: ["vitruvian-man", "pentacle"],
+    summary: "Fache shows Langdon the body. He notices the Vitruvian Man pose and pentacle — sacred feminine symbols, not satanic ones."
+  },
+  5: {
+    location: "louvre",
+    characters: ["silas"],
+    artefacts: [],
+    summary: "Silas flagellates himself in his Paris room, giving thanks. He reflects on his violent past and devotion to Opus Dei."
+  },
+  6: {
+    location: "louvre",
+    characters: ["langdon", "fache", "sophie"],
+    artefacts: ["fibonacci", "ps-box"],
+    summary: "Sophie secretly contacts Langdon via his phone — Fache suspects him. She reveals the Fibonacci sequence written at the scene."
+  },
+  7: {
+    location: "louvre",
+    characters: ["langdon", "sophie"],
+    artefacts: ["fibonacci"],
+    summary: "Sophie tells Langdon she is Saunière's granddaughter. They examine the cryptic message and realise the Fibonacci numbers are an anagram key."
+  },
+  8: {
+    location: "louvre",
+    characters: ["silas", "aringarosa"],
+    artefacts: [],
+    summary: "Aringarosa boards a jet to Rome, troubled by the Church's plan to withdraw support for Opus Dei. He pins hope on the Teacher's promise."
+  },
+  9: {
+    location: "louvre",
+    characters: ["langdon", "sophie", "fache"],
+    artefacts: ["ps-box"],
+    summary: "Sophie shows Langdon the P.S. initials and fleur-de-lis key hidden behind a painting. They deduce it is a safe-deposit key."
+  },
+  10: {
+    location: "louvre",
+    characters: ["langdon", "sophie"],
+    artefacts: ["fleur-key"],
+    summary: "Sophie and Langdon slip away from Fache. Sophie reveals Saunière was the grandfather she was estranged from after witnessing a shocking ritual."
+  },
+  11: {
+    location: "louvre",
+    characters: ["langdon", "sophie"],
+    artefacts: ["fleur-key"],
+    summary: "They find the Priory message hidden inside the rosewood box. Langdon explains the sacred feminine and Priory of Sion to Sophie."
+  },
+  12: {
+    location: "louvre",
+    characters: ["fache", "collet"],
+    artefacts: [],
+    summary: "Fache discovers Sophie has helped Langdon and sends officers after them. He is furious at the deception."
+  },
+  13: {
+    location: "louvre",
+    characters: ["langdon", "sophie"],
+    artefacts: [],
+    summary: "Langdon and Sophie escape the Louvre in her Smart Car, evading police, heading toward the Depositary Bank."
+  },
+  14: {
+    location: "saint-sulpice",
+    characters: ["silas", "sandrine"],
+    artefacts: ["rose-line", "shadow-key"],
+    summary: "Silas forces Sister Sandrine to open Saint-Sulpice at night. He searches beneath the Rose Line for the keystone."
+  },
+  15: {
+    location: "saint-sulpice",
+    characters: ["silas", "sandrine"],
+    artefacts: ["rose-line"],
+    summary: "Silas discovers an empty hollow beneath the obelisk — he has been deceived. In rage, he kills Sister Sandrine, who manages to send a warning."
+  },
+  16: {
+    location: "depositary-bank",
+    characters: ["langdon", "sophie", "vernet"],
+    artefacts: ["fleur-key"],
+    summary: "Langdon and Sophie arrive at the Depositary Bank of Zurich. The key bears the bank's logo. They are admitted."
+  },
+  17: {
+    location: "police-hq",
+    characters: ["fache", "collet"],
+    artefacts: [],
+    summary: "Fache reviews evidence and doubles down on Langdon as the prime suspect, dismissing Sophie's interference."
+  },
+  18: {
+    location: "depositary-bank",
+    characters: ["langdon", "sophie", "vernet"],
+    artefacts: ["fleur-key", "ps-box", "cryptex"],
+    summary: "The key opens a safe-deposit box. Inside is a rosewood box containing a heavy cylinder — the cryptex — crafted by Saunière."
+  },
+  19: {
+    location: "depositary-bank",
+    characters: ["langdon", "sophie"],
+    artefacts: ["cryptex"],
+    summary: "Langdon explains the cryptex: a Vinci-inspired vault. Inside is a scroll on papyrus — force it open and vinegar dissolves the message."
+  },
+  20: {
+    location: "depositary-bank",
+    characters: ["langdon", "sophie", "vernet", "fache"],
+    artefacts: ["cryptex"],
+    summary: "Police arrive at the bank. Vernet helps Langdon and Sophie escape in an armoured truck, then turns on them — they escape with the cryptex."
+  },
+  21: {
+    location: "chateau-villette",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex"],
+    summary: "Langdon takes Sophie to Teabing's château. Teabing, an obsessive Grail researcher, reveals the secret of the Holy Grail."
+  },
+  22: {
+    location: "chateau-villette",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["holy-grail", "priory-docs"],
+    summary: "Teabing shows Sophie Da Vinci's Last Supper — the figure beside Jesus is Mary Magdalene, not John. The Grail is her bloodline."
+  },
+  23: {
+    location: "chateau-villette",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["holy-grail", "priory-docs", "san-graal"],
+    summary: "Teabing explains the Sangreal documents — history suppressed by Constantine and the Council of Nicaea. The Priory guards them."
+  },
+  24: {
+    location: "chateau-villette",
+    characters: ["silas", "remy"],
+    artefacts: [],
+    summary: "Silas arrives at Villette on the Teacher's orders. Remy lets him in — they are working together."
+  },
+  25: {
+    location: "chateau-villette",
+    characters: ["langdon", "sophie", "teabing", "silas", "remy"],
+    artefacts: ["cryptex"],
+    summary: "Silas holds them at gunpoint demanding the cryptex. Teabing hits Silas with his crutch; Sophie disarms him. They tie Silas up and flee."
+  },
+  26: {
+    location: "chateau-villette",
+    characters: ["fache", "collet"],
+    artefacts: [],
+    summary: "Collet arrives at the abandoned château. He finds Silas has escaped and forensic clues pointing toward London."
+  },
+  27: {
+    location: "gare-du-nord",
+    characters: ["langdon", "sophie", "teabing", "remy"],
+    artefacts: ["cryptex"],
+    summary: "The group boards Teabing's private jet at an airstrip. Remy drives them to the plane as police cordon Paris."
+  },
+  28: {
+    location: "biggin-hill",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex"],
+    summary: "They land at Biggin Hill airfield. Teabing uses his contacts to bypass passport control. They drive into London."
+  },
+  29: {
+    location: "temple-church",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex", "newton-tomb"],
+    summary: "The cryptex poem — 'In London lies a knight a Pope interred' — points them to Temple Church and its Templar knight effigies."
+  },
+  30: {
+    location: "temple-church",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["newton-tomb"],
+    summary: "They inspect the effigies. The verse doesn't match these knights. The true knight must be elsewhere."
+  },
+  31: {
+    location: "kings-college",
+    characters: ["langdon", "sophie", "teabing", "gettum"],
+    artefacts: ["newton-tomb", "orb-clue"],
+    summary: "At King's College, Sister Gettum helps them research 'a knight a Pope interred.' The answer: Isaac Newton, buried at Westminster."
+  },
+  32: {
+    location: "kings-college",
+    characters: ["silas", "aringarosa"],
+    artefacts: [],
+    summary: "Aringarosa lands at Heathrow. He learns the Vatican is distancing from Opus Dei and calls the Teacher, growing desperate."
+  },
+  33: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing", "remy", "silas"],
+    artefacts: ["cryptex", "orb-clue"],
+    summary: "At Newton's tomb, Teabing decodes the 'orb' — the missing sphere from the monument. Silas ambushes them; Remy reveals himself as the Teacher's man and takes Teabing hostage."
+  },
+  34: {
+    location: "westminster",
+    characters: ["langdon", "sophie"],
+    artefacts: ["cryptex"],
+    summary: "Remy and Silas escape with Teabing and the cryptex. Langdon and Sophie realise Teabing may be the Teacher himself."
+  },
+  35: {
+    location: "biggin-hill",
+    characters: ["silas", "remy", "the-teacher"],
+    artefacts: ["cryptex"],
+    summary: "Remy receives a call from the Teacher. In the limousine, he is poisoned with peanut paste — the Teacher eliminates his accomplice."
+  },
+  36: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "fache"],
+    artefacts: [],
+    summary: "Fache arrives in London and confronts Langdon and Sophie. He reveals Interpol cleared Langdon — Fache was manipulated. He now assists them."
+  },
+  37: {
+    location: "westminster",
+    characters: ["langdon", "sophie"],
+    artefacts: ["cryptex"],
+    summary: "Langdon realises the cryptex password: APPLE — Newton's apple, the orb that inspired gravity. He opens it."
+  },
+  38: {
+    location: "westminster",
+    characters: ["langdon", "sophie"],
+    artefacts: ["san-graal", "keystone"],
+    summary: "Inside the cryptex is another cryptex with a new poem. The Grail is 'beneath the Rose.' The search narrows."
+  },
+  39: {
+    location: "westminster",
+    characters: ["silas", "aringarosa", "fache"],
+    artefacts: [],
+    summary: "Silas, chased by police, accidentally shoots Bishop Aringarosa. Silas flees, then surrenders. Aringarosa survives but is broken."
+  },
+  40: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing", "fache"],
+    artefacts: ["cryptex"],
+    summary: "Teabing is unmasked as the Teacher. He reveals he orchestrated everything — the murders, Silas, Remy — to claim the Grail for himself."
+  },
+  41: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing", "fache"],
+    artefacts: ["cryptex"],
+    summary: "Langdon secretly opens the inner cryptex, reads the message, then smashes it — destroying the keystone before Teabing can use it. Teabing is arrested."
+  },
+  42: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie", "rosslyn-nun"],
+    artefacts: ["priory-docs", "dossiers-secret"],
+    summary: "The inner poem leads to Rosslyn Chapel, Scotland. They travel north. Sophie feels a strange pull toward the chapel."
+  },
+  43: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie", "rosslyn-nun"],
+    artefacts: ["priory-docs", "holy-grail"],
+    summary: "At Rosslyn, Sophie meets the woman who raised her — Marie Chauvel, revealed as her grandmother. Her brother is alive too: Saunière hid the family to protect them."
+  },
+  44: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie", "rosslyn-nun"],
+    artefacts: ["holy-grail", "san-graal"],
+    summary: "Marie explains that Sophie is a descendant of Jesus and Mary Magdalene — the living Grail. The Sangreal documents are hidden beneath Rosslyn."
+  },
+  45: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie"],
+    artefacts: [],
+    summary: "Langdon and Sophie say goodbye. He returns to Paris; she stays with her family. The Grail's location remains a secret."
+  },
+  46: {
+    location: "louvre",
+    characters: ["langdon"],
+    artefacts: ["holy-grail"],
+    summary: "Back in Paris, Langdon follows the Rose Line to the Louvre Pyramid. Beneath it, he realises the Grail — Mary Magdalene's sarcophagus — rests under the inverted pyramid: the chalice."
+  },
+  // Chapters 47–104 (novel chapters 46–103) and Epilogue (105)
+  // These are interior chapters — filling these will be done in the content pass.
+  // Placeholder chapters for the strip to render correctly:
+  ...Object.fromEntries(
+    Array.from({length: 59}, (_, i) => {
+      const n = i + 47;
+      return [n, {
+        location: "louvre",
+        characters: [],
+        artefacts: [],
+        summary: "(Chapter content coming soon)"
+      }];
+    })
+  ),
+  105: {
+    label: "E",
+    location: "louvre",
+    characters: ["langdon"],
+    artefacts: ["holy-grail"],
+    summary: "Langdon kneels at the inverted glass pyramid beneath the Louvre, the Rose Line at his feet, the Grail resting in the earth below."
+  },
+};
+
+// ── Engine ────────────────────────────────────────────────────────────────
+
+let currentChapter = 1;
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function getChipLabel(n) {
+  if (CHAPTERS[n]?.label) return CHAPTERS[n].label;
+  return String(n - 1); // novel chapter number
+}
+
+function buildStrip() {
+  const strip = document.getElementById('strip');
+  for (let n = 1; n <= 105; n++) {
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (n === 1 ? ' prologue' : n === 105 ? ' epilogue' : '');
+    chip.dataset.ch = n;
+    chip.textContent = getChipLabel(n);
+    chip.title = n === 1 ? 'Prologue' : n === 105 ? 'Epilogue' : `Chapter ${n - 1}`;
+    chip.addEventListener('click', () => selectChapter(n));
+    strip.appendChild(chip);
+  }
+}
+
+function selectChapter(n) {
+  if (!CHAPTERS[n]) return;
+  currentChapter = n;
+  const ch = CHAPTERS[n];
+
+  // Strip
+  document.querySelectorAll('.chip').forEach(c =>
+    c.classList.toggle('selected', +c.dataset.ch === n)
+  );
+  document.querySelector(`.chip[data-ch="${n}"]`)
+    ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+  // Summary + location label
+  const locKey = ch.location || (ch.locations && ch.locations[0]);
+  const loc = locKey ? LOCATIONS[locKey] : null;
+  document.getElementById('location-label').textContent = loc ? loc.label : '';
+  document.getElementById('summary').textContent = ch.summary || '';
+
+  // Map pins — setAttribute for r (Safari SVG compat, not CSS r property)
+  document.querySelectorAll('.map-pin').forEach(p => {
+    p.classList.remove('active');
+    p.setAttribute('r', '5');
+  });
+  document.querySelectorAll('.pin-label').forEach(l => l.classList.remove('active'));
+
+  const activeKeys = ch.locations || (ch.location ? [ch.location] : []);
+  activeKeys.forEach(key => {
+    const pin = document.querySelector(`.map-pin[data-loc="${key}"]`);
+    if (pin) { pin.classList.add('active'); pin.setAttribute('r', '8'); }
+    const lbl = document.getElementById(`lbl-${key}`);
+    if (lbl) lbl.classList.add('active');
+  });
+
+  // Characters
+  const charsEl = document.getElementById('chars-list');
+  charsEl.innerHTML = ch.characters.length
+    ? ch.characters.map(id => {
+        const c = CHARACTERS[id];
+        if (!c) return '';
+        return `<div class="panel-item"><span class="item-name">${esc(c.name)}</span><span class="item-role">${esc(c.role)}</span></div>`;
+      }).join('')
+    : '<div class="panel-empty">—</div>';
+
+  // Artefacts
+  const artEl = document.getElementById('artefacts-list');
+  artEl.innerHTML = ch.artefacts.length
+    ? ch.artefacts.map(id => {
+        const a = ARTEFACTS[id];
+        if (!a) return '';
+        return `<div class="panel-item"><span class="item-name">${esc(a.name)}</span><span class="item-role">${esc(a.desc)}</span></div>`;
+      }).join('')
+    : '<div class="panel-empty">—</div>';
+}
+
+// Keyboard — attached to document, prevent scroll only for nav keys
+document.addEventListener('keydown', e => {
+  if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+    e.preventDefault();
+    if (e.key === 'ArrowLeft')  selectChapter(Math.max(1, currentChapter - 1));
+    if (e.key === 'ArrowRight') selectChapter(Math.min(105, currentChapter + 1));
+    if (e.key === 'Home')       selectChapter(1);
+    if (e.key === 'End')        selectChapter(105);
+  }
+});
+
+// Init
+buildStrip();
+selectChapter(1);
+</script>
+</body>
+</html>
