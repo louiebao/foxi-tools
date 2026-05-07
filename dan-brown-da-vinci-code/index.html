@@ -149,38 +149,70 @@ header p {
   padding: 4px 0;
 }
 
-/* ── SVG Map ── */
+/* ── Location diagram ── */
 .map-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #f0efe9;
+  background: #f8f8f5;
+  cursor: grab;
+  position: relative;
 }
+.map-wrap:active { cursor: grabbing; }
 .map-wrap svg {
   width: 100%;
   height: 100%;
   max-height: 100%;
+  transition: transform 0.1s ease-out;
+  transform-origin: center center;
+}
+.zoom-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #ccc;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
-/* Map pins */
-.map-pin {
-  fill: #aaa;
-  cursor: default;
-  transition: fill 0.15s;
+.journey-line {
+  stroke: #d0cec8;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  fill: none;
 }
-.map-pin.active { fill: #8b5e2e; }
-.pin-label {
+.journey-flight {
+  stroke-dasharray: 6 5;
+  stroke: #bbb;
+}
+.city-label {
+  font-family: 'Courier New', monospace;
+  font-size: 7px;
+  fill: #d0cec8;
+  letter-spacing: 0.14em;
+}
+.loc-node {
+  fill: #e2e0d8;
+  stroke: #c0bdb5;
+  stroke-width: 1;
+  cursor: pointer;
+  transition: fill 0.2s;
+}
+.loc-node.active {
+  fill: #8b5e2e;
+  stroke: #6a4520;
+}
+.loc-label {
   font-family: 'Courier New', monospace;
   font-size: 8px;
-  fill: #888;
+  fill: #aaa;
   pointer-events: none;
 }
-.pin-label.active { fill: #8b5e2e; font-weight: bold; }
-
-/* Country fills */
-.country { fill: #e4e2da; stroke: #c8c4ba; stroke-width: 0.5; }
-.sea { fill: #dde4e8; }
+.loc-label.active { fill: #8b5e2e; }
 
 /* ── Footer ── */
 footer {
@@ -224,113 +256,70 @@ footer {
     <div id="chars-list"></div>
   </div>
 
-  <div class="map-wrap">
-    <svg id="map" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
-      <!-- Sea background -->
-      <rect class="sea" width="500" height="400"/>
+  <div class="map-wrap" id="map-wrap">
+    <svg id="map" viewBox="0 0 220 310" xmlns="http://www.w3.org/2000/svg">
 
-      <!-- Simplified country outlines -->
-      <!-- France -->
-      <path class="country" d="
-        M 230,170 L 240,158 L 255,152 L 270,148 L 285,150 L 300,155
-        L 315,160 L 322,172 L 318,185 L 310,195 L 305,210 L 298,225
-        L 285,238 L 270,245 L 255,248 L 242,244 L 230,238 L 220,228
-        L 215,215 L 214,200 L 218,186 L 225,177 Z
-      "/>
-      <!-- UK / Great Britain (simplified) -->
-      <path class="country" d="
-        M 210,90 L 220,84 L 232,82 L 244,86 L 250,96 L 248,108
-        L 240,118 L 228,124 L 218,128 L 210,136 L 205,148 L 206,160
-        L 214,170 L 212,178 L 205,182 L 196,180 L 188,170 L 186,158
-        L 190,146 L 198,136 L 200,124 L 196,112 L 198,100 L 204,93 Z
-      "/>
-      <!-- Scotland (extension of UK) -->
-      <path class="country" d="
-        M 210,90 L 205,78 L 208,66 L 218,58 L 228,56 L 236,62
-        L 238,74 L 232,82 L 220,84 Z
-      "/>
-      <!-- Ireland (simplified) -->
-      <path class="country" d="
-        M 175,108 L 183,102 L 192,104 L 196,114 L 192,124 L 182,128
-        L 174,122 L 172,112 Z
-      "/>
-      <!-- Spain (partial) -->
-      <path class="country" d="
-        M 215,248 L 230,252 L 250,258 L 270,260 L 288,256 L 300,248
-        L 310,238 L 310,256 L 304,272 L 290,282 L 268,288 L 248,286
-        L 228,278 L 215,264 Z
-      "/>
-      <!-- Belgium / Netherlands (partial) -->
-      <path class="country" d="
-        M 295,148 L 308,142 L 318,142 L 324,150 L 322,158 L 315,162
-        L 305,158 L 298,152 Z
-      "/>
-      <!-- Germany (very partial, for context) -->
-      <path class="country" d="
-        M 318,142 L 332,136 L 348,138 L 355,148 L 350,162 L 338,168
-        L 325,165 L 318,155 Z
-      "/>
-      <!-- Switzerland (tiny) -->
-      <path class="country" d="
-        M 305,210 L 318,205 L 328,208 L 330,218 L 320,224 L 308,222 Z
-      "/>
-      <!-- Italy (partial boot tip) -->
-      <path class="country" d="
-        M 310,222 L 325,224 L 338,230 L 345,244 L 340,260 L 328,266
-        L 318,258 L 312,244 L 308,232 Z
-      "/>
+      <!-- ── Journey lines (narrative order, drawn under nodes) ── -->
+      <!-- Paris internal journey -->
+      <line class="journey-line" x1="110" y1="228" x2="100" y2="248"/>
+      <line class="journey-line" x1="100" y1="248" x2="138" y2="240"/>
+      <line class="journey-line" x1="138" y1="240" x2="150" y2="250"/>
+      <line class="journey-line" x1="150" y1="250" x2="68"  y2="222"/>
+      <line class="journey-line" x1="68"  y1="222" x2="88"  y2="232"/>
+      <!-- Cross-channel flights (looser dash) -->
+      <line class="journey-line journey-flight" x1="88" y1="232" x2="148" y2="158"/>
+      <!-- London internal journey -->
+      <line class="journey-line" x1="148" y1="158" x2="82"  y2="136"/>
+      <line class="journey-line" x1="82"  y1="136" x2="105" y2="128"/>
+      <line class="journey-line" x1="105" y1="128" x2="122" y2="138"/>
+      <!-- London → Scotland -->
+      <line class="journey-line journey-flight" x1="82" y1="136" x2="110" y2="42"/>
 
-      <!-- Location pins (Paris cluster — explicit offsets from spec) -->
-      <!-- louvre cx:283 cy:208 -->
-      <circle class="map-pin" id="pin-louvre" data-loc="louvre" cx="283" cy="208" r="5"/>
-      <text class="pin-label" id="lbl-louvre" x="291" y="211" text-anchor="start">Louvre</text>
+      <!-- ── City labels ── -->
+      <text class="city-label" x="110" y="202" text-anchor="middle">PARIS</text>
+      <text class="city-label" x="110" y="112" text-anchor="middle">LONDON</text>
+      <text class="city-label" x="110" y="26"  text-anchor="middle">SCOTLAND</text>
 
-      <!-- police-hq cx:283 cy:214 -->
-      <circle class="map-pin" id="pin-police-hq" data-loc="police-hq" cx="289" cy="214" r="5"/>
-      <text class="pin-label" id="lbl-police-hq" x="297" y="217" text-anchor="start">Police HQ</text>
+      <!-- ── Location nodes (drawn over lines) ── -->
 
-      <!-- saint-sulpice cx:278 cy:216 -->
-      <circle class="map-pin" id="pin-saint-sulpice" data-loc="saint-sulpice" cx="274" cy="218" r="5"/>
-      <text class="pin-label" id="lbl-saint-sulpice" x="266" y="221" text-anchor="end">St-Sulpice</text>
+      <!-- Scotland -->
+      <circle class="loc-node" data-loc="rosslyn" cx="110" cy="42" r="7"/>
+      <text class="loc-label" data-loc="rosslyn" x="120" y="46" text-anchor="start">Rosslyn Chapel</text>
 
-      <!-- depositary-bank cx:289 cy:212 -->
-      <circle class="map-pin" id="pin-depositary-bank" data-loc="depositary-bank" cx="291" cy="208" r="5"/>
-      <text class="pin-label" id="lbl-depositary-bank" x="299" y="211" text-anchor="start">Bank</text>
+      <!-- London -->
+      <circle class="loc-node" data-loc="westminster" cx="82"  cy="136" r="7"/>
+      <text class="loc-label" data-loc="westminster" x="73" y="133" text-anchor="end">Westminster</text>
 
-      <!-- gare-du-nord cx:282 cy:204 -->
-      <circle class="map-pin" id="pin-gare-du-nord" data-loc="gare-du-nord" cx="282" cy="202" r="5"/>
-      <text class="pin-label" id="lbl-gare-du-nord" x="274" y="200" text-anchor="end">Gare du Nord</text>
+      <circle class="loc-node" data-loc="temple-church" cx="105" cy="128" r="7"/>
+      <text class="loc-label" data-loc="temple-church" x="96" y="125" text-anchor="end">Temple Ch.</text>
 
-      <!-- chateau-villette cx:268 cy:200 -->
-      <circle class="map-pin" id="pin-chateau-villette" data-loc="chateau-villette" cx="264" cy="198" r="5"/>
-      <text class="pin-label" id="lbl-chateau-villette" x="256" y="196" text-anchor="end">Villette</text>
+      <circle class="loc-node" data-loc="kings-college" cx="122" cy="138" r="7"/>
+      <text class="loc-label" data-loc="kings-college" x="131" y="141" text-anchor="start">King's College</text>
 
-      <!-- London cluster -->
-      <!-- temple-church -->
-      <circle class="map-pin" id="pin-temple-church" data-loc="temple-church" cx="230" cy="172" r="5"/>
-      <text class="pin-label" id="lbl-temple-church" x="222" y="170" text-anchor="end">Temple Ch.</text>
+      <circle class="loc-node" data-loc="biggin-hill" cx="148" cy="158" r="7"/>
+      <text class="loc-label" data-loc="biggin-hill" x="157" y="161" text-anchor="start">Biggin Hill</text>
 
-      <!-- kings-college -->
-      <circle class="map-pin" id="pin-kings-college" data-loc="kings-college" cx="234" cy="178" r="5"/>
-      <text class="pin-label" id="lbl-kings-college" x="242" y="181" text-anchor="start">King's College</text>
+      <!-- Paris -->
+      <circle class="loc-node" data-loc="chateau-villette" cx="68"  cy="222" r="7"/>
+      <text class="loc-label" data-loc="chateau-villette" x="59" y="219" text-anchor="end">Villette</text>
 
-      <!-- westminster -->
-      <circle class="map-pin" id="pin-westminster" data-loc="westminster" cx="228" cy="177" r="5"/>
-      <text class="pin-label" id="lbl-westminster" x="220" y="180" text-anchor="end">Westminster</text>
+      <circle class="loc-node" data-loc="gare-du-nord" cx="88"  cy="232" r="7"/>
+      <text class="loc-label" data-loc="gare-du-nord" x="79" y="229" text-anchor="end">Gare du Nord</text>
 
-      <!-- biggin-hill -->
-      <circle class="map-pin" id="pin-biggin-hill" data-loc="biggin-hill" cx="238" cy="182" r="5"/>
-      <text class="pin-label" id="lbl-biggin-hill" x="246" y="185" text-anchor="start">Biggin Hill</text>
+      <circle class="loc-node" data-loc="louvre" cx="110" cy="228" r="7"/>
+      <text class="loc-label" data-loc="louvre" x="119" y="225" text-anchor="start">Louvre</text>
 
-      <!-- rosslyn -->
-      <circle class="map-pin" id="pin-rosslyn" data-loc="rosslyn" cx="218" cy="100" r="5"/>
-      <text class="pin-label" id="lbl-rosslyn" x="226" y="103" text-anchor="start">Rosslyn</text>
+      <circle class="loc-node" data-loc="police-hq" cx="138" cy="240" r="7"/>
+      <text class="loc-label" data-loc="police-hq" x="147" y="237" text-anchor="start">Police HQ</text>
 
-      <!-- City labels for context -->
-      <text x="280" y="196" font-family="Courier New" font-size="8" fill="#aaa" text-anchor="middle">PARIS</text>
-      <text x="232" y="165" font-family="Courier New" font-size="8" fill="#aaa" text-anchor="middle">LONDON</text>
-      <text x="218" y="93" font-family="Courier New" font-size="8" fill="#aaa" text-anchor="middle">EDINBURGH</text>
+      <circle class="loc-node" data-loc="depositary-bank" cx="150" cy="250" r="7"/>
+      <text class="loc-label" data-loc="depositary-bank" x="159" y="254" text-anchor="start">Bank</text>
+
+      <circle class="loc-node" data-loc="saint-sulpice" cx="100" cy="248" r="7"/>
+      <text class="loc-label" data-loc="saint-sulpice" x="91" y="262" text-anchor="middle">Saint-Sulpice</text>
+
     </svg>
+    <span class="zoom-hint">scroll to zoom · dbl-click to reset</span>
   </div>
 
   <div class="panel" id="panel-artefacts">
@@ -341,7 +330,6 @@ footer {
 
 <footer>
   <a class="back-link" href="../">&lt; Home</a>
-  <span>***REMOVED***</span>
 </footer>
 
 <script>
@@ -746,19 +734,14 @@ function selectChapter(n) {
   document.getElementById('location-label').textContent = loc ? loc.label : '';
   document.getElementById('summary').textContent = ch.summary || '';
 
-  // Map pins — setAttribute for r (Safari SVG compat, not CSS r property)
-  document.querySelectorAll('.map-pin').forEach(p => {
-    p.classList.remove('active');
-    p.setAttribute('r', '5');
-  });
-  document.querySelectorAll('.pin-label').forEach(l => l.classList.remove('active'));
+  // Location nodes
+  document.querySelectorAll('.loc-node').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.loc-label').forEach(l => l.classList.remove('active'));
 
   const activeKeys = ch.locations || (ch.location ? [ch.location] : []);
   activeKeys.forEach(key => {
-    const pin = document.querySelector(`.map-pin[data-loc="${key}"]`);
-    if (pin) { pin.classList.add('active'); pin.setAttribute('r', '8'); }
-    const lbl = document.getElementById(`lbl-${key}`);
-    if (lbl) lbl.classList.add('active');
+    document.querySelector(`.loc-node[data-loc="${key}"]`)?.classList.add('active');
+    document.querySelector(`.loc-label[data-loc="${key}"]`)?.classList.add('active');
   });
 
   // Characters
@@ -791,6 +774,23 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Home')       selectChapter(1);
     if (e.key === 'End')        selectChapter(105);
   }
+});
+
+// ── Zoom ──────────────────────────────────────────────────────────────────
+let mapZoom = 1;
+const mapSvg = document.getElementById('map');
+const mapWrap = document.getElementById('map-wrap');
+
+mapWrap.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.18 : 1 / 1.18;
+  mapZoom = Math.max(0.4, Math.min(6, mapZoom * factor));
+  mapSvg.style.transform = `scale(${mapZoom})`;
+}, { passive: false });
+
+mapWrap.addEventListener('dblclick', () => {
+  mapZoom = 1;
+  mapSvg.style.transform = 'scale(1)';
 });
 
 // Init
