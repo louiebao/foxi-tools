@@ -518,6 +518,37 @@ const ARTEFACTS = {
   "orb-clue":       { name: "'Orb that ought be on his tomb'", desc: "The missing sphere from Newton's monument" },
 };
 
+// Character name patterns → id, used to auto-detect characters from summary text
+const CHAR_ALIASES = [
+  { terms: ["Langdon"],                      id: "langdon"      },
+  { terms: ["Sophie"],                       id: "sophie"       },
+  { terms: ["Fache"],                        id: "fache"        },
+  { terms: ["Teabing"],                      id: "teabing"      },
+  { terms: ["Silas"],                        id: "silas"        },
+  { terms: ["Aringarosa"],                   id: "aringarosa"   },
+  { terms: ["Saunière", "Sauniere"],         id: "sauniere"     },
+  { terms: ["Vernet"],                       id: "vernet"       },
+  { terms: ["Rémy", "Remy"],                 id: "remy"         },
+  { terms: ["Collet"],                       id: "collet"       },
+  { terms: ["Sandrine"],                     id: "sandrine"     },
+  { terms: ["Marie Chauvel", "Chauvel"],     id: "rosslyn-nun"  },
+  { terms: ["the Teacher", "The Teacher"],   id: "the-teacher"  },
+  { terms: ["Gettum"],                       id: "gettum"       },
+  { terms: ["Mancu"],                        id: "mancu"        },
+  { terms: ["Grouard"],                      id: "grouard"      },
+];
+
+function charsFromSummary(text) {
+  const found = [], seen = new Set();
+  for (const alias of CHAR_ALIASES) {
+    if (!seen.has(alias.id) && alias.terms.some(t => text.includes(t))) {
+      found.push(alias.id);
+      seen.add(alias.id);
+    }
+  }
+  return found;
+}
+
 // CHAPTERS: key 1 = Prologue, keys 2–104 = novel ch.1–103, key 105 = Epilogue
 // label field: "P" / "E" for prologue/epilogue; numbered chapters use key-1
 const CHAPTERS = {
@@ -1206,10 +1237,11 @@ function selectChapter(n) {
     document.querySelector(`.loc-group[data-loc="${key}"]`)?.classList.add('active');
   });
 
-  // Characters
+  // Characters — summary-detected names first, then any extras from the explicit list
+  const charIds = [...new Set([...charsFromSummary(ch.summary || ''), ...(ch.characters || [])])];
   const charsEl = document.getElementById('chars-list');
-  charsEl.innerHTML = ch.characters.length
-    ? ch.characters.map(id => {
+  charsEl.innerHTML = charIds.length
+    ? charIds.map(id => {
         const c = CHARACTERS[id];
         if (!c) return '';
         return `<div class="panel-item"><span class="item-name">${esc(c.name)}</span><span class="item-role">${esc(c.role)}</span></div>`;
