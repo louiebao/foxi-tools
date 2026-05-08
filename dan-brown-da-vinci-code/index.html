@@ -199,30 +199,38 @@ header p {
   letter-spacing: 0.14em;
 }
 .loc-group .loc-node {
-  fill: #e2e0d8;
-  stroke: #c0bdb5;
+  fill: #e8e6de;
+  stroke: #c4c0b8;
   stroke-width: 1;
   cursor: pointer;
-  transition: fill 0.2s;
+  transition: fill 0.18s, stroke 0.18s;
+}
+.loc-group:hover .loc-node {
+  fill: #d8d4c8;
+  stroke: #aaa8a0;
 }
 .loc-group.active .loc-node {
   fill: #8b5e2e;
   stroke: #6a4520;
 }
+.loc-group.active:hover .loc-node {
+  fill: #7a5228;
+}
 .loc-seq {
   font-family: 'Courier New', monospace;
-  font-size: 6px;
+  font-size: 7px;
   fill: #aaa;
   pointer-events: none;
 }
 .loc-group.active .loc-seq { fill: #fff; }
 .loc-label {
   font-family: 'Courier New', monospace;
-  font-size: 8px;
-  fill: #aaa;
+  font-size: 9px;
+  fill: #b0ada6;
   pointer-events: none;
+  letter-spacing: 0.04em;
 }
-.loc-label.active { fill: #8b5e2e; }
+.loc-group.active .loc-label { fill: #8b5e2e; }
 
 /* ── Footer ── */
 footer {
@@ -322,100 +330,97 @@ footer {
   </div>
 
   <div class="map-wrap" id="map-wrap">
-    <svg id="map" viewBox="0 0 220 310" xmlns="http://www.w3.org/2000/svg">
+    <svg id="map" viewBox="0 0 300 380" xmlns="http://www.w3.org/2000/svg">
 
-      <!-- ── Journey lines (narrative order, drawn under nodes) ── -->
-      <!-- Paris internal journey -->
-      <line class="journey-line" x1="110" y1="228" x2="100" y2="248"/>
-      <line class="journey-line" x1="100" y1="248" x2="138" y2="240"/>
-      <line class="journey-line" x1="138" y1="240" x2="150" y2="250"/>
-      <line class="journey-line" x1="150" y1="250" x2="68"  y2="222"/>
-      <line class="journey-line" x1="68"  y1="222" x2="88"  y2="232"/>
-      <!-- Cross-channel flights (looser dash) -->
-      <line class="journey-line journey-flight" x1="88" y1="232" x2="148" y2="158"/>
-      <!-- London internal journey -->
-      <line class="journey-line" x1="148" y1="158" x2="105" y2="128"/>
-      <line class="journey-line" x1="105" y1="128" x2="122" y2="138"/>
-      <line class="journey-line" x1="122" y1="138" x2="82"  y2="136"/>
-      <!-- London → Scotland -->
-      <line class="journey-line journey-flight" x1="82" y1="136" x2="110" y2="42"/>
+      <!-- ── Journey lines (scale with zoom, drawn under nodes) ── -->
+      <line class="journey-line" x1="143" y1="252" x2="80"  y2="295"/><!-- 1→2 -->
+      <line class="journey-line" x1="80"  y1="295" x2="190" y2="248"/><!-- 2→3 -->
+      <line class="journey-line" x1="190" y1="248" x2="220" y2="274"/><!-- 3→4 -->
+      <line class="journey-line" x1="220" y1="274" x2="35"  y2="258"/><!-- 4→5 -->
+      <line class="journey-line" x1="35"  y1="258" x2="65"  y2="278"/><!-- 5→6 -->
+      <line class="journey-line journey-flight" x1="65" y1="278" x2="228" y2="142"/><!-- 6→7 flight -->
+      <line class="journey-line" x1="228" y1="142" x2="92"  y2="132"/><!-- 7→8 -->
+      <line class="journey-line" x1="92"  y1="132" x2="165" y2="155"/><!-- 8→9 -->
+      <line class="journey-line" x1="165" y1="155" x2="52"  y2="170"/><!-- 9→10 -->
+      <line class="journey-line journey-flight" x1="52" y1="170" x2="150" y2="58"/><!-- 10→11 flight -->
 
-      <!-- ── City labels ── -->
-      <text class="city-label" x="110" y="202" text-anchor="middle">PARIS</text>
-      <text class="city-label" x="110" y="112" text-anchor="middle">LONDON</text>
-      <text class="city-label" x="110" y="26"  text-anchor="middle">SCOTLAND</text>
+      <!-- ── City region labels (scale with zoom) ── -->
+      <text class="city-label" x="150" y="222" text-anchor="middle">PARIS</text>
+      <text class="city-label" x="140" y="108" text-anchor="middle">LONDON</text>
+      <text class="city-label" x="150" y="30"  text-anchor="middle">SCOTLAND</text>
 
-      <!-- ── Location nodes (drawn over lines) ── -->
-      <!-- Sequence numbers follow narrative journey order -->
+      <!-- ── Location nodes — circles & labels counter-scale so they stay the
+           same visual size at every zoom level. Each group is positioned via JS
+           using data-x / data-y; circle and label are at (0,0) inside the group.── -->
 
       <!-- Scotland -->
-      <g class="loc-group" data-loc="rosslyn">
-        <circle class="loc-node" cx="110" cy="42" r="7"/>
-        <text class="loc-seq" x="110" y="42" text-anchor="middle" dominant-baseline="central">11</text>
+      <g class="loc-group" data-loc="rosslyn" data-x="150" data-y="58">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">11</text>
+        <text class="loc-label" x="13" y="1" text-anchor="start">Rosslyn Chapel</text>
       </g>
-      <text class="loc-label" data-loc="rosslyn" x="120" y="46" text-anchor="start">Rosslyn Chapel</text>
 
       <!-- London -->
-      <g class="loc-group" data-loc="westminster">
-        <circle class="loc-node" cx="82" cy="136" r="7"/>
-        <text class="loc-seq" x="82" y="136" text-anchor="middle" dominant-baseline="central">10</text>
+      <g class="loc-group" data-loc="biggin-hill" data-x="228" data-y="142">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">7</text>
+        <text class="loc-label" x="-13" y="1" text-anchor="end">Biggin Hill</text>
       </g>
-      <text class="loc-label" data-loc="westminster" x="73" y="133" text-anchor="end">Westminster</text>
 
-      <g class="loc-group" data-loc="temple-church">
-        <circle class="loc-node" cx="105" cy="128" r="7"/>
-        <text class="loc-seq" x="105" y="128" text-anchor="middle" dominant-baseline="central">8</text>
+      <g class="loc-group" data-loc="temple-church" data-x="92" data-y="132">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">8</text>
+        <text class="loc-label" x="13" y="1" text-anchor="start">Temple Ch.</text>
       </g>
-      <text class="loc-label" data-loc="temple-church" x="96" y="125" text-anchor="end">Temple Ch.</text>
 
-      <g class="loc-group" data-loc="kings-college">
-        <circle class="loc-node" cx="122" cy="138" r="7"/>
-        <text class="loc-seq" x="122" y="138" text-anchor="middle" dominant-baseline="central">9</text>
+      <g class="loc-group" data-loc="kings-college" data-x="165" data-y="155">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">9</text>
+        <text class="loc-label" x="13" y="1" text-anchor="start">King's College</text>
       </g>
-      <text class="loc-label" data-loc="kings-college" x="131" y="141" text-anchor="start">King's College</text>
 
-      <g class="loc-group" data-loc="biggin-hill">
-        <circle class="loc-node" cx="148" cy="158" r="7"/>
-        <text class="loc-seq" x="148" y="158" text-anchor="middle" dominant-baseline="central">7</text>
+      <g class="loc-group" data-loc="westminster" data-x="52" data-y="170">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">10</text>
+        <text class="loc-label" x="13" y="1" text-anchor="start">Westminster</text>
       </g>
-      <text class="loc-label" data-loc="biggin-hill" x="157" y="161" text-anchor="start">Biggin Hill</text>
 
       <!-- Paris -->
-      <g class="loc-group" data-loc="chateau-villette">
-        <circle class="loc-node" cx="68" cy="222" r="7"/>
-        <text class="loc-seq" x="68" y="222" text-anchor="middle" dominant-baseline="central">5</text>
+      <g class="loc-group" data-loc="chateau-villette" data-x="35" data-y="258">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">5</text>
+        <text class="loc-label" x="13" y="1" text-anchor="start">Villette</text>
       </g>
-      <text class="loc-label" data-loc="chateau-villette" x="59" y="219" text-anchor="end">Villette</text>
 
-      <g class="loc-group" data-loc="gare-du-nord">
-        <circle class="loc-node" cx="88" cy="232" r="7"/>
-        <text class="loc-seq" x="88" y="232" text-anchor="middle" dominant-baseline="central">6</text>
+      <g class="loc-group" data-loc="gare-du-nord" data-x="65" data-y="278">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">6</text>
+        <text class="loc-label" x="0" y="-14" text-anchor="middle">Gare du Nord</text>
       </g>
-      <text class="loc-label" data-loc="gare-du-nord" x="79" y="229" text-anchor="end">Gare du Nord</text>
 
-      <g class="loc-group" data-loc="louvre">
-        <circle class="loc-node" cx="110" cy="228" r="7"/>
-        <text class="loc-seq" x="110" y="228" text-anchor="middle" dominant-baseline="central">1</text>
+      <g class="loc-group" data-loc="louvre" data-x="143" data-y="252">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">1</text>
+        <text class="loc-label" x="13" y="1" text-anchor="start">Louvre</text>
       </g>
-      <text class="loc-label" data-loc="louvre" x="119" y="225" text-anchor="start">Louvre</text>
 
-      <g class="loc-group" data-loc="police-hq">
-        <circle class="loc-node" cx="138" cy="240" r="7"/>
-        <text class="loc-seq" x="138" y="240" text-anchor="middle" dominant-baseline="central">3</text>
+      <g class="loc-group" data-loc="police-hq" data-x="190" data-y="248">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">3</text>
+        <text class="loc-label" x="13" y="1" text-anchor="start">Police HQ</text>
       </g>
-      <text class="loc-label" data-loc="police-hq" x="147" y="237" text-anchor="start">Police HQ</text>
 
-      <g class="loc-group" data-loc="depositary-bank">
-        <circle class="loc-node" cx="150" cy="250" r="7"/>
-        <text class="loc-seq" x="150" y="250" text-anchor="middle" dominant-baseline="central">4</text>
+      <g class="loc-group" data-loc="depositary-bank" data-x="220" data-y="274">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">4</text>
+        <text class="loc-label" x="-13" y="1" text-anchor="end">Bank</text>
       </g>
-      <text class="loc-label" data-loc="depositary-bank" x="159" y="254" text-anchor="start">Bank</text>
 
-      <g class="loc-group" data-loc="saint-sulpice">
-        <circle class="loc-node" cx="100" cy="248" r="7"/>
-        <text class="loc-seq" x="100" y="248" text-anchor="middle" dominant-baseline="central">2</text>
+      <g class="loc-group" data-loc="saint-sulpice" data-x="80" data-y="295">
+        <circle class="loc-node" cx="0" cy="0" r="9"/>
+        <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">2</text>
+        <text class="loc-label" x="0" y="17" text-anchor="middle">Saint-Sulpice</text>
       </g>
-      <text class="loc-label" data-loc="saint-sulpice" x="91" y="262" text-anchor="middle">Saint-Sulpice</text>
 
     </svg>
     <span class="zoom-hint">scroll to zoom · drag to pan · dbl-click to reset</span>
@@ -1195,13 +1200,10 @@ function selectChapter(n) {
   document.getElementById('summary').textContent = ch.summary || '';
 
   // Location nodes
-  document.querySelectorAll('.loc-group').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.loc-label').forEach(l => l.classList.remove('active'));
-
+  document.querySelectorAll('.loc-group').forEach(g => g.classList.remove('active'));
   const activeKeys = ch.locations || (ch.location ? [ch.location] : []);
   activeKeys.forEach(key => {
     document.querySelector(`.loc-group[data-loc="${key}"]`)?.classList.add('active');
-    document.querySelector(`.loc-label[data-loc="${key}"]`)?.classList.add('active');
   });
 
   // Characters
@@ -1246,6 +1248,10 @@ const mapWrap = document.getElementById('map-wrap');
 
 function applyTransform() {
   mapSvg.style.transform = `translate(${mapX}px, ${mapY}px) scale(${mapZoom})`;
+  const s = 1 / mapZoom;
+  document.querySelectorAll('.loc-group').forEach(g => {
+    g.setAttribute('transform', `translate(${g.dataset.x},${g.dataset.y}) scale(${s})`);
+  });
 }
 
 mapWrap.addEventListener('wheel', e => {
@@ -1304,6 +1310,7 @@ document.addEventListener('keydown', e => {
 // Init
 buildStrip();
 selectChapter(1);
+applyTransform();
 </script>
 
 </body>
