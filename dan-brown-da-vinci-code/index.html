@@ -6,12 +6,13 @@
 <title>The Da Vinci Code — Chapter Journey</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: clamp(15px, 1.1vw, 22px); }
 
 body {
   background: #f8f8f5;
   color: #222;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-size: 0.93rem;
   height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -25,14 +26,14 @@ header {
   flex-shrink: 0;
 }
 header h1 {
-  font-size: 15px;
+  font-size: 1rem;
   font-weight: normal;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 header p {
   margin-top: 4px;
-  font-size: 11px;
+  font-size: 0.73rem;
   color: #888;
   letter-spacing: 0.06em;
 }
@@ -57,7 +58,7 @@ header p {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 0.67rem;
   letter-spacing: 0.04em;
   background: #fff;
   border: 1px solid #ccc;
@@ -92,13 +93,13 @@ header p {
   background: #f8f8f5;
 }
 #location-label {
-  font-size: 10px;
+  font-size: 0.67rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #888;
 }
 #summary {
-  font-size: 12px;
+  font-size: 0.8rem;
   color: #444;
   line-height: 1.5;
 }
@@ -120,7 +121,7 @@ header p {
 }
 .panel:last-child { border-right: none; border-left: 1px solid #d8d6d0; }
 .panel-title {
-  font-size: 10px;
+  font-size: 0.67rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #999;
@@ -136,18 +137,18 @@ header p {
 .panel-item:last-child { margin-bottom: 0; }
 .item-name {
   display: block;
-  font-size: 12px;
+  font-size: 0.8rem;
   color: #222;
 }
 .item-role {
   display: block;
-  font-size: 11px;
+  font-size: 0.73rem;
   color: #888;
   margin-top: 3px;
   line-height: 1.4;
 }
 .panel-empty {
-  font-size: 12px;
+  font-size: 0.8rem;
   color: #bbb;
   padding: 4px 2px;
 }
@@ -175,7 +176,7 @@ header p {
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 10px;
+  font-size: 0.67rem;
   color: #ccc;
   letter-spacing: 0.06em;
   pointer-events: none;
@@ -194,7 +195,7 @@ header p {
 }
 .city-label {
   font-family: 'Courier New', monospace;
-  font-size: 7px;
+  font-size: 0.47rem;
   fill: #d0cec8;
   letter-spacing: 0.14em;
 }
@@ -218,14 +219,14 @@ header p {
 }
 .loc-seq {
   font-family: 'Courier New', monospace;
-  font-size: 7px;
+  font-size: 0.47rem;
   fill: #aaa;
   pointer-events: none;
 }
 .loc-group.active .loc-seq { fill: #fff; }
 .loc-label {
   font-family: 'Courier New', monospace;
-  font-size: 9px;
+  font-size: 0.6rem;
   fill: #b0ada6;
   pointer-events: none;
   letter-spacing: 0.04em;
@@ -236,7 +237,7 @@ header p {
 footer {
   padding: 10px 24px;
   border-top: 1px solid #d0d0cc;
-  font-size: 11px;
+  font-size: 0.73rem;
   color: #aaa;
   letter-spacing: 0.06em;
   flex-shrink: 0;
@@ -274,7 +275,7 @@ footer {
   font-family: 'Courier New', monospace;
 }
 .egg-card h2 {
-  font-size: 14px;
+  font-size: 0.93rem;
   font-weight: normal;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -282,14 +283,14 @@ footer {
   margin-bottom: 18px;
 }
 .egg-card p {
-  font-size: 12px;
+  font-size: 0.8rem;
   line-height: 1.8;
   color: #888;
   margin-bottom: 12px;
 }
 .egg-card p:last-of-type { margin-bottom: 22px; }
 .egg-card .egg-footnote {
-  font-size: 11px;
+  font-size: 0.73rem;
   color: #555;
   border-top: 1px solid #2e2c28;
   padding-top: 14px;
@@ -298,7 +299,7 @@ footer {
 .egg-close {
   display: block;
   margin-top: 20px;
-  font-size: 11px;
+  font-size: 0.73rem;
   color: #444;
   letter-spacing: 0.08em;
   cursor: pointer;
@@ -311,7 +312,7 @@ footer {
 
 <header>
   <h1>The Da Vinci Code</h1>
-  <p>by Dan Brown · chapter-by-chapter visual guide · 105 chapters</p>
+  <p>by Dan Brown</p>
 </header>
 
 <div class="strip-wrap">
