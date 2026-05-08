@@ -793,20 +793,354 @@ const CHAPTERS = {
     artefacts: ["holy-grail"],
     summary: "Back in Paris, Langdon follows the Rose Line to the Louvre Pyramid. Beneath it, he realises the Grail — Mary Magdalene's sarcophagus — rests under the inverted pyramid: the chalice."
   },
-  // Chapters 47–104 (novel chapters 46–103) and Epilogue (105)
-  // These are interior chapters — filling these will be done in the content pass.
-  // Placeholder chapters for the strip to render correctly:
-  ...Object.fromEntries(
-    Array.from({length: 59}, (_, i) => {
-      const n = i + 47;
-      return [n, {
-        location: "louvre",
-        characters: [],
-        artefacts: [],
-        summary: "(Chapter content coming soon)"
-      }];
-    })
-  ),
+  47: {
+    location: "chateau-villette",
+    characters: ["collet", "fache"],
+    artefacts: [],
+    summary: "Collet leads forensic teams through Villette. They find Silas's cell, traces of the Teacher's communications, and evidence linking Remy to Teabing."
+  },
+  48: {
+    location: "biggin-hill",
+    characters: ["aringarosa"],
+    artefacts: [],
+    summary: "Aringarosa, unable to reach Silas, learns through back-channels that Silas has flown to London. His dread deepens — the plan is unravelling."
+  },
+  49: {
+    location: "biggin-hill",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex"],
+    summary: "Aboard Teabing's jet, Langdon studies the cryptex poem aloud. Teabing lectures on Newton's genius and Papal history as the English coast appears below."
+  },
+  50: {
+    location: "biggin-hill",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex"],
+    summary: "Sophie reflects on her grandfather's lifetime of secrecy. Teabing recounts the Priory's near-exposure under Napoleon and again during the Nazi occupation of Paris."
+  },
+  51: {
+    location: "biggin-hill",
+    characters: ["langdon", "sophie", "teabing", "remy"],
+    artefacts: ["cryptex"],
+    summary: "The jet lands. Teabing's contacts wave them through customs without passports. Remy loads them into the Jaguar limousine — silent, watchful, loyal to someone other than Teabing."
+  },
+  52: {
+    location: "police-hq",
+    characters: ["fache", "collet"],
+    artefacts: [],
+    summary: "Fache receives a report tying the Opus Dei phone used by Silas to Bishop Aringarosa. The connection between the murders and the Church sharpens dangerously."
+  },
+  53: {
+    location: "temple-church",
+    characters: ["silas"],
+    artefacts: [],
+    summary: "Silas checks into a nondescript London hotel. He receives a text with the address of Temple Church and a single instruction: wait. He prays briefly and goes."
+  },
+  54: {
+    location: "temple-church",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex", "newton-tomb"],
+    summary: "The limousine arrives at Temple Church. Teabing identifies the round Templar nave — a design unique in London. Inside, stone Crusader knights lie in solemn rows."
+  },
+  55: {
+    location: "temple-church",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["newton-tomb"],
+    summary: "Langdon examines each effigy carefully. The knights are pre-1300 Templar crusaders. But Newton died in 1727 — buried here makes no sense. The clue must point elsewhere."
+  },
+  56: {
+    location: "temple-church",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["newton-tomb"],
+    summary: "Teabing concedes: Temple Church is a dead end. 'A knight a Pope interred' must point to a different knight. They need to identify which Pope buried which famous knight."
+  },
+  57: {
+    location: "temple-church",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["orb-clue"],
+    summary: "Sophie suggests searching London's ecclesiastical archives. Teabing remembers King's College Library holds the most comprehensive religious history database in Britain."
+  },
+  58: {
+    location: "kings-college",
+    characters: ["langdon", "sophie", "teabing", "gettum"],
+    artefacts: ["orb-clue"],
+    summary: "At King's College, Sister Gettum receives them after hours. Langdon explains the clue and she begins searching Papal funeral records across five centuries."
+  },
+  59: {
+    location: "kings-college",
+    characters: ["langdon", "sophie", "teabing", "gettum"],
+    artefacts: ["orb-clue"],
+    summary: "The search returns several candidates. Teabing narrows the field — the interment must be in London, the knight famous enough that a Pope would attend his burial."
+  },
+  60: {
+    location: "kings-college",
+    characters: ["langdon", "gettum"],
+    artefacts: ["orb-clue", "newton-tomb"],
+    summary: "The archive yields an answer: Sir Isaac Newton, buried at Westminster Abbey in 1727, at a ceremony attended by Voltaire and presided over by the Pope's envoy. A knight. Interred by Rome."
+  },
+  61: {
+    location: "kings-college",
+    characters: ["langdon", "sophie"],
+    artefacts: ["newton-tomb", "orb-clue"],
+    summary: "Langdon realises: Newton's funerary monument bears a large celestial globe. The poem's 'orb which ought be on his tomb' — it is there, but what does the orb depict?"
+  },
+  62: {
+    location: "kings-college",
+    characters: ["aringarosa"],
+    artefacts: [],
+    summary: "Aringarosa lands at Gatwick and takes a taxi toward London. He tries reaching the Teacher repeatedly. No answer. He begins to understand he has been a pawn."
+  },
+  63: {
+    location: "kings-college",
+    characters: ["fache", "mancu"],
+    artefacts: [],
+    summary: "Fache's team confirms Teabing's jet landed at Biggin Hill. Fache alerts the Metropolitan Police, boards a flight to Heathrow, and calls Interpol to freeze Teabing's assets."
+  },
+  64: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing", "remy"],
+    artefacts: ["cryptex", "newton-tomb"],
+    summary: "They drive to Westminster Abbey. Remy parks the limousine nearby. Before cutting the engine, he sends a single text message — Silas receives it moments later."
+  },
+  65: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["newton-tomb"],
+    summary: "Inside Westminster Abbey they move through Poet's Corner toward the Scientist's Corner. Newton's monument looms — marble figures, celestial globes, and a sarcophagus lid carved with astronomy."
+  },
+  66: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["newton-tomb", "orb-clue"],
+    summary: "Langdon studies the globe. It shows planets, comets, stars — all subjects of Newton's discoveries. The poem says an orb 'ought be on' the tomb. It is. The password is what it represents."
+  },
+  67: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["orb-clue", "cryptex"],
+    summary: "Teabing and Langdon debate the password — gravity, optics, calculus. Then Sophie speaks quietly: 'Apple.' The orb that changed the world. Newton's apple."
+  },
+  68: {
+    location: "westminster",
+    characters: ["silas"],
+    artefacts: [],
+    summary: "Silas enters Westminster Abbey through a side door, hood drawn, moving along the wall toward the monument. He grips the pistol beneath his robe and prays for forgiveness."
+  },
+  69: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing", "silas"],
+    artefacts: ["cryptex"],
+    summary: "Silas steps from the shadows behind them, gun raised. He demands the cryptex. In the silence of the Abbey, the marble saints look on without mercy."
+  },
+  70: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing", "silas", "remy"],
+    artefacts: ["cryptex"],
+    summary: "Remy appears behind Teabing, pistol pressed to his neck. He was the Teacher's inside man from the start. He takes the cryptex from Langdon and drags Teabing toward the exit."
+  },
+  71: {
+    location: "westminster",
+    characters: ["langdon", "sophie"],
+    artefacts: [],
+    summary: "Remy and Silas flee into the night with Teabing as hostage. Langdon and Sophie are left alone in the Abbey. The cryptex is gone — but Langdon has memorised the poem."
+  },
+  72: {
+    location: "westminster",
+    characters: ["langdon", "sophie"],
+    artefacts: [],
+    summary: "Langdon tells Sophie the password was APPLE. They could have opened it. They now need to find Teabing — or find the Grail's location through other means."
+  },
+  73: {
+    location: "biggin-hill",
+    characters: ["remy", "the-teacher"],
+    artefacts: ["cryptex"],
+    summary: "In the limousine, the Teacher phones Remy. His voice is calm and satisfied. He tells Remy his reward is in the glove compartment — a small flask of peanut brandy."
+  },
+  74: {
+    location: "biggin-hill",
+    characters: ["the-teacher"],
+    artefacts: ["cryptex"],
+    summary: "Remy dies from anaphylactic shock, the flask in his hand. Teabing — the Teacher — steps calmly over his body, frees himself from his bonds, and calls Silas."
+  },
+  75: {
+    location: "westminster",
+    characters: ["fache", "aringarosa", "mancu"],
+    artefacts: [],
+    summary: "Fache meets a shaken Aringarosa at a London police station. The Bishop confesses everything — Silas, the four murders, the Teacher's identity. He names Leigh Teabing."
+  },
+  76: {
+    location: "westminster",
+    characters: ["fache", "aringarosa"],
+    artefacts: [],
+    summary: "Aringarosa gives Fache Teabing's name and describes the full plan. He is horrified by what he set in motion. Fache puts out an immediate arrest warrant."
+  },
+  77: {
+    location: "westminster",
+    characters: ["silas", "aringarosa", "fache"],
+    artefacts: [],
+    summary: "Silas, confused and hunted by police, flees Westminster into Kensington Gardens. In the rain he fires wildly — and the bullet strikes Aringarosa, who has come to find him."
+  },
+  78: {
+    location: "westminster",
+    characters: ["silas", "aringarosa"],
+    artefacts: [],
+    summary: "Silas reaches the wounded Bishop and holds him as he dies. Aringarosa murmurs forgiveness. Silas collapses in tears — it is the only grace either man has ever known."
+  },
+  79: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "fache"],
+    artefacts: [],
+    summary: "Fache finds Langdon and Sophie near the Abbey. He tells them he was manipulated and clears Langdon of all suspicion. He asks what they need."
+  },
+  80: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex"],
+    summary: "Teabing has anticipated them. He meets Langdon and Sophie at a private location with the cryptex in hand — the scene of his final confrontation."
+  },
+  81: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex"],
+    summary: "Teabing holds the gun steady and argues his case: the Church suppressed two thousand years of truth. The Grail must be revealed. He believes he is saving history."
+  },
+  82: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex"],
+    summary: "Sophie confronts Teabing — is murdering four Priory guardians justified for an idea? Teabing does not flinch. The Sangreal documents change everything, he insists."
+  },
+  83: {
+    location: "westminster",
+    characters: ["langdon", "teabing"],
+    artefacts: ["cryptex", "san-graal"],
+    summary: "While Teabing is focused on Sophie, Langdon quietly dials in the APPLE password and slides the inner cylinder free. He holds it calmly behind his back."
+  },
+  84: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing"],
+    artefacts: ["cryptex", "keystone"],
+    summary: "Langdon tosses the outer cryptex high into the air. Teabing lunges forward. It shatters on the stone — the inner scroll vanished. Langdon palmed it before the throw."
+  },
+  85: {
+    location: "westminster",
+    characters: ["langdon", "sophie", "teabing", "fache"],
+    artefacts: ["keystone"],
+    summary: "Police pour in on Fache's signal. Teabing is arrested, raging that Langdon destroyed the Grail map and that history will never be free. Langdon says nothing."
+  },
+  86: {
+    location: "westminster",
+    characters: ["langdon", "sophie"],
+    artefacts: ["san-graal", "keystone"],
+    summary: "Alone, Langdon and Sophie read the inner scroll's poem. It speaks of a blade and chalice, of the Holy Grail 'beneath the Rose that blooms in Scotland.'"
+  },
+  87: {
+    location: "westminster",
+    characters: ["langdon", "sophie"],
+    artefacts: ["san-graal", "priory-docs"],
+    summary: "Langdon connects the Rose symbol to Rosslyn Chapel — the 'Cathedral of Codes,' covered in a rose motif from floor to vault. The documents may have been there all along."
+  },
+  88: {
+    location: "westminster",
+    characters: ["langdon", "sophie"],
+    artefacts: [],
+    summary: "Sophie is reluctant to hope after so much loss. But the pull toward Rosslyn is personal: her grandfather took her there as a small child, and she never understood why."
+  },
+  89: {
+    location: "westminster",
+    characters: ["fache", "langdon", "sophie"],
+    artefacts: [],
+    summary: "Fache arranges transport north. He tells Langdon that Aringarosa is hospitalised but will survive, and that Teabing will face charges in three countries for four murders."
+  },
+  90: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie"],
+    artefacts: [],
+    summary: "They fly to Edinburgh and drive south through dark Midlothian hills. Rosslyn Chapel appears in the headlights — small, medieval, and encrusted with more carvings than any other building in Britain."
+  },
+  91: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie"],
+    artefacts: ["priory-docs", "holy-grail"],
+    summary: "They enter the chapel at dusk. Every surface is carved: Apprentice Pillar, Green Men, Masonic squares, Stars of David, Templar crosses. An entire theology written in stone."
+  },
+  92: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie"],
+    artefacts: ["rose-line"],
+    summary: "Langdon traces a rose motif running along the chapel floor — the Paris Meridian extends here. Rosslyn was built directly on the Rose Line, by deliberate design."
+  },
+  93: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie"],
+    artefacts: [],
+    summary: "A young caretaker approaches. He stares at Sophie with unmistakable intensity, then looks away. She feels a disorienting recognition she cannot place."
+  },
+  94: {
+    location: "rosslyn",
+    characters: ["sophie"],
+    artefacts: [],
+    summary: "Sophie follows the caretaker outside. He turns and faces her. He has her grandmother's eyes and her grandfather's jaw. This man is her brother — alive, and kept secret from her."
+  },
+  95: {
+    location: "rosslyn",
+    characters: ["sophie", "rosslyn-nun"],
+    artefacts: [],
+    summary: "Marie Chauvel steps from the cottage door — elderly, composed, and weeping. She takes Sophie's hands and says her name. It is the reunion Sophie had stopped allowing herself to imagine."
+  },
+  96: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie", "rosslyn-nun"],
+    artefacts: ["priory-docs"],
+    summary: "Marie explains: Saunière faked the deaths of Sophie and her brother after a car accident killed their parents. Those hunting the Grail bloodline would have killed the children next."
+  },
+  97: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie", "rosslyn-nun"],
+    artefacts: ["priory-docs", "holy-grail", "san-graal"],
+    summary: "Marie tells Sophie the truth about her lineage: she descends from the union of Jesus and Mary Magdalene. She is the living Sang Réal — the bloodline itself is the Grail."
+  },
+  98: {
+    location: "rosslyn",
+    characters: ["langdon", "rosslyn-nun"],
+    artefacts: ["priory-docs", "dossiers-secret"],
+    summary: "Langdon asks about the Sangreal documents. Marie confirms they exist and that the Priory has protected them for centuries. Their precise location is for the Priory alone to know."
+  },
+  99: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie", "rosslyn-nun"],
+    artefacts: ["holy-grail"],
+    summary: "Marie reflects: the Grail was never about a cup or a tomb. It is the bloodline, the living memory, the love between two people that the Church tried to erase from history."
+  },
+  100: {
+    location: "rosslyn",
+    characters: ["langdon", "sophie"],
+    artefacts: [],
+    summary: "Langdon and Sophie walk among the stones as dawn breaks over the Pentland Hills. He tells her there is no shame in choosing family over history. She already knows."
+  },
+  101: {
+    location: "rosslyn",
+    characters: ["sophie", "rosslyn-nun"],
+    artefacts: [],
+    summary: "Sophie decides to stay in Scotland with her grandmother and brother. She says goodbye to Langdon quietly, holding both his hands — grateful in a way she does not have words for."
+  },
+  102: {
+    location: "rosslyn",
+    characters: ["langdon"],
+    artefacts: [],
+    summary: "Langdon drives away alone through the Scottish morning. He thinks about faith — whether truth lives in documents or in the people who carry belief forward across centuries."
+  },
+  103: {
+    location: "louvre",
+    characters: ["langdon"],
+    artefacts: ["rose-line", "holy-grail"],
+    summary: "Back in Paris, Langdon walks along the Seine at midnight. He follows the old Rose Line south, tracing the brass discs set into the cobblestones toward the Louvre."
+  },
+  104: {
+    location: "louvre",
+    characters: ["langdon"],
+    artefacts: ["holy-grail", "san-graal"],
+    summary: "Langdon stands above the inverted glass pyramid — the Louvre's great chalice pointing downward into the earth. Beneath it, the small stone pyramid. Mary Magdalene's resting place."
+  },
   105: {
     label: "E",
     location: "louvre",
