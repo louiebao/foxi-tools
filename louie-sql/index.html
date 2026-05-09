@@ -101,9 +101,10 @@
   .center-col {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     gap: 14px;
+    padding: 0 16px;
     border-right: 1px solid #d0d0cc;
     background: #edeae3;
   }
@@ -114,7 +115,7 @@
     background: #222;
     color: #f8f8f5;
     border: none;
-    padding: 10px 32px;
+    padding: 10px 0;
     font-family: 'Courier New', monospace;
     font-size: 14px;
     letter-spacing: 0.1em;
@@ -160,13 +161,13 @@
 <main>
   <div class="pane pane-left">
     <div class="pane-header">
-      <span class="pane-label">SQL</span>
+      <span class="pane-label">Raw SQL</span>
     </div>
     <textarea id="input-sql" spellcheck="false" placeholder="Paste your SQL here…"></textarea>
   </div>
 
   <div class="center-col">
-    <button id="btn-format" class="btn-primary">Format -></button>
+    <button id="btn-format" class="btn-primary"> => </button>
   </div>
 
   <div class="pane pane-right">
