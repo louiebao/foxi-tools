@@ -6,7 +6,7 @@
 <title>foxi-tools</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: clamp(15px, 1.1vw, 22px); }
+  html { font-size: clamp(17px, 1.3vw, 26px); }
   body {
     background: #f8f8f5;
     color: #222;
@@ -27,17 +27,21 @@
     color: #222;
     text-transform: uppercase;
   }
+  .header-title {
+    display: flex;
+    align-items: baseline;
+    gap: 1.2em;
+  }
   header p {
-    margin-top: 7px;
-    font-size: 0.87rem;
-    color: #666;
+    font-size: 0.75rem;
+    color: #888;
     letter-spacing: 0.04em;
   }
   header ul {
     margin-top: 10px;
     padding-left: 18px;
     font-size: 0.8rem;
-    color: #888;
+    color: #666;
     letter-spacing: 0.03em;
     line-height: 1.9;
   }
@@ -49,7 +53,6 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    max-width: 560px;
   }
   .tool-link {
     display: flex;
@@ -69,25 +72,29 @@
     text-transform: uppercase;
     transition: color 0.1s;
     flex-shrink: 0;
+    min-width: 12em;
   }
   .tool-desc {
     font-size: 0.87rem;
-    color: #777;
+    color: #555;
     letter-spacing: 0.02em;
+    flex: 1;
   }
   footer {
     padding: 14px 40px;
     border-top: 1px solid #d0d0cc;
     font-size: 0.8rem;
-    color: #888;
+    color: #777;
     letter-spacing: 0.06em;
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>FOXI Tools</h1>
-  <p>A collection of HTML tools with a 佛系 theme</p>
+  <div class="header-title">
+    <h1>FOXI Tools</h1>
+    <p>A collection of HTML tools with a 佛系 theme</p>
+  </div>
   <ul>
     <li>佛系 (foxi) is a Chinese slang term</li>
     <li>It literally means "Buddha-like"</li>
@@ -101,9 +108,17 @@
       <span class="tool-name">Life in Months</span>
       <span class="tool-desc">Visualise your life as a grid of months</span>
     </a>
+    <a class="tool-link" href="louie-sql/">
+      <span class="tool-name">Louie SQL</span>
+      <span class="tool-desc">Highly opinionated SQL prettifier</span>
+    </a>
     <a class="tool-link" href="dan-brown-da-vinci-code/">
       <span class="tool-name">The Da Vinci Code</span>
       <span class="tool-desc">Chapter by chapter visual guide to the novel</span>
+    </a>
+    <a class="tool-link" href="chinglish-wisdom/">
+      <span class="tool-name">Chinglish Wisdom</span>
+      <span class="tool-desc">Chinese wisdom, lost then found in translation</span>
     </a>
   </div>
 </main>
