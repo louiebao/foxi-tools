@@ -6,7 +6,7 @@
 <title>The Da Vinci Code — Chapter Journey</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: clamp(15px, 1.1vw, 22px); }
+html { font-size: clamp(17px, 1.3vw, 26px); }
 
 body {
   background: #f8f8f5;
@@ -34,7 +34,7 @@ header h1 {
 header p {
   margin-top: 4px;
   font-size: 0.73rem;
-  color: #888;
+  color: #777;
   letter-spacing: 0.06em;
 }
 
@@ -230,8 +230,11 @@ header p {
   fill: #b0ada6;
   pointer-events: none;
   letter-spacing: 0.04em;
+  opacity: 0;
+  transition: opacity 0.15s;
 }
-.loc-group.active .loc-label { fill: #8b5e2e; }
+.loc-group:hover .loc-label { opacity: 1; }
+.loc-group.active .loc-label { opacity: 1; fill: #8b5e2e; }
 
 /* ── Footer ── */
 footer {
@@ -365,13 +368,13 @@ footer {
       <g class="loc-group" data-loc="biggin-hill" data-x="228" data-y="142">
         <circle class="loc-node" cx="0" cy="0" r="9"/>
         <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">7</text>
-        <text class="loc-label" x="-13" y="1" text-anchor="end">Biggin Hill</text>
+        <text class="loc-label" x="13" y="1" text-anchor="start">Biggin Hill</text>
       </g>
 
       <g class="loc-group" data-loc="temple-church" data-x="92" data-y="132">
         <circle class="loc-node" cx="0" cy="0" r="9"/>
         <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">8</text>
-        <text class="loc-label" x="13" y="1" text-anchor="start">Temple Ch.</text>
+        <text class="loc-label" x="-13" y="1" text-anchor="end">Temple Church</text>
       </g>
 
       <g class="loc-group" data-loc="kings-college" data-x="165" data-y="155">
@@ -383,26 +386,26 @@ footer {
       <g class="loc-group" data-loc="westminster" data-x="52" data-y="170">
         <circle class="loc-node" cx="0" cy="0" r="9"/>
         <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">10</text>
-        <text class="loc-label" x="13" y="1" text-anchor="start">Westminster</text>
+        <text class="loc-label" x="-13" y="1" text-anchor="end">Westminster</text>
       </g>
 
       <!-- Paris -->
       <g class="loc-group" data-loc="chateau-villette" data-x="35" data-y="258">
         <circle class="loc-node" cx="0" cy="0" r="9"/>
         <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">5</text>
-        <text class="loc-label" x="13" y="1" text-anchor="start">Villette</text>
+        <text class="loc-label" x="-13" y="1" text-anchor="end">Château Villette</text>
       </g>
 
       <g class="loc-group" data-loc="gare-du-nord" data-x="65" data-y="278">
         <circle class="loc-node" cx="0" cy="0" r="9"/>
         <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">6</text>
-        <text class="loc-label" x="0" y="-14" text-anchor="middle">Gare du Nord</text>
+        <text class="loc-label" x="-13" y="1" text-anchor="end">Gare du Nord</text>
       </g>
 
       <g class="loc-group" data-loc="louvre" data-x="143" data-y="252">
         <circle class="loc-node" cx="0" cy="0" r="9"/>
         <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">1</text>
-        <text class="loc-label" x="13" y="1" text-anchor="start">Louvre</text>
+        <text class="loc-label" x="0" y="-14" text-anchor="middle">Louvre</text>
       </g>
 
       <g class="loc-group" data-loc="police-hq" data-x="190" data-y="248">
@@ -414,7 +417,7 @@ footer {
       <g class="loc-group" data-loc="depositary-bank" data-x="220" data-y="274">
         <circle class="loc-node" cx="0" cy="0" r="9"/>
         <text class="loc-seq" x="0" y="0" text-anchor="middle" dominant-baseline="central">4</text>
-        <text class="loc-label" x="-13" y="1" text-anchor="end">Bank</text>
+        <text class="loc-label" x="13" y="1" text-anchor="start">Depositary Bank</text>
       </g>
 
       <g class="loc-group" data-loc="saint-sulpice" data-x="80" data-y="295">
@@ -1281,9 +1284,8 @@ const mapWrap = document.getElementById('map-wrap');
 
 function applyTransform() {
   mapSvg.style.transform = `translate(${mapX}px, ${mapY}px) scale(${mapZoom})`;
-  const s = 1 / mapZoom;
   document.querySelectorAll('.loc-group').forEach(g => {
-    g.setAttribute('transform', `translate(${g.dataset.x},${g.dataset.y}) scale(${s})`);
+    g.setAttribute('transform', `translate(${g.dataset.x},${g.dataset.y})`);
   });
 }
 
