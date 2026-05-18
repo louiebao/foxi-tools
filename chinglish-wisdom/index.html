@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chinglish Wisdom</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #f8f8f5;
+    color: #222;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 22px;
+    border-bottom: 1px solid #d0d0cc;
+    flex-shrink: 0;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 3px; }
+  .tool-title {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    color: #222;
+  }
+  .tool-tagline {
+    font-size: 12px;
+    color: #777;
+    letter-spacing: 0.06em;
+  }
+  .home-link {
+    font-size: 13px;
+    color: #777;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+  .home-link:hover { color: #222; }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-bottom: 1px solid #d0d0cc;
+    background: #edeae3;
+    flex-shrink: 0;
+  }
+  .filter-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #999;
+    margin-right: 4px;
+  }
+  .chip {
+    background: transparent;
+    color: #666;
+    border: 1px solid #ccc;
+    padding: 4px 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+  }
+  .chip:hover { border-color: #888; color: #222; }
+  .chip.active { border-color: #888; color: #222; background: #f8f8f5; }
+
+  /* ── Main / table ── */
+  main {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  col.col-chinese   { width: 22%; }
+  col.col-chinglish { width: 39%; }
+  col.col-english   { width: 39%; }
+
+  thead tr {
+    background: #edeae3;
+    border-bottom: 1px solid #d0d0cc;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  thead th {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: normal;
+    letter-spacing: 0.14em;
+    color: #777;
+    text-align: center;
+    border-right: 1px solid #d0d0cc;
+  }
+  thead th:last-child { border-right: none; }
+
+  tbody tr {
+    border-bottom: 1px solid #eee;
+  }
+  tbody tr:hover { background: #edeae3; }
+  tbody tr.hidden { display: none; }
+
+  tbody td {
+    padding: 14px 16px;
+    vertical-align: top;
+    border-right: 1px solid #eee;
+    line-height: 1.55;
+  }
+  tbody td:last-child { border-right: none; }
+
+  .chinese {
+    font-size: 18px;
+    color: #222;
+    letter-spacing: 0.04em;
+    opacity: 0.15;
+    transition: opacity 180ms ease;
+  }
+
+  .chinglish {
+    font-size: 15px;
+    color: #222;
+    letter-spacing: 0.02em;
+    font-style: italic;
+  }
+
+  .english {
+    font-size: 14px;
+    color: #333;
+    letter-spacing: 0.02em;
+    opacity: 0.15;
+    transition: opacity 180ms ease;
+  }
+
+  tbody tr:hover .chinese,
+  tbody tr:hover .english {
+    opacity: 1;
+  }
+
+  /* ── Footer ── */
+  footer {
+    padding: 11px 22px;
+    border-top: 1px solid #d0d0cc;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  footer a { color: #777; text-decoration: none; letter-spacing: 0.04em; }
+  footer a:hover { color: #222; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <span class="tool-title">Chinglish Wisdom</span>
+    <span class="tool-tagline">Chinese wisdom, lost then found in translation</span>
+  </div>
+</header>
+
+<main>
+<table>
+  <colgroup>
+    <col class="col-chinese">
+    <col class="col-chinglish">
+    <col class="col-english">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Chinese</th>
+      <th>Chinglish</th>
+      <th>English</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <!-- Life -->
+    <tr data-topic="life">
+      <td class="chinese">塞翁失马，焉知非福</td>
+      <td class="chinglish">Border Man Loses Horses, How Know Not Blessing</td>
+      <td class="english">An ancient Chinese fable about a border farmer whose horses ran away and who, when neighbours came to mourn his loss, simply asked, "How do you
+  know this is not a blessing?" 
+  <br/><br/>
+  True to his words, the horses returned leading a herd of wild horses, his son later broke his leg riding one of them, and when war came, that injury
+   spared the son from being conscripted into battle. 
+   <br/><br/>
+   The proverb means that misfortune and fortune are two sides of the same coin. What looks like a loss today may quietly be
+  laying the ground for a gain tomorrow. It is a call to resist despair in hardship and overconfidence in success, because life's turns are rarely what they first appear.</td>
+    </tr>
+    <tr data-topic="life">
+      <td class="chinese">人外有人，天外有天</td>
+      <td class="chinglish">People Beyond Have People, Sky Beyond Have Sky</td>
+      <td class="english">A classic Chinese proverb which literally means "Beyond people there are people; beyond the sky there is sky." 
+        <br/><br/>
+        No matter how skilled or accomplished you become, there will always be someone more capable standing above you, just as there is always another sky beyond the one you can see. 
+        <br/><br/>
+        This saying is a timeless reminder to remain humble, because the world is vast and human potential is boundless. Pride in one's own abilities is the ceiling of growth, while humility is the door to it.
+    </td>
+    </tr>
+
+    <tr data-topic="leadership">
+      <td class="chinese">防患于未然</td>
+      <td class="chinglish">Prevent Disaster Before Burning</td>
+      <td class="english">It means "to prevent disaster before it takes shape"
+        <br/><br/>
+        Acting against a threat while it is still only a possibility, not yet a reality. It is the philosophy behind
+  every safety drill, every contingency plan, and every rule written in response to a near-miss rather than a catastrophe. 
+  <br/><br/>
+  The wisdom here is that the cost of prevention is almost always smaller than the cost of cure, and that the best crises are the ones that never happen. 
+  <br/><br/>
+  A skilled software engineer does not wait for things to break. They read the warning signs and act while there is still room to act.</td>
+    </tr>
+
+
+  </tbody>
+</table>
+</main>
+
+<footer>
+  <a href="../">← Home</a>
+</footer>
+
+<script>
+const chips = document.querySelectorAll('.chip');
+const rows  = document.querySelectorAll('tbody tr');
+
+chips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    chips.forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const topic = chip.dataset.topic;
+    rows.forEach(row => {
+      const show = topic === 'all' || row.dataset.topic === topic;
+      row.classList.toggle('hidden', !show);
+    });
+  });
+});
+</script>
+
+</body>
+</html>
