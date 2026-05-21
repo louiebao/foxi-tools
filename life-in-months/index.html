@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Life in Months</title>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: clamp(17px, 1.3vw, 26px); }
@@ -323,7 +322,7 @@ try {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) state = JSON.parse(raw);
 } catch (e) {
-  Swal.fire({ icon: 'error', title: 'Corrupted data', text: 'Saved data could not be loaded. Starting fresh.' });
+  alert('Corrupted data — saved data could not be loaded. Starting fresh.');
   localStorage.removeItem(STORAGE_KEY);
 }
 
@@ -343,7 +342,7 @@ function scheduleSave() {
     } catch (e) {
       if (e.name === 'QuotaExceededError') {
         saveBlocked = true;
-        Swal.fire({ icon: 'warning', title: 'Storage full', text: 'Export your data to continue saving.' });
+        alert('Storage full — export your data to continue saving.');
       }
     }
   }, 300);
@@ -726,25 +725,9 @@ document.addEventListener('keydown', e => {
   if (newCell) { newCell.click(); newCell.focus(); newCell.scrollIntoView({ block: 'nearest' }); }
 });
 
-document.getElementById('btnReset').addEventListener('click', async () => {
-  const { isConfirmed } = await Swal.fire({
-    title: 'Clear all data?',
-    text: 'This cannot be undone.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Clear',
-    cancelButtonText: 'Cancel',
-  });
-  if (!isConfirmed) return;
-
-  const { isConfirmed: wantsSave } = await Swal.fire({
-    title: 'Save a backup first?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Save',
-    cancelButtonText: 'Skip',
-  });
-  if (wantsSave) document.getElementById('btnExport').click();
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (!confirm('Clear all data? This cannot be undone.')) return;
+  if (confirm('Save a backup first?')) document.getElementById('btnExport').click();
 
   state = { birthdate: '', cells: {} };
   clearBirthdateDisplay();
@@ -778,17 +761,17 @@ document.getElementById('fileInput').addEventListener('change', e => {
   e.target.value = '';
 
   const reader = new FileReader();
-  reader.onload = async ev => {
+  reader.onload = ev => {
     let parsed;
     try {
       parsed = JSON.parse(ev.target.result);
     } catch {
-      Swal.fire({ icon: 'error', title: 'Invalid file', text: 'Could not read file — invalid JSON.' });
+      alert('Could not read file — invalid JSON.');
       return;
     }
 
     if (!parsed.cells && !parsed.birthdate) {
-      Swal.fire({ icon: 'error', title: 'Wrong file', text: "This doesn't look like a life-months export file." });
+      alert("This doesn't look like a life-months export file.");
       return;
     }
 
@@ -796,15 +779,8 @@ document.getElementById('fileInput').addEventListener('change', e => {
     const conflicts = Object.keys(incoming).filter(k => state.cells[k] !== undefined).length;
 
     if (conflicts > 0) {
-      const { isConfirmed } = await Swal.fire({
-        title: 'Overwrite existing months?',
-        text: `Import will overwrite ${conflicts} existing month${conflicts === 1 ? '' : 's'}. Unaffected months are kept.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Import',
-        cancelButtonText: 'Cancel',
-      });
-      if (!isConfirmed) return;
+      const msg = `Import will overwrite ${conflicts} existing month${conflicts === 1 ? '' : 's'}. Unaffected months are kept. Continue?`;
+      if (!confirm(msg)) return;
     }
 
     if (parsed.birthdate) state.birthdate = parsed.birthdate;
