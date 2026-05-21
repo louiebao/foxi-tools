@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Portal</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ---- design tokens ---- */
+  :root {
+    --bg:           #f8f8f5;
+    --bg-panel:     #edeae3;
+    --text:         #222;
+    --text-2:       #666;
+    --text-3:       #777;
+    --border:       #d0d0cc;
+    --border-ui:    #ccc;
+    --border-hover: #888;
+    --accent:       #4a7ab4;
+  }
+  .dark {
+    --bg:           #1a1a18;
+    --bg-panel:     #232321;
+    --text:         #e8e8e5;
+    --text-2:       #aaa;
+    --text-3:       #777;
+    --border:       #333;
+    --border-ui:    #444;
+    --border-hover: #666;
+  }
+
+  /* ---- shell ---- */
+  body {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  /* ---- header ---- */
+  header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 7px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-panel);
+    flex-shrink: 0;
+  }
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .header-title {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  #theme-toggle {
+    background: transparent;
+    border: 1px solid var(--border-ui);
+    color: var(--text-2);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+  }
+  #theme-toggle:hover { border-color: var(--border-hover); color: var(--text); }
+  #clock-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+  }
+  #clock-area {
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-align: right;
+    line-height: 1.5;
+  }
+  #clock-area:hover { color: var(--text); }
+
+  /* ---- banners ---- */
+  #error-banner {
+    background: #8c3030;
+    color: #f8f8f5;
+    padding: 5px 14px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    display: none;
+    flex-shrink: 0;
+  }
+  #nudge-banner {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    padding: 5px 14px;
+    font-size: 11px;
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  #nudge-banner span { flex: 1; }
+  .btn-primary {
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    padding: 4px 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { opacity: 0.8; }
+  #nudge-close {
+    background: transparent;
+    border: none;
+    color: var(--text-3);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+  }
+  #nudge-close:hover { color: var(--text); }
+
+  /* ---- main / grid ---- */
+  main {
+    flex: 1;
+    padding: 10px;
+  }
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+  }
+
+  /* ---- cell ---- */
+  .cell {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    min-height: 200px;
+  }
+  .cell-header {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    flex-shrink: 0;
+    padding: 0 8px 0 7px;
+    gap: 5px;
+    position: relative;
+  }
+  .cell-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.5);
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 0;
+  }
+  .cell-dot:hover { background: rgba(255,255,255,0.65); }
+  .cell-label {
+    flex: 1;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    outline: none;
+    min-width: 0;
+    cursor: text;
+  }
+  .cell-label:focus {
+    background: rgba(0,0,0,0.15);
+    padding: 1px 4px;
+    border-radius: 0;
+  }
+  .cell-add {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.85);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    flex-shrink: 0;
+  }
+  .cell-add:hover { color: #fff; }
+  .cell-body {
+    padding: 3px 0;
+  }
+
+  /* ---- empty state ---- */
+  .cell-empty {
+    font-style: italic;
+    color: var(--text-3);
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 18px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 60px;
+  }
+
+  /* ---- links ---- */
+  .link-row {
+    display: flex;
+    align-items: center;
+    padding: 2px 8px;
+    min-height: 22px;
+    gap: 3px;
+  }
+  .link-row:hover { background: var(--bg-panel); }
+  .link-anchor {
+    font-size: 0.82rem;
+    color: var(--accent);
+    text-decoration: none;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.02em;
+  }
+  .link-anchor:hover { text-decoration: underline; }
+  .link-actions {
+    display: none;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .link-row:hover .link-actions { display: flex; }
+  .link-action-btn {
+    background: transparent;
+    border: none;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text-3);
+    padding: 1px 3px;
+    line-height: 1;
+  }
+  .link-action-btn:hover { color: var(--text); }
+  .link-remove-btn:hover { color: #9c3030; }
+
+  /* ---- inline form ---- */
+  .link-form {
+    position: relative;
+    z-index: 10;
+    padding: 5px 8px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-panel);
+  }
+  .link-form input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border-ui);
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 3px 6px;
+    margin-bottom: 3px;
+    outline: none;
+    display: block;
+  }
+  .link-form input:focus { border-color: var(--border-hover); }
+  .link-form input::placeholder { color: var(--text-3); }
+  .link-form-btns { display: flex; gap: 5px; }
+  .link-form-cancel {
+    background: transparent;
+    color: var(--text-3);
+    border: 1px solid var(--border-ui);
+    padding: 4px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+  .link-form-cancel:hover { border-color: var(--border-hover); color: var(--text); }
+
+  /* ---- color palette popover ---- */
+  .color-popover {
+    position: absolute;
+    z-index: 200;
+    top: 28px;
+    left: 0;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    padding: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    width: 110px;
+  }
+  .swatch {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    flex-shrink: 0;
+  }
+  .swatch:hover { border-color: rgba(255,255,255,0.7); }
+  .swatch.active { border-color: #fff; }
+
+  /* ---- clock popover ---- */
+  #clock-popover {
+    position: absolute;
+    top: 28px;
+    right: 0;
+    z-index: 200;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    width: 210px;
+  }
+  .clock-city-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .clock-city-name { flex: 1; }
+  .clock-remove-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-3);
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    padding: 1px 3px;
+  }
+  .clock-remove-btn:hover { color: #9c3030; }
+  .clock-section-label {
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 6px 0 3px;
+  }
+  #clock-city-select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border-ui);
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 3px 4px;
+    margin-bottom: 5px;
+  }
+  #clock-add-btn { width: 100%; }
+  #clock-disable-btn {
+    width: 100%;
+    margin-top: 4px;
+    background: transparent;
+    color: var(--text-3);
+    border: 1px solid var(--border-ui);
+    padding: 4px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+  #clock-disable-btn:hover { border-color: var(--border-hover); color: var(--text); }
+
+  /* ---- footer ---- */
+  footer {
+    border-top: 1px solid var(--border);
+    background: var(--bg-panel);
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  footer a {
+    color: var(--text-3);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+  footer a:hover { color: var(--text); }
+
+  [hidden] { display: none !important; }
+
+  /* ---- notepad easter egg ---- */
+  #notepad-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+  #notepad-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-panel);
+    flex-shrink: 0;
+  }
+  #notepad-label {
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  #notepad-body {
+    flex: 1;
+    padding: 20px;
+    outline: none;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-y: auto;
+  }
+</style>
+</head>
+<body>
+
+<script id="portal-data" type="application/json"></script>
+
+<div id="error-banner"></div>
+
+<div id="notepad-overlay" hidden>
+  <div id="notepad-bar">
+    <span id="notepad-label">Notepad — Press ESC to close</span>
+  </div>
+  <div id="notepad-body" contenteditable="plaintext-only"></div>
+</div>
+
+<header>
+  <div class="header-left">
+    <button id="theme-toggle">&#9728; &#9790;</button>
+    <span class="header-title">MY PORTAL</span>
+  </div>
+  <div id="clock-wrapper">
+    <div id="clock-area"></div>
+    <div id="clock-popover" hidden></div>
+  </div>
+</header>
+
+<div id="nudge-banner" hidden>
+  <span>Tip: export your portal to keep your bookmarks safe &mdash; localStorage can be cleared by the browser.</span>
+  <button class="btn-primary" id="nudge-export-btn">Export HTML</button>
+  <button id="nudge-close" title="Dismiss">&times;</button>
+</div>
+
+<main>
+  <div id="grid"></div>
+</main>
+
+<footer>
+  <a href="../">&larr; home</a>
+  <button class="btn-primary" id="export-btn">Export HTML</button>
+</footer>
+
+<script>
+'use strict';
+
+// ---- constants ----
+const STORAGE_KEY = 'foxi-portal-state';
+const CLOSE_TAG = '<' + '/script>';
+
+const COLORS = [
+  '#4a7ab4', '#4a8c6a', '#b46a4a', '#7a4ab4',
+  '#6a7a8c', '#8c8a4a', '#b44a6a', '#444444',
+  '#3a9ab0', '#5a7a3a', '#b4904a', '#8a4a7a',
+  '#4a6ab4', '#7a5a3a', '#6ab44a', '#8a6a5a',
+];
+const COLOR_NAMES = [
+  'Slate blue', 'Forest', 'Terracotta', 'Plum',
+  'Slate gray', 'Olive', 'Rose', 'Charcoal',
+  'Teal', 'Fern', 'Amber', 'Mauve',
+  'Cobalt', 'Umber', 'Sage', 'Sienna',
+];
+
+const CITY_LIST = [
+  { label: 'Anchorage',     tz: 'America/Anchorage' },
+  { label: 'Auckland',      tz: 'Pacific/Auckland' },
+  { label: 'Berlin',        tz: 'Europe/Berlin' },
+  { label: 'Bogota',        tz: 'America/Bogota' },
+  { label: 'Buenos Aires',  tz: 'America/Argentina/Buenos_Aires' },
+  { label: 'Cairo',         tz: 'Africa/Cairo' },
+  { label: 'Chicago',       tz: 'America/Chicago' },
+  { label: 'Denver',        tz: 'America/Denver' },
+  { label: 'Dubai',         tz: 'Asia/Dubai' },
+  { label: 'Helsinki',      tz: 'Europe/Helsinki' },
+  { label: 'Honolulu',      tz: 'Pacific/Honolulu' },
+  { label: 'Johannesburg',  tz: 'Africa/Johannesburg' },
+  { label: 'Lagos',         tz: 'Africa/Lagos' },
+  { label: 'Lima',          tz: 'America/Lima' },
+  { label: 'London',        tz: 'Europe/London' },
+  { label: 'Los Angeles',   tz: 'America/Los_Angeles' },
+  { label: 'Melbourne',     tz: 'Australia/Melbourne' },
+  { label: 'Mexico City',   tz: 'America/Mexico_City' },
+  { label: 'Moscow',        tz: 'Europe/Moscow' },
+  { label: 'Mumbai',        tz: 'Asia/Kolkata' },
+  { label: 'Nairobi',       tz: 'Africa/Nairobi' },
+  { label: 'New York',      tz: 'America/New_York' },
+  { label: 'Paris',         tz: 'Europe/Paris' },
+  { label: 'Philippines',   tz: 'Asia/Manila' },
+  { label: 'Reykjavik',     tz: 'Atlantic/Reykjavik' },
+  { label: 'Sao Paulo',     tz: 'America/Sao_Paulo' },
+  { label: 'Seoul',         tz: 'Asia/Seoul' },
+  { label: 'Shanghai',      tz: 'Asia/Shanghai' },
+  { label: 'Singapore',     tz: 'Asia/Singapore' },
+  { label: 'Sydney',        tz: 'Australia/Sydney' },
+  { label: 'Tokyo',         tz: 'Asia/Tokyo' },
+  { label: 'Toronto',       tz: 'America/Toronto' },
+];
+
+const DEFAULT_HEADERS = Array(9).fill('Click to add heading');
+const DANGEROUS_SCHEMES = /^(javascript|data|vbscript):/i;
+
+function utcOffsetMinutes(tz) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, timeZoneName: 'longOffset',
+  }).formatToParts(new Date());
+  const val = (parts.find(p => p.type === 'timeZoneName') || {}).value || 'GMT+0';
+  const m = val.match(/GMT([+-])(\d+)(?::(\d+))?/);
+  if (!m) return 0;
+  return (m[1] === '+' ? 1 : -1) * (parseInt(m[2], 10) * 60 + parseInt(m[3] || '0', 10));
+}
+
+function formatGmtOffset(tz) {
+  const mins = utcOffsetMinutes(tz);
+  const sign = mins >= 0 ? '+' : '-';
+  const abs = Math.abs(mins);
+  const h = Math.floor(abs / 60);
+  const m = abs % 60;
+  return 'GMT' + sign + h + (m ? ':' + String(m).padStart(2, '0') : '');
+}
+
+// ---- state ----
+let state = null;
+let saveHandle = null;
+let clockTimer = null;
+let lastClockStr = '';
+let activePopover = null;
+let clockOutsideHandler = null;
+
+function defaultState() {
+  return {
+    version: 1,
+    nextLinkId: 0,
+    settings: {
+      darkMode: false,
+      hasNudgedToExport: false,
+      worldClock: { enabled: false, cities: [] },
+    },
+    cells: DEFAULT_HEADERS.map((h, i) => ({
+      id: 'cell-' + i,
+      header: h,
+      color: COLORS[i % COLORS.length],
+      links: [],
+    })),
+  };
+}
+
+// ---- load / save ----
+function loadState() {
+  const dataEl = document.getElementById('portal-data');
+  const embedded = dataEl && dataEl.textContent.trim();
+  if (embedded) {
+    try {
+      const parsed = JSON.parse(embedded);
+      // Only seed localStorage from embedded data if it's currently empty —
+      // prevents opening an old exported file from silently overwriting a newer live portal.
+      const existing = localStorage.getItem(STORAGE_KEY);
+      if (!existing) writeStorage(parsed);
+    } catch (_) { /* malformed embedded data — fall through */ }
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed.nextLinkId !== 'number') parsed.nextLinkId = 0; // T6: migration
+      return parsed;
+    }
+  } catch (_) { /* fall through to default */ }
+  return defaultState();
+}
+
+// T4: QuotaExceededError handling lives here
+function writeStorage(s) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      showError('Storage full — export your portal to avoid losing data.');
+    }
+  }
+}
+
+function save() { writeStorage(state); }
+
+// ---- error banner ----
+let errorTimer = null;
+function showError(msg) {
+  const b = document.getElementById('error-banner');
+  b.textContent = msg;
+  b.style.display = 'block';
+  clearTimeout(errorTimer);
+  errorTimer = setTimeout(() => { b.style.display = 'none'; }, 7000);
+}
+
+// ---- URL validation (T1) ----
+function normalizeUrl(raw) {
+  const s = raw.trim();
+  if (!s) return null;
+  if (DANGEROUS_SCHEMES.test(s)) return null;
+  if (s.startsWith('//')) return 'https:' + s;
+  if (!s.includes('://') && !s.startsWith('mailto:')) return 'https://' + s;
+  return s;
+}
+
+// ---- theme ----
+function applyTheme() {
+  document.body.classList.toggle('dark', !!state.settings.darkMode);
+}
+
+// ---- popover management ----
+function closeActivePopover() {
+  if (activePopover) { activePopover.remove(); activePopover = null; }
+}
+
+// ---- render grid ----
+function renderAll() {
+  applyTheme();
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  state.cells.forEach(cell => grid.appendChild(buildCell(cell)));
+  renderClockArea();
+}
+
+// ---- cell ----
+function buildCell(cell) {
+  const el = document.createElement('div');
+  el.className = 'cell';
+  el.dataset.id = cell.id;
+
+  // Header band
+  const hdr = document.createElement('div');
+  hdr.className = 'cell-header';
+  hdr.style.background = cell.color;
+
+  const dot = document.createElement('button');
+  dot.className = 'cell-dot';
+  dot.title = 'Change color';
+  dot.addEventListener('click', e => { e.stopPropagation(); openColorPicker(cell, hdr, dot); });
+
+  // T: contenteditable with plaintext-only + Firefox fallback
+  const label = document.createElement('div');
+  label.className = 'cell-label';
+  label.setAttribute('contenteditable', 'plaintext-only');
+  if (label.contentEditable !== 'plaintext-only') {
+    label.contentEditable = 'true';
+    label.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      document.execCommand('insertText', false, text);
+    });
+  }
+  label.textContent = cell.header;
+  label.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); label.blur(); }
+    if (e.key === 'Escape') { label.textContent = cell.header; label.blur(); }
+  });
+  label.addEventListener('blur', () => {
+    const val = label.textContent.trim() || cell.header;
+    cell.header = val;
+    label.textContent = val;
+    save();
+  });
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'cell-add';
+  addBtn.textContent = '+';
+  addBtn.title = 'Add link';
+  addBtn.addEventListener('click', () => openAddForm(cell, el));
+
+  hdr.append(dot, label, addBtn);
+
+  const body = document.createElement('div');
+  body.className = 'cell-body';
+
+  el.append(hdr, body);
+  renderLinks(cell, body);
+  return el;
+}
+
+// ---- links (T5: textContent never innerHTML) ----
+function renderLinks(cell, body) {
+  body.innerHTML = '';
+  if (cell.links.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'cell-empty';
+    empty.textContent = 'No links yet';
+    body.appendChild(empty);
+    return;
+  }
+  cell.links.forEach(link => body.appendChild(buildLinkRow(cell, link, body)));
+}
+
+function buildLinkRow(cell, link, body) {
+  const row = document.createElement('div');
+  row.className = 'link-row';
+  row.dataset.id = link.id;
+
+  const a = document.createElement('a');
+  a.className = 'link-anchor';
+  const safeUrl = normalizeUrl(link.url);
+  if (!safeUrl) return row;    // skip malformed/dangerous URLs from storage
+  a.href = safeUrl;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  a.textContent = link.text;   // textContent — safe from XSS
+
+  const actions = document.createElement('span');
+  actions.className = 'link-actions';
+
+  const editBtn = document.createElement('button');
+  editBtn.className = 'link-action-btn';
+  editBtn.textContent = '✎';
+  editBtn.title = 'Edit';
+  editBtn.addEventListener('click', () => openEditForm(cell, link, row, body));
+
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'link-action-btn link-remove-btn';
+  removeBtn.textContent = '×';
+  removeBtn.title = 'Remove';
+  removeBtn.addEventListener('click', () => {
+    cell.links = cell.links.filter(l => l.id !== link.id);
+    save();
+    renderLinks(cell, body);
+  });
+
+  actions.append(editBtn, removeBtn);
+  row.append(a, actions);
+  return row;
+}
+
+// ---- add / edit forms ----
+function openAddForm(cell, cellEl) {
+  const body = cellEl.querySelector('.cell-body');
+  const existing = body.querySelector('.link-form');
+  if (existing) { existing.querySelector('input').focus(); return; }
+  const form = buildLinkForm(cell, body, null);
+  body.appendChild(form);
+  form.querySelector('input[placeholder="URL"]').focus();
+  body.scrollTop = body.scrollHeight;
+}
+
+function openEditForm(cell, link, row, body) {
+  const existing = body.querySelector('.link-form');
+  if (existing) existing.remove();
+  const form = buildLinkForm(cell, body, link);
+  row.insertAdjacentElement('afterend', form);
+  form.querySelector('input').focus();
+}
+
+function buildLinkForm(cell, body, existingLink) {
+  const form = document.createElement('div');
+  form.className = 'link-form';
+
+  const urlInput = document.createElement('input');
+  urlInput.type = 'text';
+  urlInput.placeholder = 'URL';
+  if (existingLink) urlInput.value = existingLink.url;
+
+  const textInput = document.createElement('input');
+  textInput.type = 'text';
+  textInput.placeholder = 'Link text';
+  if (existingLink) textInput.value = existingLink.text;
+
+  const btns = document.createElement('div');
+  btns.className = 'link-form-btns';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn-primary link-form-save';
+  saveBtn.textContent = '✓ Save';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'link-form-cancel';
+  cancelBtn.textContent = '✕ Cancel';
+
+  function doSave() {
+    const text = textInput.value.trim();
+    const rawUrl = urlInput.value.trim();
+    if (!text) { textInput.focus(); return; }
+    if (!rawUrl) { urlInput.focus(); return; }
+    const url = normalizeUrl(rawUrl); // T1: validate/normalize
+    if (!url) {
+      urlInput.value = '';
+      urlInput.placeholder = 'Invalid URL — try https://…';
+      urlInput.focus();
+      return;
+    }
+    if (existingLink) {
+      existingLink.text = text;
+      existingLink.url = url;
+    } else {
+      cell.links.push({ id: state.nextLinkId++, text, url }); // T6: persistent ID counter
+      maybeShowNudge();
+    }
+    save();
+    renderLinks(cell, body);
+  }
+
+  saveBtn.addEventListener('click', doSave);
+  cancelBtn.addEventListener('click', e => { e.stopPropagation(); form.remove(); });
+
+  urlInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); textInput.focus(); }
+    if (e.key === 'Escape') form.remove();
+  });
+  textInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); doSave(); }
+    if (e.key === 'Escape') form.remove();
+  });
+
+  btns.append(saveBtn, cancelBtn);
+  form.append(urlInput, textInput, btns);
+  return form;
+}
+
+// ---- nudge (T7) ----
+function maybeShowNudge() {
+  if (!state.settings.hasNudgedToExport) {
+    document.getElementById('nudge-banner').removeAttribute('hidden');
+  }
+}
+
+function dismissNudge() {
+  state.settings.hasNudgedToExport = true;
+  document.getElementById('nudge-banner').setAttribute('hidden', '');
+  save();
+}
+
+// ---- color picker ----
+function openColorPicker(cell, hdr, dot) {
+  closeActivePopover();
+  const pop = document.createElement('div');
+  pop.className = 'color-popover';
+
+  COLORS.forEach((hex, i) => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch' + (cell.color === hex ? ' active' : '');
+    sw.style.background = hex;
+    sw.title = COLOR_NAMES[i];
+    sw.addEventListener('click', e => {
+      e.stopPropagation();
+      cell.color = hex;
+      hdr.style.background = hex;
+      save();
+      closeActivePopover();
+    });
+    pop.appendChild(sw);
+  });
+
+  hdr.appendChild(pop);
+  activePopover = pop;
+
+  setTimeout(() => {
+    document.addEventListener('click', closeActivePopover, { once: true });
+  }, 0);
+}
+
+// ---- world clock ----
+function renderClockArea() {
+  const area = document.getElementById('clock-area');
+  const wc = state.settings.worldClock;
+
+  clearInterval(clockTimer);
+  lastClockStr = '';
+
+  if (!wc.enabled) {
+    area.textContent = '+ Add world clock';
+  } else {
+    updateClockDisplay();
+    clockTimer = setInterval(updateClockDisplay, 10000);
+  }
+}
+
+function updateClockDisplay() {
+  const area = document.getElementById('clock-area');
+  const wc = state.settings.worldClock;
+  if (!wc.enabled) return;
+
+  const now = new Date();
+  const cityData = wc.cities.map(city => {
+    const time = new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit', minute: '2-digit', hour12: true, timeZone: city.tz,
+    }).format(now);
+    const tzPart = new Intl.DateTimeFormat(undefined, {
+      timeZoneName: 'short', timeZone: city.tz,
+    }).formatToParts(now).find(p => p.type === 'timeZoneName');
+    const abbr = tzPart && !tzPart.value.startsWith('GMT') ? tzPart.value : '';
+    const sortKey = utcOffsetMinutes(city.tz);
+    return { text: city.label + ': ' + time + (abbr ? ' ' + abbr : ''), sortKey };
+  });
+  cityData.sort((a, b) => a.sortKey - b.sortKey);
+  const parts = cityData.map(d => d.text);
+
+  const str = parts.join('\n');
+  if (str !== lastClockStr) {
+    area.innerHTML = '';
+    parts.forEach(p => {
+      const line = document.createElement('div');
+      line.textContent = p;
+      area.appendChild(line);
+    });
+    lastClockStr = str;
+  }
+}
+
+function openClockPopover() {
+  const pop = document.getElementById('clock-popover');
+  if (!pop.hidden) { pop.hidden = true; return; }
+  if (clockOutsideHandler) {
+    document.removeEventListener('click', clockOutsideHandler);
+    clockOutsideHandler = null;
+  }
+  buildClockPopover(pop);
+  pop.hidden = false;
+
+  setTimeout(() => {
+    clockOutsideHandler = function(e) {
+      const path = e.composedPath ? e.composedPath() : [];
+      if (path.includes(document.getElementById('clock-wrapper'))) return;
+      pop.hidden = true;
+      document.removeEventListener('click', clockOutsideHandler);
+      clockOutsideHandler = null;
+    };
+    document.addEventListener('click', clockOutsideHandler);
+  }, 0);
+}
+
+function buildClockPopover(pop) {
+  pop.innerHTML = '';
+  const wc = state.settings.worldClock;
+
+  // Active cities section — stable container, rows added/removed incrementally
+  const citiesLabel = document.createElement('div');
+  citiesLabel.className = 'clock-section-label';
+  citiesLabel.textContent = 'Active cities';
+  pop.appendChild(citiesLabel);
+
+  const cityList = document.createElement('div');
+  cityList.id = 'clock-city-list';
+  pop.appendChild(cityList);
+
+  function makeCityRow(city) {
+    const row = document.createElement('div');
+    row.className = 'clock-city-row';
+    const name = document.createElement('span');
+    name.className = 'clock-city-name';
+    name.textContent = city.label;
+    const rmBtn = document.createElement('button');
+    rmBtn.type = 'button';
+    rmBtn.className = 'clock-remove-btn';
+    rmBtn.textContent = '× remove';
+    rmBtn.addEventListener('click', () => {
+      const idx = wc.cities.indexOf(city);
+      if (idx !== -1) wc.cities.splice(idx, 1);
+      if (wc.cities.length === 0) wc.enabled = false;
+      row.remove();
+      save();
+      renderClockArea();
+    });
+    row.append(name, rmBtn);
+    return row;
+  }
+
+  wc.cities.forEach(city => cityList.appendChild(makeCityRow(city)));
+
+  // Add city section — stays in place, never rebuilt
+  const addLabel = document.createElement('div');
+  addLabel.className = 'clock-section-label';
+  addLabel.textContent = 'Select city to add';
+  pop.appendChild(addLabel);
+
+  const sel = document.createElement('select');
+  sel.id = 'clock-city-select';
+  const sorted = CITY_LIST.slice().sort((a, b) => utcOffsetMinutes(a.tz) - utcOffsetMinutes(b.tz));
+  sorted.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.tz;
+    opt.textContent = c.label + ' (' + formatGmtOffset(c.tz) + ')';
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', () => {
+    const tz = sel.value;
+    const cityEntry = CITY_LIST.find(c => c.tz === tz);
+    if (!cityEntry || wc.cities.find(c => c.tz === tz)) return;
+    const city = { label: cityEntry.label, tz };
+    wc.cities.push(city);
+    wc.enabled = true;
+    cityList.appendChild(makeCityRow(city));
+    save();
+    renderClockArea();
+  });
+  pop.appendChild(sel);
+
+  const disBtn = document.createElement('button');
+  disBtn.id = 'clock-disable-btn';
+  disBtn.type = 'button';
+  disBtn.textContent = 'Disable clock';
+  disBtn.addEventListener('click', () => {
+    wc.enabled = false;
+    wc.cities = [];
+    save();
+    renderClockArea();
+    pop.hidden = true;
+  });
+  pop.appendChild(disBtn);
+}
+
+// ---- export (T2: blob URL cleanup, T3: AbortError handling) ----
+async function doExport() {
+  const dataJson = JSON.stringify(state)
+    .replace(/<\//g, '<\\/')           // prevent script-tag breakout
+    .replace(/\u2028/g, '\\u2028')    // line separator breaks script blocks
+    .replace(/\u2029/g, '\\u2029');   // paragraph separator breaks script blocks
+  const html = buildExportHTML(dataJson);
+  const blob = new Blob([html], { type: 'text/html' });
+
+  if (typeof showSaveFilePicker === 'function') {
+    try {
+      if (!saveHandle) {
+        const handle = await showSaveFilePicker({
+          suggestedName: 'my-portal.html',
+          types: [{ description: 'HTML file', accept: { 'text/html': ['.html'] } }],
+        });
+        if (handle.name === 'index.html') {
+          showError('Cannot export to index.html — choose a different filename.');
+          return;
+        }
+        saveHandle = handle;
+      }
+      const writable = await saveHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+    } catch (e) {
+      if (e.name === 'AbortError') return; // T3: user cancelled — silent
+      saveHandle = null;                   // reset stale handle
+      showError('Export failed: ' + e.message);
+    }
+  } else {
+    // Firefox / Safari fallback
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'my-portal.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000); // T2: cleanup
+  }
+}
+
+function buildExportHTML(dataJson) {
+  const raw = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  // Replace portal-data script content (handles both empty and previously-exported).
+  // Function replacement avoids $ in dataJson being misread as a backreference.
+  return raw.replace(
+    new RegExp('(<script id="portal-data" type="application/json">)[\\s\\S]*?(' + CLOSE_TAG + ')'),
+    function(_, open, close) { return open + dataJson + close; }
+  );
+}
+
+// ---- init ----
+function init() {
+  state = loadState();
+  applyTheme();
+  renderAll();
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    state.settings.darkMode = !state.settings.darkMode;
+    applyTheme();
+    save();
+  });
+
+  document.getElementById('clock-area').addEventListener('click', openClockPopover);
+
+  document.getElementById('export-btn').addEventListener('click', doExport);
+  document.getElementById('nudge-export-btn').addEventListener('click', () => {
+    doExport();
+    dismissNudge();
+  });
+  document.getElementById('nudge-close').addEventListener('click', dismissNudge);
+
+  document.addEventListener('keydown', e => {
+    const notepad = document.getElementById('notepad-overlay');
+    if (e.key === 'Escape') {
+      if (!notepad.hidden) { notepad.hidden = true; return; }
+      closeActivePopover();
+      const clockPop = document.getElementById('clock-popover');
+      if (clockPop && !clockPop.hidden) clockPop.hidden = true;
+      document.querySelectorAll('.link-form').forEach(f => f.remove());
+      return;
+    }
+    if (e.key === 'n' || e.key === 'N') {
+      const tag = document.activeElement && document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement.isContentEditable) return;
+      if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        notepad.hidden = !notepad.hidden;
+        if (!notepad.hidden) document.getElementById('notepad-body').focus();
+      }
+    }
+  });
+
+}
+
+init();
+</script>
+</body>
+</html>
