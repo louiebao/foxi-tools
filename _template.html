@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tool Name</title><!-- CHANGE: update title -->
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: clamp(17px, 1.3vw, 26px); }
+
+  /* ── Design tokens ───────────────────────────────────────────── */
+  :root {
+    --bg:           #f8f8f5;   /* page bg, editable textarea bg    */
+    --bg-panel:     #edeae3;   /* pane headers, sidebars, center   */
+    --bg-output:    #f3f1eb;   /* read-only / output areas         */
+    --text:         #222;      /* primary text                     */
+    --text-2:       #666;      /* secondary — descriptions, help   */
+    --text-3:       #777;      /* muted — back-links, pane labels  */
+    --border:       #d0d0cc;   /* structural dividers              */
+    --border-ui:    #ccc;      /* interactive — buttons, inputs    */
+    --border-hover: #888;      /* interactive hover                */
+    --accent:       #4a7ab4;   /* focus rings, active states only  */
+  }
+
+  /* ── Dark mode ───────────────────────────────────────────────── */
+  /* To enable: uncomment this block, add a toggle button,
+     and toggle class="dark" on <body> via JS.
+     See my-portal/index.html for the full JS toggle pattern.    */
+  /*
+  .dark {
+    --bg:           #1a1a18;
+    --bg-panel:     #232321;
+    --bg-output:    #1e1e1c;
+    --text:         #e8e8e5;
+    --text-2:       #aaa;
+    --text-3:       #777;
+    --border:       #333;
+    --border-ui:    #444;
+    --border-hover: #666;
+  }
+  */
+
+  /* ── Shell ───────────────────────────────────────────────────── */
+  body {
+    font-family: 'Courier New', monospace;
+    font-size: 0.93rem;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* ── Header ──────────────────────────────────────────────────── */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 4px; }
+  header h1 {
+    font-size: 1rem;
+    font-weight: normal;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  header p {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Main layouts — pick ONE, delete the other two ───────────── */
+
+  /* OPTION A: Two-pane editor  input | actions | output
+     Adjust center width (default 120px) to fit your action buttons */
+  main {
+    display: grid;
+    grid-template-columns: 1fr 120px 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* OPTION B: Content + sidebar (uncomment to use)
+  main {
+    display: grid;
+    grid-template-columns: 1fr 22%;
+    flex: 1;
+    min-height: 0;
+  }
+  */
+
+  /* OPTION C: Single scrollable column (uncomment to use)
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  */
+
+  /* ── Panes (used by Options A and B) ────────────────────────── */
+  .pane {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    min-height: 0;
+  }
+  .pane:last-child { border-right: none; }
+
+  .pane-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    height: 42px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .pane-label {
+    font-size: 0.67rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .pane-actions { display: flex; gap: 6px; }
+  .pane-body { padding: 12px 10px; display: flex; flex-direction: column; gap: 8px; }
+
+  /* ── Buttons ─────────────────────────────────────────────────── */
+  /* Primary — one per tool, the main action */
+  .btn-primary {
+    width: 100%;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    padding: 9px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .btn-primary:hover { opacity: 0.75; }
+  .btn-primary:disabled { opacity: 0.35; cursor: default; }
+
+  /* Secondary — copy, clear, save, supporting actions */
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-2);
+    border: 1px solid var(--border-ui);
+    padding: 4px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--border-hover); color: var(--text); }
+  .btn-secondary:disabled { opacity: 0.35; cursor: default; }
+
+  /* ── Textareas ───────────────────────────────────────────────── */
+  textarea {
+    flex: 1;
+    resize: none;
+    border: none;
+    outline: none;
+    padding: 16px 18px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.93rem;
+    line-height: 1.75;
+    background: var(--bg);
+    color: var(--text);
+  }
+  textarea.output {
+    background: var(--bg-output);
+    cursor: default;
+  }
+
+  /* ── Empty state ─────────────────────────────────────────────── */
+  /* Use instead of a textarea placeholder when a pane can be empty */
+  /*
+  .empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    font-size: 0.73rem;
+    letter-spacing: 0.08em;
+    text-align: center;
+    padding: 24px;
+  }
+  */
+
+  /* ── Links ───────────────────────────────────────────────────── */
+  .back-link {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .back-link:hover { color: var(--text); }
+
+  /* ── Footer ──────────────────────────────────────────────────── */
+  footer {
+    padding: 10px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.73rem;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Tool Name</h1><!-- CHANGE -->
+    <p>One-line tagline</p><!-- CHANGE -->
+  </div>
+</header>
+
+<!-- Two-pane editor (matches OPTION A above).
+     Replace entirely for Option B or C layouts.               -->
+<main>
+
+  <div class="pane">
+    <div class="pane-header">
+      <span class="pane-label">Input</span><!-- CHANGE -->
+    </div>
+    <textarea placeholder="Paste or type here..."></textarea>
+  </div>
+
+  <div class="pane">
+    <div class="pane-header">
+      <span class="pane-label">Actions</span><!-- CHANGE or remove pane-header -->
+    </div>
+    <div class="pane-body">
+      <button class="btn-primary" id="run-btn">Run</button><!-- CHANGE -->
+    </div>
+  </div>
+
+  <div class="pane">
+    <div class="pane-header">
+      <span class="pane-label">Output</span><!-- CHANGE -->
+      <div class="pane-actions">
+        <button class="btn-secondary" id="copy-btn">Copy</button>
+      </div>
+    </div>
+    <textarea class="output" readonly placeholder="Result appears here..."></textarea>
+    <!--
+    Replace textarea above with this when output can be empty:
+    <div class="empty-state">Run something to see output</div>
+    -->
+  </div>
+
+</main>
+
+<footer>
+  <a class="back-link" href="../">< Home</a>
+</footer>
+
+<script>
+const runBtn  = document.getElementById('run-btn');
+const copyBtn = document.getElementById('copy-btn');
+// wire up tool logic here
+</script>
+
+</body>
+</html>

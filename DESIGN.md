@@ -57,19 +57,22 @@ Tools like Da Vinci Code use colors for data visualization (character tracks, lo
 One font family throughout. Monospace is the identity, not a code-only choice.
 
 ```css
+html { font-size: clamp(17px, 1.3vw, 26px); }
 font-family: 'Courier New', monospace;
 ```
 
+**Fluid typography is the standard.** Set `html { font-size: clamp(17px, 1.3vw, 26px) }` and use `rem` throughout — this makes tools feel proportional on large displays without breaking small ones. All size values in the scale below are in `rem` relative to this base.
+
 ### Scale
 
-| Role            | Size  | Weight | Letter-spacing | Transform  | Usage                              |
-|-----------------|-------|--------|----------------|------------|------------------------------------|
-| Tool name       | 16px  | bold   | 0.1em          | uppercase  | Header title in each tool          |
-| Home tool name  | 0.93rem | normal | 0.08em        | uppercase  | Tool links on the homepage         |
-| Pane label      | 12px  | normal | 0.14em         | uppercase  | Section headers within tool panes  |
-| Body / content  | 16px  | normal | —              | —          | Textarea content, descriptions     |
-| Secondary UI    | 14px  | normal | 0.04–0.06em    | —          | Button labels, footnotes, links    |
-| Tagline / meta  | 12px  | normal | 0.06em         | —          | Tool taglines, footer text         |
+| Role            | rem      | ~px at min | Weight | Letter-spacing | Transform  | Usage                              |
+|-----------------|----------|------------|--------|----------------|------------|------------------------------------|
+| Tool name       | 1rem     | 17px       | normal | 0.18em         | uppercase  | Header h1 in each tool             |
+| Home tool name  | 0.93rem  | 16px       | normal | 0.08em         | uppercase  | Tool links on the homepage         |
+| Body / content  | 0.93rem  | 16px       | normal | —              | —          | Textarea content, descriptions     |
+| Tagline / meta  | 0.73rem  | 12px       | normal | 0.06em         | —          | Tool taglines, footer text, links  |
+| Pane label      | 0.67rem  | 11px       | normal | 0.14em         | uppercase  | Section headers within tool panes  |
+| Secondary UI    | 0.67rem  | 11px       | normal | 0.04–0.10em    | —          | Button labels                      |
 
 `line-height: 1.75` for all multi-line content (textareas, descriptions).
 
@@ -112,7 +115,7 @@ Each tool gets its own layout inside a shared shell. The shell is always:
 <footer>   ← home link only (no email, no attribution)
 ```
 
-The `body` is always `display: flex; flex-direction: column; height: 100vh; overflow: hidden` so tools fill the viewport without scroll on the page level. Tools manage their own internal scrolling.
+The `body` is always `display: flex; flex-direction: column; height: 100dvh; overflow: hidden` so tools fill the viewport without scroll on the page level. Use `100dvh` (not `100vh`) to account for mobile browser chrome. Tools manage their own internal scrolling.
 
 ### Common main layouts
 
@@ -178,6 +181,28 @@ Navigation links (back-links, home links) always use `#999` at rest. Never under
 
 ---
 
+## Dark Mode
+
+Dark mode is opt-in per tool. The palette is a straight token inversion — no new colors.
+
+```css
+.dark {
+  --bg:           #1a1a18;
+  --bg-panel:     #232321;
+  --bg-output:    #1e1e1c;
+  --text:         #e8e8e5;
+  --text-2:       #aaa;
+  --text-3:       #777;
+  --border:       #333;
+  --border-ui:    #444;
+  --border-hover: #666;
+}
+```
+
+Toggle by adding/removing `class="dark"` on `<body>`. `--accent` (`#4a7ab4`) stays the same in both modes. See `my-portal/index.html` for the JS toggle pattern. The `_template.html` includes this block commented out.
+
+---
+
 ## Motion
 
 None. The system has no animation at the component or page level.
@@ -201,9 +226,11 @@ Exception: tool-specific animations that communicate state (e.g., the Life in Mo
 
 ## Adding a new tool
 
-1. Use the shared header/footer shell from `index.html` (tool title 13px bold uppercase, tagline 10px muted, home link)
-2. Choose one of the common main layouts above, or compose a new one
-3. Pull colors only from this palette — no ad hoc hex values
-4. Buttons: primary for the single main action, secondary for everything else
-5. Textareas: `background: --bg` for editable, `--bg-output` for read-only
-6. Test at `100vh` — tools should not cause page-level scroll
+1. **Copy `_template.html`** — it has all tokens, the shell, and layout options pre-wired
+2. Update `<title>`, `<h1>`, and the tagline `<p>`
+3. Pick one layout (two-pane, grid+sidebar, or single column) and delete the other two from the template
+4. Add the tool to the list in `index.html`
+5. Pull colors only from the `:root` tokens — no ad hoc hex values
+6. Buttons: primary for the single main action, secondary for everything else
+7. Textareas: `var(--bg)` for editable, `var(--bg-output)` for read-only
+8. Test at `100dvh` — tools should not cause page-level scroll

@@ -6,14 +6,30 @@
 <title>Louie SQL</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: clamp(17px, 1.3vw, 26px); }
+
+  /* ── Design tokens ── */
+  :root {
+    --bg:           #f8f8f5;
+    --bg-panel:     #edeae3;
+    --bg-output:    #f3f1eb;
+    --text:         #222;
+    --text-2:       #666;
+    --text-3:       #777;
+    --border:       #d0d0cc;
+    --border-ui:    #ccc;
+    --border-hover: #888;
+    --accent:       #4a7ab4;
+  }
 
   body {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    background: #f8f8f5;
-    color: #222;
+    height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
     font-family: 'Courier New', monospace;
+    font-size: 0.93rem;
     overflow: hidden;
   }
 
@@ -21,30 +37,31 @@
   header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 14px 22px;
-    border-bottom: 1px solid #d0d0cc;
+    align-items: flex-start;
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
-  .header-left { display: flex; flex-direction: column; gap: 3px; }
-  .tool-title {
-    font-size: 16px;
-    font-weight: bold;
-    letter-spacing: 0.1em;
-    color: #222;
+  .header-left { display: flex; flex-direction: column; gap: 4px; }
+  header h1 {
+    font-size: 1rem;
+    font-weight: normal;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text);
   }
-  .tool-tagline {
-    font-size: 12px;
-    color: #777;
+  header p {
+    font-size: 0.73rem;
+    color: var(--text-3);
     letter-spacing: 0.06em;
   }
-  .home-link {
-    font-size: 13px;
-    color: #777;
+  .back-link {
+    font-size: 0.73rem;
+    color: var(--text-3);
     text-decoration: none;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
   }
-  .home-link:hover { color: #222; }
+  .back-link:hover { color: var(--text); }
 
   /* ── Editor grid ── */
   main {
@@ -58,10 +75,10 @@
   .pane {
     display: flex;
     flex-direction: column;
-    border-right: 1px solid #d0d0cc;
+    border-right: 1px solid var(--border);
     min-height: 0;
   }
-  .pane-right { border-right: none; }
+  .pane:last-child { border-right: none; }
 
   .pane-header {
     display: flex;
@@ -69,15 +86,15 @@
     align-items: center;
     padding: 0 16px;
     height: 42px;
-    border-bottom: 1px solid #d0d0cc;
-    background: #edeae3;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-panel);
     flex-shrink: 0;
   }
   .pane-label {
-    font-size: 12px;
+    font-size: 0.67rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #777;
+    color: var(--text-3);
   }
   .pane-actions { display: flex; gap: 6px; margin-left: auto; }
 
@@ -88,14 +105,14 @@
     outline: none;
     padding: 18px 20px;
     font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-size: 0.93rem;
     line-height: 1.75;
-    color: #222;
-    background: #f8f8f5;
+    color: var(--text);
+    background: var(--bg);
     tab-size: 4;
   }
-  textarea::placeholder { color: #ccc; }
-  #output-sql { background: #f3f1eb; color: #333; }
+  textarea::placeholder { color: var(--border-ui); }
+  #output-sql { background: var(--bg-output); }
 
   /* ── Center column ── */
   .center-col {
@@ -105,56 +122,54 @@
     justify-content: center;
     gap: 14px;
     padding: 0 16px;
-    border-right: 1px solid #d0d0cc;
-    background: #edeae3;
+    border-right: 1px solid var(--border);
+    background: var(--bg-panel);
   }
-  .arrow { font-size: 16px; color: #ccc; user-select: none; }
 
   /* ── Buttons ── */
   .btn-primary {
-    background: #222;
-    color: #f8f8f5;
+    background: var(--text);
+    color: var(--bg);
     border: none;
     padding: 10px 0;
     font-family: 'Courier New', monospace;
-    font-size: 14px;
+    font-size: 0.67rem;
     letter-spacing: 0.1em;
+    text-transform: uppercase;
     cursor: pointer;
   }
-  .btn-primary:hover { background: #444; }
-  .btn-primary:active { background: #111; }
+  .btn-primary:hover { opacity: 0.75; }
+  .btn-primary:active { opacity: 0.9; }
 
   .btn-secondary {
     background: transparent;
-    color: #666;
-    border: 1px solid #ccc;
+    color: var(--text-2);
+    border: 1px solid var(--border-ui);
     padding: 5px 12px;
     font-family: 'Courier New', monospace;
-    font-size: 14px;
+    font-size: 0.67rem;
     letter-spacing: 0.04em;
     cursor: pointer;
   }
-  .btn-secondary:hover:not(:disabled) { border-color: #888; color: #222; }
-  .btn-secondary:active:not(:disabled) { background: #eee; }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--border-hover); color: var(--text); }
+  .btn-secondary:active:not(:disabled) { background: var(--bg-panel); }
   .btn-secondary:disabled { opacity: 0.35; cursor: default; }
 
   /* ── Footer ── */
   footer {
-    padding: 11px 22px;
-    border-top: 1px solid #d0d0cc;
-    font-size: 13px;
+    padding: 10px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.73rem;
     flex-shrink: 0;
   }
-  footer a { color: #777; text-decoration: none; letter-spacing: 0.04em; }
-  footer a:hover { color: #222; }
 </style>
 </head>
 <body>
 
 <header>
   <div class="header-left">
-    <span class="tool-title">Louie SQL</span>
-    <span class="tool-tagline">Highly Opinionated SQL Prettifier</span>
+    <h1>Louie SQL</h1>
+    <p>Highly Opinionated SQL Prettifier</p>
   </div>
 </header>
 
@@ -182,7 +197,7 @@
 </main>
 
 <footer>
-  <a href="../">< Home</a>
+  <a class="back-link" href="../">< Home</a>
 </footer>
 
 <script>
@@ -278,14 +293,6 @@ document.getElementById('btn-format').addEventListener('click', () => {
     document.getElementById('output-sql').value = '— error formatting SQL —';
     setOutputState(false);
   }
-});
-
-// ── Clear ──
-document.getElementById('btn-clear').addEventListener('click', () => {
-  document.getElementById('input-sql').value = '';
-  document.getElementById('output-sql').value = '';
-  setOutputState(false);
-  document.getElementById('input-sql').focus();
 });
 
 // ── Copy ──
