@@ -29,7 +29,8 @@
     color: var(--text);
     display: flex;
     flex-direction: column;
-    min-height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
   }
 
   header {
@@ -63,13 +64,32 @@
 
   main {
     flex: 1;
-    padding: 24px;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    overflow: hidden;
+  }
+
+  .input-bar {
+    padding: 12px 24px;
+    flex-shrink: 0;
+  }
+
+  .left-pane {
+    overflow-y: auto;
+    padding: 20px 24px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    max-width: 900px;
-    width: 100%;
-    margin: 0 auto;
+    gap: 16px;
+    border-right: 1px solid var(--border);
+  }
+
+  .right-pane {
+    overflow-y: auto;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   /* Input row */
@@ -122,26 +142,26 @@
     border-color: var(--text);
   }
 
-  /* Main QR grid */
+  /* QR stack: canvas → stats → stored data */
   .qr-grid {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    grid-template-rows: auto auto;
-    gap: 0;
+    display: flex;
+    flex-direction: column;
     border: 1px solid var(--border);
   }
 
-  /* QR canvas cell — spans 2 rows */
   .qr-canvas-cell {
-    grid-row: 1 / 3;
-    grid-column: 1;
-    border-right: 1px solid var(--border);
     background: var(--bg-output);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 12px;
     padding: 16px;
     position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .qr-action-row {
+    display: flex;
+    gap: 8px;
   }
   .canvas-wrap {
     position: relative;
@@ -168,10 +188,8 @@
     line-height: 1.8;
   }
 
-  /* Info panel (top-right) */
+  /* Info panel */
   .info-panel {
-    grid-row: 1;
-    grid-column: 2;
     border-bottom: 1px solid var(--border);
     padding: 14px 18px;
     display: flex;
@@ -223,10 +241,8 @@
     letter-spacing: 0.06em;
   }
 
-  /* Binary/bytes panel (bottom-right) */
+  /* Stored data panel */
   .binary-panel {
-    grid-row: 2;
-    grid-column: 2;
     padding: 14px 18px;
     display: flex;
     flex-direction: column;
@@ -486,7 +502,9 @@
   .scan-step.active { color: var(--text); background: var(--bg-panel); border-color: var(--border-ui); }
   .scan-step .step-icon { width: 1.4em; text-align: center; font-size: 0.8rem; }
   .scan-step .step-text { flex: 1; letter-spacing: 0.04em; }
-  .scan-step .step-status { font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .scan-step .step-status { font-size: 0.7rem; letter-spacing: 0.04em; }
+  .scan-step.done .step-status { color: #3a8a3a; }
+  .scan-step.failed .step-status { color: #b44a4a; }
 
   .scan-btn-row {
     display: flex;
@@ -508,46 +526,6 @@
   }
 
   /* Version explorer */
-  .version-info {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
-  }
-  .version-badge {
-    font-size: 1.6rem;
-    letter-spacing: -0.02em;
-    color: var(--text);
-  }
-  .version-badge span {
-    font-size: 0.73rem;
-    color: var(--text-3);
-    letter-spacing: 0.06em;
-  }
-  .version-desc {
-    font-size: 0.73rem;
-    color: var(--text-2);
-    line-height: 1.7;
-  }
-  .version-ruler {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 6px;
-  }
-  .version-ruler-label {
-    font-size: 0.6rem;
-    color: var(--text-3);
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-  }
-  .version-ruler-bar {
-    height: 8px;
-    background: var(--text);
-    opacity: 0.7;
-    transition: width 0.3s;
-  }
 
   footer {
     padding: 10px 24px;
@@ -571,20 +549,11 @@
     white-space: nowrap;
   }
 
-  @media (max-width: 680px) {
-    .qr-grid {
-      grid-template-columns: 1fr;
-    }
-    .qr-canvas-cell {
-      grid-row: 1;
-      grid-column: 1;
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-    }
-    .info-panel, .binary-panel {
-      grid-row: auto;
-      grid-column: 1;
-    }
+  @media (max-width: 720px) {
+    body { height: auto; overflow: auto; }
+    main { grid-template-columns: 1fr; overflow: visible; }
+    .left-pane { overflow-y: visible; border-right: none; border-bottom: 1px solid var(--border); }
+    .right-pane { overflow-y: visible; }
     .anatomy-grid { grid-template-columns: 1fr; }
   }
 </style>
@@ -596,18 +565,20 @@
     <h1>QR Code Explorer</h1>
     <p>Generate QR codes and understand how they work</p>
   </div>
-  <a href="../" class="back-link">&lt; Home</a>
 </header>
 
-<main>
-
-  <!-- Input -->
+<div class="input-bar">
   <div class="input-row">
     <input type="text" id="qr-input" placeholder="https://example.com" value="https://example.com">
     <button class="btn-primary" id="generate-btn">Generate</button>
   </div>
+</div>
 
-  <!-- QR + Info grid -->
+<main>
+
+<div class="left-pane">
+
+  <!-- QR canvas → stats → stored data -->
   <div class="qr-grid">
 
     <div class="qr-canvas-cell">
@@ -615,6 +586,10 @@
         <canvas id="qr-canvas"></canvas>
         <svg id="anatomy-svg" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg"></svg>
         <div class="placeholder-msg" id="placeholder-msg">Enter text above<br>and press Generate</div>
+      </div>
+      <div class="qr-action-row" id="qr-action-row" style="display:none;">
+        <button class="btn-secondary" id="download-btn">Download</button>
+        <button class="btn-secondary" id="copy-btn" style="display:none;">Copy</button>
       </div>
     </div>
 
@@ -668,11 +643,61 @@
 
   </div>
 
+  <!-- F8: Scanner Simulation -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Scanner Simulation</span>
+    </div>
+    <div class="section-body">
+      <div class="scan-btn-row">
+        <button class="btn-primary" id="scan-btn">Show scan process</button>
+        <button class="btn-secondary" id="scan-reset-btn">Reset</button>
+      </div>
+      <div class="scan-steps" id="scan-steps">
+        <div class="scan-step" data-step="1">
+          <span class="step-icon">◈</span>
+          <span class="step-text">Detect finder patterns</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="2">
+          <span class="step-icon">⟳</span>
+          <span class="step-text">Determine orientation</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="3">
+          <span class="step-icon">⊞</span>
+          <span class="step-text">Locate timing patterns &amp; grid</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="4">
+          <span class="step-icon">▦</span>
+          <span class="step-text">Read data modules</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="5">
+          <span class="step-icon">⚙</span>
+          <span class="step-text">Apply error correction (Reed–Solomon)</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="6">
+          <span class="step-icon">✓</span>
+          <span class="step-text">Decode content</span>
+          <span class="step-status"></span>
+        </div>
+      </div>
+      <div class="scan-result" id="scan-result" style="display:none;"></div>
+    </div>
+  </div>
+
+</div><!-- end .left-pane -->
+
+<div class="right-pane">
+
   <!-- F2: Anatomy -->
-  <div class="section" id="section-anatomy">
+  <div class="section" id="section-anatomy" style="flex-shrink:0;">
     <div class="section-header">
       <span class="section-title">QR Anatomy</span>
-      <button class="btn-secondary" id="anatomy-clear-btn" style="display:none;">Clear highlight</button>
+      <button class="btn-secondary" id="anatomy-clear-btn" style="display:none;">Reset</button>
     </div>
     <div class="section-body">
       <div class="anatomy-grid">
@@ -695,6 +720,13 @@
           <div class="anatomy-text">
             <span class="anatomy-name">Alignment Patterns</span>
             <span class="anatomy-desc">Small squares (version 2+) that help scanners correct for distortion or skew</span>
+          </div>
+        </div>
+        <div class="anatomy-item" data-region="format">
+          <div class="anatomy-swatch" style="background:#b4444a;"></div>
+          <div class="anatomy-text">
+            <span class="anatomy-name">Format Information</span>
+            <span class="anatomy-desc">Strips bordering each finder pattern that encode the error correction level and mask pattern used</span>
           </div>
         </div>
         <div class="anatomy-item" data-region="data">
@@ -762,75 +794,7 @@
     </div>
   </div>
 
-  <!-- F8: Scanner Simulation -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">Scanner Simulation</span>
-    </div>
-    <div class="section-body">
-      <div class="scan-btn-row">
-        <button class="btn-primary" id="scan-btn">Show scan process</button>
-        <button class="btn-secondary" id="scan-reset-btn">Reset</button>
-      </div>
-      <div class="scan-steps" id="scan-steps">
-        <div class="scan-step" data-step="1">
-          <span class="step-icon">◈</span>
-          <span class="step-text">Detect finder patterns</span>
-          <span class="step-status"></span>
-        </div>
-        <div class="scan-step" data-step="2">
-          <span class="step-icon">⟳</span>
-          <span class="step-text">Determine orientation</span>
-          <span class="step-status"></span>
-        </div>
-        <div class="scan-step" data-step="3">
-          <span class="step-icon">⊞</span>
-          <span class="step-text">Locate timing patterns &amp; grid</span>
-          <span class="step-status"></span>
-        </div>
-        <div class="scan-step" data-step="4">
-          <span class="step-icon">▦</span>
-          <span class="step-text">Read data modules</span>
-          <span class="step-status"></span>
-        </div>
-        <div class="scan-step" data-step="5">
-          <span class="step-icon">⚙</span>
-          <span class="step-text">Apply error correction (Reed–Solomon)</span>
-          <span class="step-status"></span>
-        </div>
-        <div class="scan-step" data-step="6">
-          <span class="step-icon">✓</span>
-          <span class="step-text">Decode content</span>
-          <span class="step-status"></span>
-        </div>
-      </div>
-      <div class="scan-result" id="scan-result" style="display:none;"></div>
-    </div>
-  </div>
-
-  <!-- F6: Version Explorer -->
-  <div class="section">
-    <div class="section-header">
-      <span class="section-title">Version &amp; Capacity</span>
-    </div>
-    <div class="section-body">
-      <div class="version-info">
-        <div style="display:flex;flex-direction:column;gap:4px;">
-          <span class="version-badge" id="ver-number">—<span> version</span></span>
-          <span class="stat-label" id="ver-size-label">— × — modules</span>
-        </div>
-        <div class="version-desc" id="ver-desc">Generate a QR code to see version information.</div>
-      </div>
-      <div class="version-ruler">
-        <span class="version-ruler-label">V1 (21×21)</span>
-        <div class="version-ruler-bar" id="ver-ruler" style="width:0%;max-width:80%;"></div>
-        <span class="version-ruler-label">V10 (57×57)</span>
-      </div>
-      <div style="margin-top:10px;font-size:0.67rem;color:var(--text-3);line-height:1.6;">
-        Each version adds 4 modules per side. Version 1 is 21×21; version 40 is 177×177. More content → higher version → denser code.
-      </div>
-    </div>
-  </div>
+</div><!-- end .right-pane -->
 
 </main>
 
@@ -972,6 +936,7 @@ function generate() {
   placeholderMsg.style.display = 'none';
   canvas.style.display = 'block';
   svgEl.style.display = 'block';
+  document.getElementById('qr-action-row').style.display = 'flex';
 
   drawMatrix(originalMatrix);
   updateStats();
@@ -979,7 +944,6 @@ function generate() {
   updateEC();
   updateRedundancy();
   clearAnatomy();
-  updateVersionInfo();
   resetScanSteps();
 }
 
@@ -1148,6 +1112,7 @@ const ANATOMY_COLORS = {
   finder:    'rgba(74,122,180,0.35)',
   timing:    'rgba(122,180,74,0.35)',
   alignment: 'rgba(180,122,74,0.35)',
+  format:    'rgba(180,68,74,0.35)',
   data:      'rgba(164,74,180,0.2)'
 };
 
@@ -1182,8 +1147,86 @@ function getAlignmentRects() {
   ]);
 }
 
+function isStructuralModule(r, c, n, version, alignCenters) {
+  // Finder patterns + separators (8×8 corners)
+  if (r <= 7 && c <= 7) return true;           // top-left
+  if (r <= 7 && c >= n - 8) return true;        // top-right
+  if (r >= n - 8 && c <= 7) return true;        // bottom-left
+
+  // Timing patterns (row 6, col 6)
+  if (r === 6 || c === 6) return true;
+
+  // Format information strips
+  if (r === 8 && c <= 8) return true;           // top-left horizontal
+  if (c === 8 && r <= 8) return true;           // top-left vertical
+  if (r === 8 && c >= n - 8) return true;       // top-right horizontal
+  if (c === 8 && r >= n - 8) return true;       // bottom-left vertical
+
+  // Dark module
+  if (r === 4 * version + 9 && c === 8) return true;
+
+  // Alignment patterns (5×5 centered)
+  for (const [ar, ac] of alignCenters) {
+    if (Math.abs(r - ar) <= 2 && Math.abs(c - ac) <= 2) return true;
+  }
+
+  // Version information blocks (version 7+): 6×3 each
+  if (version >= 7) {
+    if (r <= 5 && c >= n - 11 && c <= n - 9) return true;
+    if (r >= n - 11 && r <= n - 9 && c <= 5) return true;
+  }
+
+  return false;
+}
+
 function getDataRects() {
-  return [[0, 0, CANVAS_PX, CANVAS_PX]];
+  if (!currentQR || !currentModuleCount) return [];
+  const n = currentModuleCount;
+  const cs = cellSize;
+  const alignCenters = currentVersion === 1 ? [] : (ALIGNMENT_CENTERS[currentVersion] || []);
+  const rects = [];
+
+  for (let r = 0; r < n; r++) {
+    let startC = -1;
+    for (let c = 0; c <= n; c++) {
+      const isData = c < n && !isStructuralModule(r, c, n, currentVersion, alignCenters);
+      if (isData && startC === -1) {
+        startC = c;
+      } else if (!isData && startC !== -1) {
+        rects.push([startC * cs, r * cs, (c - startC) * cs, cs]);
+        startC = -1;
+      }
+    }
+  }
+  return rects;
+}
+
+function getFormatInfoRects() {
+  if (!currentQR || !currentModuleCount) return [];
+  const n = currentModuleCount;
+  const cs = cellSize;
+  const rects = [];
+
+  // Top-left horizontal strip: row 8, cols 0-8 (skip col 6 = timing)
+  for (let c = 0; c <= 8; c++) {
+    if (c === 6) continue;
+    rects.push([c * cs, 8 * cs, cs, cs]);
+  }
+  // Top-left vertical strip: col 8, rows 0-8 (skip row 6 = timing)
+  for (let r = 0; r <= 8; r++) {
+    if (r === 6) continue;
+    rects.push([8 * cs, r * cs, cs, cs]);
+  }
+  // Top-right strip: row 8, cols n-8 to n-1
+  for (let c = n - 8; c < n; c++) {
+    rects.push([c * cs, 8 * cs, cs, cs]);
+  }
+  // Bottom-left strip: col 8, rows n-7 to n-1, plus dark module at n-8
+  for (let r = n - 8; r < n; r++) {
+    rects.push([8 * cs, r * cs, cs, cs]);
+  }
+
+  return rects;
 }
 
 function drawAnatomyRegion(region) {
@@ -1195,6 +1238,7 @@ function drawAnatomyRegion(region) {
   if (region === 'finder') rects = getFinderRects();
   else if (region === 'timing') rects = getTimingRects();
   else if (region === 'alignment') rects = getAlignmentRects();
+  else if (region === 'format') rects = getFormatInfoRects();
   else if (region === 'data') rects = getDataRects();
 
   rects.forEach(([x, y, w, h]) => {
@@ -1318,7 +1362,7 @@ const SCAN_STEPS_TEXT = [
 function resetScanSteps() {
   clearTimeout(scanAnimTimer);
   document.querySelectorAll('.scan-step').forEach(el => {
-    el.classList.remove('done', 'active');
+    el.classList.remove('done', 'active', 'failed');
     el.querySelector('.step-status').textContent = '';
   });
   document.getElementById('scan-result').style.display = 'none';
@@ -1350,13 +1394,14 @@ function runScanStep(step) {
       const damageRate = (damageSet.size / totalCells) * 100;
       const canRecover = damageRate < eccRate;
       if (corrupted && !canRecover) {
-        stepEl.querySelector('.step-status').textContent = 'Failed';
+        stepEl.classList.add('failed');
+        stepEl.querySelector('.step-status').textContent = '✗ Failed';
         showScanResult('Decode failed — code too damaged for error correction to recover');
         return;
       }
-      stepEl.querySelector('.step-status').textContent = 'OK';
+      stepEl.querySelector('.step-status').textContent = '✓ OK';
     } else {
-      stepEl.querySelector('.step-status').textContent = 'OK';
+      stepEl.querySelector('.step-status').textContent = '✓ OK';
     }
 
     if (step < 6) {
@@ -1375,19 +1420,6 @@ function showScanResult(msg) {
 
 // ── Version info (F6) ─────────────────────────────────────────────────────────
 
-function updateVersionInfo() {
-  const v = currentVersion;
-  const n = currentModuleCount;
-  document.getElementById('ver-number').innerHTML = v + '<span> version</span>';
-  document.getElementById('ver-size-label').textContent = n + ' × ' + n + ' modules';
-  document.getElementById('ver-desc').textContent =
-    'Version ' + v + ' stores up to ' + (MAX_BYTES[v] ? MAX_BYTES[v][currentEC] : '?') +
-    ' bytes at ' + ECC_LABEL[currentEC] + ' error correction. ' +
-    'The grid is ' + n + '×' + n + ' = ' + (n * n) + ' modules total.';
-
-  const rulerPct = Math.round(((v - 1) / 9) * 100);
-  document.getElementById('ver-ruler').style.width = Math.max(2, rulerPct) + '%';
-}
 
 // ── EC button wiring ──────────────────────────────────────────────────────────
 
@@ -1424,6 +1456,38 @@ function syncGenerateBtn() {
 generateBtn.addEventListener('click', generate);
 qrInput.addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
 qrInput.addEventListener('input', syncGenerateBtn);
+
+// ── Download / Copy ───────────────────────────────────────────────────────────
+
+const qrActionRow = document.getElementById('qr-action-row');
+const downloadBtn = document.getElementById('download-btn');
+const copyBtn     = document.getElementById('copy-btn');
+
+if (navigator.clipboard && window.ClipboardItem) {
+  copyBtn.style.display = '';
+}
+
+downloadBtn.addEventListener('click', () => {
+  const a = document.createElement('a');
+  a.download = 'qr-code.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+});
+
+copyBtn.addEventListener('click', () => {
+  canvas.toBlob(blob => {
+    navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+      .then(() => {
+        const orig = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = orig; }, 1500);
+      })
+      .catch(() => {
+        copyBtn.textContent = 'Failed';
+        setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
+      });
+  });
+});
 
 // Auto-generate on load
 generate();

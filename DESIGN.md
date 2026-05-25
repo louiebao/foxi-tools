@@ -98,7 +98,7 @@ Common values observed across the codebase:
 
 - **Pane header:** `padding: 7px 14px`
 - **Textarea:** `padding: 16px 18px`
-- **Page header:** `padding: 11px 20px` (tool) or `28px 40px 22px` (home)
+- **Page header:** `padding: 11px 20px` (tool)
 - **Page main:** `padding: 36px 40px` (home)
 
 When in doubt, use the smaller value. The aesthetic leans compact, not airy.
@@ -110,7 +110,7 @@ When in doubt, use the smaller value. The aesthetic leans compact, not airy.
 Each tool gets its own layout inside a shared shell. The shell is always:
 
 ```
-<header>   ← tool name + tagline + home link
+<header>   ← tool name + tagline
 <main>     ← tool-specific
 <footer>   ← home link only (no email, no attribution)
 ```
