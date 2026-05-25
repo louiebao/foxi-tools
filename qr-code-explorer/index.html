@@ -1415,8 +1415,15 @@ document.querySelectorAll('.ec-btn').forEach(btn => {
 
 // ── Generate wiring ───────────────────────────────────────────────────────────
 
+function syncGenerateBtn() {
+  generateBtn.disabled = !qrInput.value.trim();
+  generateBtn.style.opacity = generateBtn.disabled ? '0.35' : '';
+  generateBtn.style.cursor = generateBtn.disabled ? 'default' : '';
+}
+
 generateBtn.addEventListener('click', generate);
 qrInput.addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+qrInput.addEventListener('input', syncGenerateBtn);
 
 // Auto-generate on load
 generate();
