@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR Code Explorer</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: clamp(17px, 1.3vw, 26px); }
+
+  :root {
+    --bg:           #f8f8f5;
+    --bg-panel:     #edeae3;
+    --bg-output:    #f3f1eb;
+    --text:         #222;
+    --text-2:       #666;
+    --text-3:       #777;
+    --border:       #d0d0cc;
+    --border-ui:    #ccc;
+    --border-hover: #888;
+    --accent:       #4a7ab4;
+  }
+
+  body {
+    font-family: 'Courier New', monospace;
+    font-size: 0.93rem;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 4px; }
+  header h1 {
+    font-size: 1rem;
+    font-weight: normal;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  header p {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+  }
+  .back-link {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .back-link:hover { color: var(--text); }
+
+  main {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  /* Input row */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .input-row input[type="text"] {
+    flex: 1;
+    border: 1px solid var(--border-ui);
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 0.87rem;
+    padding: 9px 12px;
+    outline: none;
+  }
+  .input-row input[type="text"]:focus { border-color: var(--accent); }
+
+  /* Buttons */
+  .btn-primary {
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    padding: 9px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { opacity: 0.75; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-2);
+    border: 1px solid var(--border-ui);
+    padding: 5px 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { border-color: var(--border-hover); color: var(--text); }
+  .btn-secondary.active {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+
+  /* Main QR grid */
+  .qr-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: auto auto;
+    gap: 0;
+    border: 1px solid var(--border);
+  }
+
+  /* QR canvas cell — spans 2 rows */
+  .qr-canvas-cell {
+    grid-row: 1 / 3;
+    grid-column: 1;
+    border-right: 1px solid var(--border);
+    background: var(--bg-output);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    position: relative;
+  }
+  .canvas-wrap {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    flex-shrink: 0;
+  }
+  #qr-canvas {
+    display: block;
+    image-rendering: pixelated;
+  }
+  #anatomy-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 280px;
+    height: 280px;
+    pointer-events: none;
+  }
+  .placeholder-msg {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  /* Info panel (top-right) */
+  .info-panel {
+    grid-row: 1;
+    grid-column: 2;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .panel-label {
+    font-size: 0.63rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 2px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 2px; }
+  .stat-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .stat-value {
+    font-size: 0.87rem;
+    color: var(--text);
+  }
+  .capacity-bar-wrap {
+    grid-column: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .capacity-bar-bg {
+    height: 6px;
+    background: var(--border);
+    position: relative;
+  }
+  .capacity-bar-fill {
+    height: 100%;
+    background: var(--text);
+    transition: width 0.2s;
+  }
+  .capacity-label {
+    font-size: 0.6rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+  }
+
+  /* Binary/bytes panel (bottom-right) */
+  .binary-panel {
+    grid-row: 2;
+    grid-column: 2;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .binary-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .binary-content {
+    background: var(--bg-output);
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    font-size: 0.73rem;
+    line-height: 1.8;
+    color: var(--text-2);
+    min-height: 80px;
+    max-height: 120px;
+    overflow-y: auto;
+    word-break: break-all;
+  }
+  .byte-row { display: flex; flex-wrap: wrap; gap: 4px; }
+  .byte-hex {
+    display: inline-block;
+    padding: 1px 4px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    font-size: 0.63rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+  .byte-hex:hover { border-color: var(--border-hover); }
+  .byte-char {
+    display: inline-block;
+    padding: 1px 4px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    font-size: 0.63rem;
+    min-width: 1.4em;
+    text-align: center;
+  }
+  .binary-bits {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
+  .bit {
+    display: inline-block;
+    width: 1.2em;
+    text-align: center;
+    padding: 1px 0;
+    font-size: 0.67rem;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+  }
+
+  /* Section panels */
+  .section {
+    border: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 40px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 0.67rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .section-body {
+    padding: 16px;
+  }
+
+  /* Anatomy section */
+  .anatomy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 20px;
+  }
+  .anatomy-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.1s, background 0.1s;
+  }
+  .anatomy-item:hover, .anatomy-item.active {
+    border-color: var(--border-ui);
+    background: var(--bg-panel);
+  }
+  .anatomy-swatch {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+  .anatomy-text { display: flex; flex-direction: column; gap: 2px; }
+  .anatomy-name {
+    font-size: 0.73rem;
+    letter-spacing: 0.06em;
+    color: var(--text);
+  }
+  .anatomy-desc {
+    font-size: 0.63rem;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+
+  /* EC level buttons */
+  .ec-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .ec-btn {
+    background: transparent;
+    color: var(--text-2);
+    border: 1px solid var(--border-ui);
+    padding: 6px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.73rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .ec-btn:hover { border-color: var(--border-hover); color: var(--text); }
+  .ec-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .ec-btn .ec-pct {
+    font-size: 0.55rem;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+  }
+  .ec-desc {
+    font-size: 0.73rem;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin-top: 10px;
+  }
+
+  /* Redundancy viz */
+  .redundancy-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .redund-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .redund-label {
+    font-size: 0.63rem;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    width: 130px;
+    flex-shrink: 0;
+  }
+  .redund-blocks {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
+  .block-unit {
+    width: 10px;
+    height: 10px;
+    background: var(--text);
+    opacity: 0.8;
+  }
+  .block-unit.ec {
+    background: var(--text-3);
+    opacity: 0.5;
+  }
+  .redund-pct {
+    font-size: 0.63rem;
+    color: var(--text-3);
+    margin-left: 4px;
+  }
+
+  /* Corruption slider */
+  .corruption-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .corruption-row label {
+    font-size: 0.67rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    min-width: 120px;
+    height: 4px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--text);
+    cursor: pointer;
+  }
+  .scannable-badge {
+    font-size: 0.73rem;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .scannable-badge.ok { border-color: #4a7ab4; color: #4a7ab4; }
+  .scannable-badge.fail { border-color: #b44a4a; color: #b44a4a; }
+  .ec-used-label {
+    font-size: 0.67rem;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+  }
+
+  /* Scanner simulation */
+  .scan-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .scan-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    font-size: 0.73rem;
+    color: var(--text-3);
+    transition: background 0.3s, color 0.3s;
+  }
+  .scan-step.done { color: var(--text); background: var(--bg-output); }
+  .scan-step.active { color: var(--text); background: var(--bg-panel); border-color: var(--border-ui); }
+  .scan-step .step-icon { width: 1.4em; text-align: center; font-size: 0.8rem; }
+  .scan-step .step-text { flex: 1; letter-spacing: 0.04em; }
+  .scan-step .step-status { font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .scan-btn-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .scan-result {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--bg-output);
+    border: 1px solid var(--border);
+    font-size: 0.73rem;
+    color: var(--text-2);
+    min-height: 36px;
+    word-break: break-all;
+    line-height: 1.6;
+  }
+
+  /* Version explorer */
+  .version-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .version-badge {
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .version-badge span {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+  }
+  .version-desc {
+    font-size: 0.73rem;
+    color: var(--text-2);
+    line-height: 1.7;
+  }
+  .version-ruler {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .version-ruler-label {
+    font-size: 0.6rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .version-ruler-bar {
+    height: 8px;
+    background: var(--text);
+    opacity: 0.7;
+    transition: width 0.3s;
+  }
+
+  footer {
+    padding: 10px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.73rem;
+    flex-shrink: 0;
+  }
+
+  /* Tooltip */
+  .tooltip-box {
+    position: fixed;
+    background: var(--text);
+    color: var(--bg);
+    font-family: 'Courier New', monospace;
+    font-size: 0.63rem;
+    padding: 4px 8px;
+    pointer-events: none;
+    z-index: 100;
+    letter-spacing: 0.04em;
+    display: none;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 680px) {
+    .qr-grid {
+      grid-template-columns: 1fr;
+    }
+    .qr-canvas-cell {
+      grid-row: 1;
+      grid-column: 1;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-panel, .binary-panel {
+      grid-row: auto;
+      grid-column: 1;
+    }
+    .anatomy-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>QR Code Explorer</h1>
+    <p>Generate QR codes and understand how they work</p>
+  </div>
+  <a href="../" class="back-link">&lt; Home</a>
+</header>
+
+<main>
+
+  <!-- Input -->
+  <div class="input-row">
+    <input type="text" id="qr-input" placeholder="https://example.com" value="https://example.com">
+    <button class="btn-primary" id="generate-btn">Generate</button>
+  </div>
+
+  <!-- QR + Info grid -->
+  <div class="qr-grid">
+
+    <div class="qr-canvas-cell">
+      <div class="canvas-wrap" id="canvas-wrap">
+        <canvas id="qr-canvas"></canvas>
+        <svg id="anatomy-svg" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="placeholder-msg" id="placeholder-msg">Enter text above<br>and press Generate</div>
+      </div>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel">
+      <div class="panel-label">Statistics</div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">Version</span>
+          <span class="stat-value" id="stat-version">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Size</span>
+          <span class="stat-value" id="stat-size">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Error Correction</span>
+          <span class="stat-value" id="stat-ec">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Characters</span>
+          <span class="stat-value" id="stat-chars">—</span>
+        </div>
+        <div class="capacity-bar-wrap">
+          <div style="display:flex;justify-content:space-between;">
+            <span class="stat-label">Capacity used</span>
+            <span class="stat-label" id="stat-cap-pct">—</span>
+          </div>
+          <div class="capacity-bar-bg">
+            <div class="capacity-bar-fill" id="cap-bar" style="width:0%"></div>
+          </div>
+          <span class="capacity-label" id="stat-cap-remaining"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Binary / bytes panel -->
+    <div class="binary-panel">
+      <div class="binary-header">
+        <span class="panel-label">Stored data</span>
+        <div style="display:flex;gap:6px;margin-left:auto;">
+          <button class="btn-secondary active" id="view-hex">Hex</button>
+          <button class="btn-secondary" id="view-chars">Chars</button>
+          <button class="btn-secondary" id="view-binary">Binary</button>
+        </div>
+      </div>
+      <div class="binary-content" id="binary-content">
+        <span style="color:var(--text-3);font-size:0.67rem;letter-spacing:0.06em;">Generate a QR code to see stored bytes</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- F2: Anatomy -->
+  <div class="section" id="section-anatomy">
+    <div class="section-header">
+      <span class="section-title">QR Anatomy</span>
+      <button class="btn-secondary" id="anatomy-clear-btn" style="display:none;">Clear highlight</button>
+    </div>
+    <div class="section-body">
+      <div class="anatomy-grid">
+        <div class="anatomy-item" data-region="finder">
+          <div class="anatomy-swatch" style="background:#4a7ab4;"></div>
+          <div class="anatomy-text">
+            <span class="anatomy-name">Finder Patterns</span>
+            <span class="anatomy-desc">Three corner squares that help scanners detect and orient the code at any angle</span>
+          </div>
+        </div>
+        <div class="anatomy-item" data-region="timing">
+          <div class="anatomy-swatch" style="background:#7ab44a;"></div>
+          <div class="anatomy-text">
+            <span class="anatomy-name">Timing Patterns</span>
+            <span class="anatomy-desc">Alternating stripes between finder patterns that establish the module grid spacing</span>
+          </div>
+        </div>
+        <div class="anatomy-item" data-region="alignment">
+          <div class="anatomy-swatch" style="background:#b47a4a;"></div>
+          <div class="anatomy-text">
+            <span class="anatomy-name">Alignment Patterns</span>
+            <span class="anatomy-desc">Small squares (version 2+) that help scanners correct for distortion or skew</span>
+          </div>
+        </div>
+        <div class="anatomy-item" data-region="data">
+          <div class="anatomy-swatch" style="background:#a44ab4;"></div>
+          <div class="anatomy-text">
+            <span class="anatomy-name">Data Area</span>
+            <span class="anatomy-desc">Remaining modules storing the encoded data and Reed–Solomon error correction codewords</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- F4/F5: Error Correction + Redundancy -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Error Correction Level</span>
+    </div>
+    <div class="section-body" style="display:flex;flex-direction:column;gap:12px;">
+      <div class="ec-row">
+        <button class="ec-btn" data-ec="L">L <span class="ec-pct">7%</span></button>
+        <button class="ec-btn active" data-ec="M">M <span class="ec-pct">15%</span></button>
+        <button class="ec-btn" data-ec="Q">Q <span class="ec-pct">25%</span></button>
+        <button class="ec-btn" data-ec="H">H <span class="ec-pct">30%</span></button>
+        <span class="ec-desc" id="ec-desc" style="margin:0;"></span>
+      </div>
+      <div class="redundancy-bars">
+        <div class="panel-label">Data vs error correction codewords</div>
+        <div class="redund-row">
+          <span class="redund-label">Data</span>
+          <div class="redund-blocks" id="redund-data"></div>
+          <span class="redund-pct" id="redund-data-pct"></span>
+        </div>
+        <div class="redund-row">
+          <span class="redund-label">Error correction</span>
+          <div class="redund-blocks" id="redund-ec"></div>
+          <span class="redund-pct" id="redund-ec-pct"></span>
+        </div>
+      </div>
+      <div style="font-size:0.67rem;color:var(--text-3);line-height:1.6;">
+        QR codes use Reed–Solomon error correction. Extra mathematical data is stored alongside your content so that even if modules are damaged or obscured, scanners can reconstruct the original message.
+      </div>
+    </div>
+  </div>
+
+  <!-- F3: Corruption Simulator -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Corruption Simulator</span>
+    </div>
+    <div class="section-body" style="display:flex;flex-direction:column;gap:12px;">
+      <div class="corruption-row">
+        <label for="damage-slider">Damage</label>
+        <input type="range" id="damage-slider" min="0" max="100" value="0">
+        <span id="damage-pct-label" style="font-size:0.73rem;color:var(--text-3);min-width:2.5em;text-align:right;">0%</span>
+        <span class="scannable-badge ok" id="scannable-badge">Scannable</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="ec-used-label" id="ec-used-label">Error correction consumed: —</span>
+        <button class="btn-secondary" id="reset-damage-btn" style="margin-left:auto;">Reset</button>
+      </div>
+      <div style="font-size:0.67rem;color:var(--text-3);line-height:1.6;">
+        Random modules are removed as you drag the slider. The QR code remains scannable until error correction capacity is exhausted.
+      </div>
+    </div>
+  </div>
+
+  <!-- F8: Scanner Simulation -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Scanner Simulation</span>
+    </div>
+    <div class="section-body">
+      <div class="scan-btn-row">
+        <button class="btn-primary" id="scan-btn">Show scan process</button>
+        <button class="btn-secondary" id="scan-reset-btn">Reset</button>
+      </div>
+      <div class="scan-steps" id="scan-steps">
+        <div class="scan-step" data-step="1">
+          <span class="step-icon">◈</span>
+          <span class="step-text">Detect finder patterns</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="2">
+          <span class="step-icon">⟳</span>
+          <span class="step-text">Determine orientation</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="3">
+          <span class="step-icon">⊞</span>
+          <span class="step-text">Locate timing patterns &amp; grid</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="4">
+          <span class="step-icon">▦</span>
+          <span class="step-text">Read data modules</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="5">
+          <span class="step-icon">⚙</span>
+          <span class="step-text">Apply error correction (Reed–Solomon)</span>
+          <span class="step-status"></span>
+        </div>
+        <div class="scan-step" data-step="6">
+          <span class="step-icon">✓</span>
+          <span class="step-text">Decode content</span>
+          <span class="step-status"></span>
+        </div>
+      </div>
+      <div class="scan-result" id="scan-result" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- F6: Version Explorer -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Version &amp; Capacity</span>
+    </div>
+    <div class="section-body">
+      <div class="version-info">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <span class="version-badge" id="ver-number">—<span> version</span></span>
+          <span class="stat-label" id="ver-size-label">— × — modules</span>
+        </div>
+        <div class="version-desc" id="ver-desc">Generate a QR code to see version information.</div>
+      </div>
+      <div class="version-ruler">
+        <span class="version-ruler-label">V1 (21×21)</span>
+        <div class="version-ruler-bar" id="ver-ruler" style="width:0%;max-width:80%;"></div>
+        <span class="version-ruler-label">V10 (57×57)</span>
+      </div>
+      <div style="margin-top:10px;font-size:0.67rem;color:var(--text-3);line-height:1.6;">
+        Each version adds 4 modules per side. Version 1 is 21×21; version 40 is 177×177. More content → higher version → denser code.
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="tooltip-box" id="tooltip"></div>
+<footer>
+  <a class="back-link" href="../">&lt; Home</a>
+</footer>
+
+<script>
+// ── Constants ────────────────────────────────────────────────────────────────
+
+const CANVAS_PX = 280;
+const DPR = window.devicePixelRatio || 1;
+
+const ECC_RATE = { L: 0.07, M: 0.15, Q: 0.25, H: 0.30 };
+const ECC_LABEL = { L: 'Low (7%)', M: 'Medium (15%)', Q: 'Quartile (25%)', H: 'High (30%)' };
+const ECC_DESC = {
+  L: 'Recovers up to 7% damage. Smallest code, lowest density. Use for clean, controlled environments.',
+  M: 'Recovers up to 15% damage. Good balance for most uses.',
+  Q: 'Recovers up to 25% damage. Larger code. Good for printed materials that may get dirty.',
+  H: 'Recovers up to 30% damage. Largest, densest code. Best for industrial or outdoor use.'
+};
+
+// EC and total codewords per version and EC level (versions 1–10)
+const EC_CODEWORDS = {
+  1:  { L:7,  M:10, Q:13, H:17 },
+  2:  { L:10, M:16, Q:22, H:28 },
+  3:  { L:15, M:26, Q:36, H:44 },
+  4:  { L:20, M:36, Q:52, H:64 },
+  5:  { L:26, M:48, Q:72, H:88 },
+  6:  { L:36, M:64, Q:96, H:112 },
+  7:  { L:40, M:72, Q:108, H:130 },
+  8:  { L:48, M:88, Q:132, H:156 },
+  9:  { L:60, M:110, Q:160, H:192 },
+  10: { L:72, M:130, Q:192, H:224 }
+};
+const TOTAL_CODEWORDS = { 1:26, 2:44, 3:70, 4:100, 5:134, 6:172, 7:196, 8:242, 9:292, 10:346 };
+
+// Max byte capacity per version, per EC level
+const MAX_BYTES = {
+  1:  { L:17,  M:14,  Q:11,  H:7  },
+  2:  { L:32,  M:26,  Q:20,  H:14 },
+  3:  { L:53,  M:42,  Q:32,  H:24 },
+  4:  { L:78,  M:62,  Q:46,  H:36 },
+  5:  { L:106, M:84,  Q:60,  H:46 },
+  6:  { L:134, M:106, Q:74,  H:60 },
+  7:  { L:154, M:122, Q:86,  H:66 },
+  8:  { L:192, M:152, Q:108, H:86 },
+  9:  { L:230, M:180, Q:130, H:100},
+  10: { L:271, M:213, Q:151, H:122}
+};
+
+// Alignment pattern centers (row, col) for versions 2–10
+const ALIGNMENT_CENTERS = {
+  2:  [[18,18]],
+  3:  [[22,22]],
+  4:  [[26,26]],
+  5:  [[30,30]],
+  6:  [[34,34]],
+  7:  [[6,22],[22,6],[22,22],[22,38],[38,22],[38,38]],
+  8:  [[6,24],[24,6],[24,24],[24,42],[42,24],[42,42]],
+  9:  [[6,26],[26,6],[26,26],[26,46],[46,26],[46,46]],
+  10: [[6,28],[28,6],[28,28],[28,50],[50,28],[50,50]]
+};
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+let currentQR = null;
+let currentText = '';
+let currentEC = 'M';
+let currentVersion = 0;
+let currentModuleCount = 0;
+let cellSize = 0;
+let originalMatrix = null;
+let damageSet = new Set();
+let damageMaskPool = [];
+let viewMode = 'hex';
+let activeRegion = null;
+let scanAnimTimer = null;
+let rafId = null;
+
+// ── DOM refs ─────────────────────────────────────────────────────────────────
+
+const canvas = document.getElementById('qr-canvas');
+const ctx = canvas.getContext('2d');
+const svgEl = document.getElementById('anatomy-svg');
+const placeholderMsg = document.getElementById('placeholder-msg');
+const qrInput = document.getElementById('qr-input');
+const generateBtn = document.getElementById('generate-btn');
+const damageSlider = document.getElementById('damage-slider');
+const resetDamageBtn = document.getElementById('reset-damage-btn');
+const scannableBadge = document.getElementById('scannable-badge');
+const ecUsedLabel = document.getElementById('ec-used-label');
+const damagePctLabel = document.getElementById('damage-pct-label');
+const tooltip = document.getElementById('tooltip');
+
+// ── Generate ─────────────────────────────────────────────────────────────────
+
+function generate() {
+  const text = qrInput.value.trim();
+  if (!text) return;
+
+  currentText = text;
+  resetDamage();
+
+  let qr = null;
+  for (let tn = 1; tn <= 10; tn++) {
+    try {
+      const q = qrcode(tn, currentEC);
+      q.addData(text, 'Byte');
+      q.make();
+      qr = q;
+      currentVersion = tn;
+      break;
+    } catch(e) { /* try next */ }
+  }
+
+  if (!qr) {
+    placeholderMsg.textContent = 'Text too long for versions 1–10';
+    placeholderMsg.style.display = 'flex';
+    canvas.style.display = 'none';
+    svgEl.style.display = 'none';
+    return;
+  }
+
+  currentQR = qr;
+  currentModuleCount = qr.getModuleCount();
+  cellSize = Math.floor(CANVAS_PX / currentModuleCount);
+
+  // Build originalMatrix
+  originalMatrix = [];
+  for (let r = 0; r < currentModuleCount; r++) {
+    originalMatrix[r] = [];
+    for (let c = 0; c < currentModuleCount; c++) {
+      originalMatrix[r][c] = qr.isDark(r, c);
+    }
+  }
+
+  placeholderMsg.style.display = 'none';
+  canvas.style.display = 'block';
+  svgEl.style.display = 'block';
+
+  drawMatrix(originalMatrix);
+  updateStats();
+  updateBinaryView();
+  updateEC();
+  updateRedundancy();
+  clearAnatomy();
+  updateVersionInfo();
+  resetScanSteps();
+}
+
+// ── Canvas drawing ────────────────────────────────────────────────────────────
+
+function setupCanvas() {
+  canvas.width = CANVAS_PX * DPR;
+  canvas.height = CANVAS_PX * DPR;
+  canvas.style.width = CANVAS_PX + 'px';
+  canvas.style.height = CANVAS_PX + 'px';
+  ctx.scale(DPR, DPR);
+}
+setupCanvas();
+
+function drawMatrix(matrix, damagedCells) {
+  const n = matrix.length;
+  const cs = cellSize;
+  const offset = Math.floor((CANVAS_PX - n * cs) / 2);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, CANVAS_PX, CANVAS_PX);
+
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      const key = r * 1000 + c;
+      if (damagedCells && damagedCells.has(key)) continue;
+      if (matrix[r][c]) {
+        ctx.fillStyle = '#222222';
+        ctx.fillRect(offset + c * cs, offset + r * cs, cs, cs);
+      }
+    }
+  }
+}
+
+function currentOffset() {
+  return Math.floor((CANVAS_PX - currentModuleCount * cellSize) / 2);
+}
+
+// ── Stats (F9) ────────────────────────────────────────────────────────────────
+
+function updateStats() {
+  const v = currentVersion;
+  const n = currentModuleCount;
+  const byteLen = new TextEncoder().encode(currentText).length;
+  const maxBytes = MAX_BYTES[v] ? MAX_BYTES[v][currentEC] : byteLen;
+  const pct = Math.min(100, Math.round((byteLen / maxBytes) * 100));
+  const remaining = Math.max(0, maxBytes - byteLen);
+
+  document.getElementById('stat-version').textContent = v;
+  document.getElementById('stat-size').textContent = n + ' × ' + n;
+  document.getElementById('stat-ec').textContent = ECC_LABEL[currentEC];
+  document.getElementById('stat-chars').textContent = byteLen + ' bytes';
+  document.getElementById('stat-cap-pct').textContent = pct + '%';
+  document.getElementById('cap-bar').style.width = pct + '%';
+  document.getElementById('stat-cap-remaining').textContent =
+    remaining + ' bytes remaining (max ' + maxBytes + ')';
+}
+
+// ── Binary / Hex view (F1, F7) ────────────────────────────────────────────────
+
+function updateBinaryView() {
+  const bytes = Array.from(new TextEncoder().encode(currentText));
+  const bc = document.getElementById('binary-content');
+
+  if (viewMode === 'hex') {
+    const row = document.createElement('div');
+    row.className = 'byte-row';
+    bytes.forEach(b => {
+      const el = document.createElement('span');
+      el.className = 'byte-hex';
+      el.textContent = b.toString(16).toUpperCase().padStart(2, '0');
+      el.title = 'Char: ' + (b >= 32 && b < 127 ? String.fromCharCode(b) : '·') + ' | Dec: ' + b;
+      row.appendChild(el);
+    });
+    bc.innerHTML = '';
+    bc.appendChild(row);
+  } else if (viewMode === 'chars') {
+    const row = document.createElement('div');
+    row.className = 'byte-row';
+    bytes.forEach(b => {
+      const el = document.createElement('span');
+      el.className = 'byte-char';
+      el.textContent = b >= 32 && b < 127 ? String.fromCharCode(b) : '·';
+      el.title = 'Hex: ' + b.toString(16).toUpperCase().padStart(2, '0') + ' | Dec: ' + b;
+      row.appendChild(el);
+    });
+    bc.innerHTML = '';
+    bc.appendChild(row);
+  } else {
+    // binary
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.flexDirection = 'column';
+    wrap.style.gap = '6px';
+    bytes.slice(0, 32).forEach(b => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      row.style.gap = '8px';
+      const charEl = document.createElement('span');
+      charEl.style.cssText = 'width:1.8em;font-size:0.6rem;color:var(--text-3);flex-shrink:0;';
+      charEl.textContent = b >= 32 && b < 127 ? String.fromCharCode(b) : '·';
+      const bits = document.createElement('div');
+      bits.className = 'binary-bits';
+      for (let i = 7; i >= 0; i--) {
+        const bit = document.createElement('span');
+        bit.className = 'bit';
+        bit.textContent = (b >> i) & 1;
+        bits.appendChild(bit);
+      }
+      row.appendChild(charEl);
+      row.appendChild(bits);
+      wrap.appendChild(row);
+    });
+    if (bytes.length > 32) {
+      const more = document.createElement('div');
+      more.style.cssText = 'font-size:0.6rem;color:var(--text-3);margin-top:4px;';
+      more.textContent = '… and ' + (bytes.length - 32) + ' more bytes';
+      wrap.appendChild(more);
+    }
+    bc.innerHTML = '';
+    bc.appendChild(wrap);
+  }
+}
+
+// ── EC level (F4) ─────────────────────────────────────────────────────────────
+
+function updateEC() {
+  document.getElementById('ec-desc').textContent = ECC_DESC[currentEC];
+}
+
+function updateRedundancy() {
+  if (!currentVersion) return;
+  const v = currentVersion;
+  const total = TOTAL_CODEWORDS[v] || 1;
+  const ec = EC_CODEWORDS[v] ? EC_CODEWORDS[v][currentEC] : 0;
+  const data = total - ec;
+  const ecPct = Math.round((ec / total) * 100);
+  const dataPct = 100 - ecPct;
+
+  const BLOCKS = 20;
+  const dataBlocks = Math.round((data / total) * BLOCKS);
+  const ecBlocks = BLOCKS - dataBlocks;
+
+  const rdData = document.getElementById('redund-data');
+  const rdEc = document.getElementById('redund-ec');
+  rdData.innerHTML = '';
+  rdEc.innerHTML = '';
+  for (let i = 0; i < dataBlocks; i++) {
+    const b = document.createElement('div');
+    b.className = 'block-unit';
+    rdData.appendChild(b);
+  }
+  for (let i = 0; i < ecBlocks; i++) {
+    const b = document.createElement('div');
+    b.className = 'block-unit ec';
+    rdEc.appendChild(b);
+  }
+  document.getElementById('redund-data-pct').textContent = dataPct + '%';
+  document.getElementById('redund-ec-pct').textContent = ecPct + '%';
+}
+
+// ── Anatomy overlay (F2) ──────────────────────────────────────────────────────
+
+const ANATOMY_COLORS = {
+  finder:    'rgba(74,122,180,0.35)',
+  timing:    'rgba(122,180,74,0.35)',
+  alignment: 'rgba(180,122,74,0.35)',
+  data:      'rgba(164,74,180,0.2)'
+};
+
+function getFinderRects() {
+  const cs = cellSize;
+  const off = currentOffset();
+  const n = currentModuleCount;
+  return [
+    [off, off, cs * 7, cs * 7],
+    [off + (n - 7) * cs, off, cs * 7, cs * 7],
+    [off, off + (n - 7) * cs, cs * 7, cs * 7]
+  ];
+}
+
+function getTimingRects() {
+  const cs = cellSize;
+  const off = currentOffset();
+  const n = currentModuleCount;
+  return [
+    [off + 6 * cs, off + 8 * cs, cs, cs * (n - 16)],
+    [off + 8 * cs, off + 6 * cs, cs * (n - 16), cs]
+  ];
+}
+
+function getAlignmentRects() {
+  const v = currentVersion;
+  const centers = v === 1 ? [] : (ALIGNMENT_CENTERS[v] || []);
+  const cs = cellSize;
+  const off = currentOffset();
+  return centers.map(([r, c]) => [
+    off + (c - 2) * cs, off + (r - 2) * cs, cs * 5, cs * 5
+  ]);
+}
+
+function getDataRects() {
+  return [[0, 0, CANVAS_PX, CANVAS_PX]];
+}
+
+function drawAnatomyRegion(region) {
+  svgEl.innerHTML = '';
+  const color = ANATOMY_COLORS[region];
+  const ns = 'http://www.w3.org/2000/svg';
+
+  let rects = [];
+  if (region === 'finder') rects = getFinderRects();
+  else if (region === 'timing') rects = getTimingRects();
+  else if (region === 'alignment') rects = getAlignmentRects();
+  else if (region === 'data') rects = getDataRects();
+
+  rects.forEach(([x, y, w, h]) => {
+    const r = document.createElementNS(ns, 'rect');
+    r.setAttribute('x', x);
+    r.setAttribute('y', y);
+    r.setAttribute('width', w);
+    r.setAttribute('height', h);
+    r.setAttribute('fill', color);
+    r.setAttribute('stroke', color.replace('0.35', '0.8').replace('0.2', '0.6'));
+    r.setAttribute('stroke-width', '1.5');
+    svgEl.appendChild(r);
+  });
+}
+
+function clearAnatomy() {
+  svgEl.innerHTML = '';
+  activeRegion = null;
+  document.querySelectorAll('.anatomy-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('anatomy-clear-btn').style.display = 'none';
+}
+
+document.querySelectorAll('.anatomy-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const region = item.dataset.region;
+    if (!currentQR) return;
+    if (activeRegion === region) {
+      clearAnatomy();
+      return;
+    }
+    activeRegion = region;
+    document.querySelectorAll('.anatomy-item').forEach(el => el.classList.remove('active'));
+    item.classList.add('active');
+    drawAnatomyRegion(region);
+    document.getElementById('anatomy-clear-btn').style.display = '';
+  });
+});
+
+document.getElementById('anatomy-clear-btn').addEventListener('click', clearAnatomy);
+
+// ── Corruption simulator (F3) ─────────────────────────────────────────────────
+
+function buildDamageMaskPool(totalCells) {
+  damageMaskPool = [];
+  for (let r = 0; r < currentModuleCount; r++) {
+    for (let c = 0; c < currentModuleCount; c++) {
+      damageMaskPool.push(r * 1000 + c);
+    }
+  }
+  // shuffle
+  for (let i = damageMaskPool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [damageMaskPool[i], damageMaskPool[j]] = [damageMaskPool[j], damageMaskPool[i]];
+  }
+}
+
+function applyDamage(pct) {
+  if (!originalMatrix) return;
+  const totalCells = currentModuleCount * currentModuleCount;
+  const targetCount = Math.floor((pct / 100) * totalCells);
+
+  if (damageMaskPool.length === 0) buildDamageMaskPool(totalCells);
+
+  damageSet = new Set(damageMaskPool.slice(0, targetCount));
+
+  const ecCapacity = EC_CODEWORDS[currentVersion] ? EC_CODEWORDS[currentVersion][currentEC] : 0;
+  const total = TOTAL_CODEWORDS[currentVersion] || 1;
+  const damagedCount = damageSet.size;
+  const estEcDamaged = Math.round(damagedCount * (ecCapacity / total));
+  const ecCapacityModules = Math.round(ecCapacity * (totalCells / total));
+  const ecUsedPct = Math.min(100, Math.round((estEcDamaged / Math.max(1, ecCapacityModules)) * 100));
+
+  const eccRate = ECC_RATE[currentEC] * 100;
+  const damageRate = (damagedCount / totalCells) * 100;
+  const isScannable = damageRate < eccRate;
+
+  damagePctLabel.textContent = Math.round(pct) + '%';
+  ecUsedLabel.textContent = 'Error correction consumed: ~' + ecUsedPct + '%';
+  scannableBadge.textContent = isScannable ? 'Scannable ✓' : 'Not scannable ✗';
+  scannableBadge.className = 'scannable-badge ' + (isScannable ? 'ok' : 'fail');
+
+  drawMatrix(originalMatrix, damageSet);
+}
+
+damageSlider.addEventListener('pointerdown', () => {
+  if (!originalMatrix) return;
+  buildDamageMaskPool();
+});
+
+damageSlider.addEventListener('input', () => {
+  if (!originalMatrix) return;
+  const pct = parseInt(damageSlider.value);
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(() => applyDamage(pct));
+});
+
+resetDamageBtn.addEventListener('click', resetDamage);
+
+function resetDamage() {
+  damageSlider.value = 0;
+  damageMaskPool = [];
+  damageSet = new Set();
+  damagePctLabel.textContent = '0%';
+  ecUsedLabel.textContent = 'Error correction consumed: —';
+  scannableBadge.textContent = 'Scannable ✓';
+  scannableBadge.className = 'scannable-badge ok';
+  if (originalMatrix) drawMatrix(originalMatrix);
+}
+
+// ── Scanner simulation (F8) ───────────────────────────────────────────────────
+
+const SCAN_STEPS_TEXT = [
+  'Detect finder patterns',
+  'Determine orientation',
+  'Locate timing patterns & grid',
+  'Read data modules',
+  'Apply error correction (Reed–Solomon)',
+  'Decode content'
+];
+
+function resetScanSteps() {
+  clearTimeout(scanAnimTimer);
+  document.querySelectorAll('.scan-step').forEach(el => {
+    el.classList.remove('done', 'active');
+    el.querySelector('.step-status').textContent = '';
+  });
+  document.getElementById('scan-result').style.display = 'none';
+  document.getElementById('scan-result').textContent = '';
+}
+
+document.getElementById('scan-btn').addEventListener('click', () => {
+  if (!currentQR) return;
+  resetScanSteps();
+  runScanStep(1);
+});
+
+document.getElementById('scan-reset-btn').addEventListener('click', resetScanSteps);
+
+function runScanStep(step) {
+  const stepEl = document.querySelector('.scan-step[data-step="' + step + '"]');
+  if (!stepEl) return;
+
+  stepEl.classList.add('active');
+
+  scanAnimTimer = setTimeout(() => {
+    stepEl.classList.remove('active');
+    stepEl.classList.add('done');
+
+    if (step === 5) {
+      const corrupted = damageSet.size > 0;
+      const eccRate = ECC_RATE[currentEC] * 100;
+      const totalCells = currentModuleCount * currentModuleCount;
+      const damageRate = (damageSet.size / totalCells) * 100;
+      const canRecover = damageRate < eccRate;
+      if (corrupted && !canRecover) {
+        stepEl.querySelector('.step-status').textContent = 'Failed';
+        showScanResult('Decode failed — code too damaged for error correction to recover');
+        return;
+      }
+      stepEl.querySelector('.step-status').textContent = 'OK';
+    } else {
+      stepEl.querySelector('.step-status').textContent = 'OK';
+    }
+
+    if (step < 6) {
+      runScanStep(step + 1);
+    } else {
+      showScanResult('Decoded: ' + currentText);
+    }
+  }, 500 + Math.random() * 300);
+}
+
+function showScanResult(msg) {
+  const el = document.getElementById('scan-result');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// ── Version info (F6) ─────────────────────────────────────────────────────────
+
+function updateVersionInfo() {
+  const v = currentVersion;
+  const n = currentModuleCount;
+  document.getElementById('ver-number').innerHTML = v + '<span> version</span>';
+  document.getElementById('ver-size-label').textContent = n + ' × ' + n + ' modules';
+  document.getElementById('ver-desc').textContent =
+    'Version ' + v + ' stores up to ' + (MAX_BYTES[v] ? MAX_BYTES[v][currentEC] : '?') +
+    ' bytes at ' + ECC_LABEL[currentEC] + ' error correction. ' +
+    'The grid is ' + n + '×' + n + ' = ' + (n * n) + ' modules total.';
+
+  const rulerPct = Math.round(((v - 1) / 9) * 100);
+  document.getElementById('ver-ruler').style.width = Math.max(2, rulerPct) + '%';
+}
+
+// ── EC button wiring ──────────────────────────────────────────────────────────
+
+document.querySelectorAll('.ec-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentEC = btn.dataset.ec;
+    document.querySelectorAll('.ec-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateEC();
+    if (currentText) generate();
+  });
+});
+
+// ── Binary view buttons ───────────────────────────────────────────────────────
+
+['view-hex', 'view-chars', 'view-binary'].forEach(id => {
+  document.getElementById(id).addEventListener('click', () => {
+    viewMode = id.replace('view-', '');
+    ['view-hex', 'view-chars', 'view-binary'].forEach(i => {
+      document.getElementById(i).classList.toggle('active', i === id);
+    });
+    if (currentText) updateBinaryView();
+  });
+});
+
+// ── Generate wiring ───────────────────────────────────────────────────────────
+
+generateBtn.addEventListener('click', generate);
+qrInput.addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+
+// Auto-generate on load
+generate();
+</script>
+
+</body>
+</html>
