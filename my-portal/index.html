@@ -242,6 +242,15 @@
     letter-spacing: 0.02em;
   }
   .link-anchor:hover { text-decoration: underline; }
+  .link-text {
+    font-size: 0.82rem;
+    color: var(--text);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.02em;
+  }
   .link-actions {
     display: none;
     gap: 2px;
@@ -731,13 +740,19 @@ function buildLinkRow(cell, link, body) {
   row.className = 'link-row';
   row.dataset.id = link.id;
 
-  const a = document.createElement('a');
-  a.className = 'link-anchor';
-  const safeUrl = normalizeUrl(link.url);
-  if (!safeUrl) return row;    // skip malformed/dangerous URLs from storage
-  a.href = safeUrl;
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
+  let a;
+  if (link.url) {
+    const safeUrl = normalizeUrl(link.url);
+    if (!safeUrl) return row;  // skip malformed/dangerous URLs from storage
+    a = document.createElement('a');
+    a.className = 'link-anchor';
+    a.href = safeUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+  } else {
+    a = document.createElement('span');
+    a.className = 'link-text';
+  }
   a.textContent = link.text;   // textContent — safe from XSS
 
   const actions = document.createElement('span');
@@ -771,7 +786,7 @@ function openAddForm(cell, cellEl) {
   if (existing) { existing.querySelector('input').focus(); return; }
   const form = buildLinkForm(cell, body, null);
   body.appendChild(form);
-  form.querySelector('input[placeholder="URL"]').focus();
+  form.querySelector('input[placeholder="Link text"]').focus();
   body.scrollTop = body.scrollHeight;
 }
 
@@ -787,15 +802,15 @@ function buildLinkForm(cell, body, existingLink) {
   const form = document.createElement('div');
   form.className = 'link-form';
 
-  const urlInput = document.createElement('input');
-  urlInput.type = 'text';
-  urlInput.placeholder = 'URL';
-  if (existingLink) urlInput.value = existingLink.url;
-
   const textInput = document.createElement('input');
   textInput.type = 'text';
   textInput.placeholder = 'Link text';
   if (existingLink) textInput.value = existingLink.text;
+
+  const urlInput = document.createElement('input');
+  urlInput.type = 'text';
+  urlInput.placeholder = 'URL (optional)';
+  if (existingLink) urlInput.value = existingLink.url;
 
   const btns = document.createElement('div');
   btns.className = 'link-form-btns';
@@ -812,13 +827,15 @@ function buildLinkForm(cell, body, existingLink) {
     const text = textInput.value.trim();
     const rawUrl = urlInput.value.trim();
     if (!text) { textInput.focus(); return; }
-    if (!rawUrl) { urlInput.focus(); return; }
-    const url = normalizeUrl(rawUrl); // T1: validate/normalize
-    if (!url) {
-      urlInput.value = '';
-      urlInput.placeholder = 'Invalid URL — try https://…';
-      urlInput.focus();
-      return;
+    let url = '';
+    if (rawUrl) {
+      url = normalizeUrl(rawUrl); // T1: validate/normalize
+      if (!url) {
+        urlInput.value = '';
+        urlInput.placeholder = 'Invalid URL — try https://…';
+        urlInput.focus();
+        return;
+      }
     }
     if (existingLink) {
       existingLink.text = text;
@@ -834,17 +851,17 @@ function buildLinkForm(cell, body, existingLink) {
   saveBtn.addEventListener('click', doSave);
   cancelBtn.addEventListener('click', e => { e.stopPropagation(); form.remove(); });
 
-  urlInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); textInput.focus(); }
+  textInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); urlInput.focus(); }
     if (e.key === 'Escape') form.remove();
   });
-  textInput.addEventListener('keydown', e => {
+  urlInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); doSave(); }
     if (e.key === 'Escape') form.remove();
   });
 
   btns.append(saveBtn, cancelBtn);
-  form.append(urlInput, textInput, btns);
+  form.append(textInput, urlInput, btns);
   return form;
 }
 
