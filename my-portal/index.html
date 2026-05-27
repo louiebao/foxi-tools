@@ -229,8 +229,23 @@
     padding: 2px 8px;
     min-height: 22px;
     gap: 3px;
+    border-top: 2px solid transparent;
   }
   .link-row:hover { background: var(--bg-panel); }
+  .link-row.dragging { opacity: 0.35; }
+  .link-row.drag-over { border-top-color: var(--accent); }
+  .link-drag-handle {
+    color: var(--text-3);
+    font-size: 10px;
+    cursor: grab;
+    padding: 0 1px 0 0;
+    flex-shrink: 0;
+    display: none;
+    user-select: none;
+    line-height: 1;
+  }
+  .link-row:hover .link-drag-handle { display: block; }
+  .link-row.dragging .link-drag-handle { cursor: grabbing; }
   .link-anchor {
     font-size: 0.82rem;
     color: var(--accent);
@@ -571,6 +586,7 @@ let clockTimer = null;
 let lastClockStr = '';
 let activePopover = null;
 let clockOutsideHandler = null;
+let dragState = null; // { cellId, linkId }
 
 function defaultState() {
   return {
@@ -740,6 +756,11 @@ function buildLinkRow(cell, link, body) {
   row.className = 'link-row';
   row.dataset.id = link.id;
 
+  const handle = document.createElement('span');
+  handle.className = 'link-drag-handle';
+  handle.textContent = '⠿';
+  handle.title = 'Drag to reorder';
+
   let a;
   if (link.url) {
     const safeUrl = normalizeUrl(link.url);
@@ -774,8 +795,55 @@ function buildLinkRow(cell, link, body) {
     renderLinks(cell, body);
   });
 
+  // ---- drag-to-reorder ----
+  row.draggable = true;
+
+  row.addEventListener('dragstart', e => {
+    if (body.querySelector('.link-form')) { e.preventDefault(); return; }
+    dragState = { cellId: cell.id, linkId: link.id };
+    row.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(link.id)); // required for Firefox
+  });
+
+  row.addEventListener('dragover', e => {
+    if (!dragState || dragState.cellId !== cell.id || dragState.linkId === link.id) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('.link-row.drag-over').forEach(r => r.classList.remove('drag-over'));
+    const rect = row.getBoundingClientRect();
+    const insertBefore = e.clientY < rect.top + rect.height / 2;
+    if (insertBefore) {
+      row.classList.add('drag-over');
+    } else {
+      const next = row.nextElementSibling;
+      if (next && next.classList.contains('link-row')) next.classList.add('drag-over');
+    }
+  });
+
+  row.addEventListener('drop', e => {
+    e.preventDefault();
+    if (!dragState || dragState.cellId !== cell.id || dragState.linkId === link.id) return;
+    const srcIdx = cell.links.findIndex(l => l.id === dragState.linkId);
+    const tgtIdx = cell.links.findIndex(l => l.id === link.id);
+    if (srcIdx === -1 || tgtIdx === -1) return;
+    const rect = row.getBoundingClientRect();
+    const insertBefore = e.clientY < rect.top + rect.height / 2;
+    const [moved] = cell.links.splice(srcIdx, 1);
+    const newTgt = cell.links.findIndex(l => l.id === link.id);
+    cell.links.splice(insertBefore ? newTgt : newTgt + 1, 0, moved);
+    save();
+    renderLinks(cell, body);
+    dragState = null;
+  });
+
+  row.addEventListener('dragend', () => {
+    document.querySelectorAll('.link-row').forEach(r => r.classList.remove('dragging', 'drag-over'));
+    dragState = null;
+  });
+
   actions.append(editBtn, removeBtn);
-  row.append(a, actions);
+  row.append(handle, a, actions);
   return row;
 }
 
