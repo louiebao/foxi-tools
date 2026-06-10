@@ -6,10 +6,22 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: clamp(17px, 1.3vw, 26px); }
-  :root { --cell: clamp(12px, 1.2vw, 22px); }
+  :root {
+    --bg:           #f8f8f5;
+    --bg-panel:     #edeae3;
+    --bg-output:    #f3f1eb;
+    --text:         #222;
+    --text-2:       #666;
+    --text-3:       #777;
+    --border:       #d0d0cc;
+    --border-ui:    #ccc;
+    --border-hover: #888;
+    --accent:       #4a7ab4;
+    --cell:         clamp(12px, 1.2vw, 22px);
+  }
   body {
-    background: #f8f8f5;
-    color: #222;
+    background: var(--bg);
+    color: var(--text);
     font-family: 'Courier New', monospace;
     font-size: 0.93rem;
     display: grid;
@@ -21,7 +33,7 @@
 
   header {
     padding: 16px 32px 12px;
-    border-bottom: 1px solid #d0d0cc;
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 20px;
@@ -32,16 +44,16 @@
     font-size: 1rem;
     font-weight: normal;
     letter-spacing: 0.2em;
-    color: #222;
+    color: var(--text);
     text-transform: uppercase;
   }
   .back-link {
     font-size: 0.73rem;
-    color: #777;
+    color: var(--text-3);
     text-decoration: none;
     letter-spacing: 0.06em;
   }
-  .back-link:hover { color: #333; }
+  .back-link:hover { color: var(--text); }
   .born-label { color: #333; font-size: 0.87rem; }
   @keyframes dob-pulse {
     0%, 100% { opacity: 1; }
@@ -156,15 +168,15 @@
   .cell:hover         { border-color: #888 !important; }
 
   #panel {
-    border-left: 1px solid #d0d0cc;
+    border-left: 1px solid var(--border);
     padding: 14px 32px;
-    background: #efefec;
+    background: var(--bg-output);
     overflow: auto;
     grid-row: 2;
     grid-column: 2;
   }
   .panel-placeholder {
-    color: #666;
+    color: var(--text-2);
     font-size: 0.87rem;
     letter-spacing: 0.08em;
     padding: 14px 0;
@@ -196,7 +208,7 @@
   textarea {
     background: transparent;
     border: none;
-    color: #222;
+    color: var(--text);
     font-family: inherit;
     font-size: 0.87rem;
     line-height: 1.6;
@@ -207,12 +219,12 @@
     height: calc(14 * var(--cell) - 48px);
     min-height: 60px;
   }
-  textarea:focus { color: #222; outline: 1px solid #aaa; outline-offset: 4px; }
-  textarea::placeholder { color: #888; }
+  textarea:focus { color: var(--text); outline: 1px solid var(--border-hover); outline-offset: 4px; }
+  textarea::placeholder { color: var(--border-hover); }
 
   footer {
     padding: 8px 32px;
-    border-top: 1px solid #d0d0cc;
+    border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 14px;
@@ -221,8 +233,8 @@
   }
   footer button {
     background: transparent;
-    border: 1px solid #aaa;
-    color: #444;
+    border: 1px solid var(--border-ui);
+    color: var(--text-2);
     font-family: inherit;
     font-size: 0.73rem;
     letter-spacing: 0.1em;
@@ -230,11 +242,11 @@
     padding: 3px 10px;
     cursor: pointer;
   }
-  footer button:hover { border-color: #666; color: #111; }
+  footer button:hover { border-color: var(--border-hover); color: var(--text); }
   input[type="file"] { display: none; }
   .legend { margin-left: auto; display: flex; gap: 16px; }
-  .version { font-size: 0.67rem; color: #aaa; letter-spacing: 0.06em; margin-left: 16px; }
-  .li { display: flex; align-items: center; gap: 5px; font-size: 0.73rem; color: #555; letter-spacing: 0.05em; }
+  .version { font-size: 0.67rem; color: var(--text-3); letter-spacing: 0.06em; margin-left: 16px; }
+  .li { display: flex; align-items: center; gap: 5px; font-size: 0.73rem; color: var(--text-3); letter-spacing: 0.05em; }
   .dot { width: 8px; height: 8px; border: 1px solid transparent; flex-shrink: 0; }
   .dot.future     { background: #e8e8e6; border-color: #ddd; }
   .dot.lived      { background: #aaa;    border-color: #999; }
@@ -248,11 +260,11 @@
   #tooltip {
     position: fixed;
     display: none;
-    background: #fff;
-    border: 1px solid #ccc;
+    background: var(--bg);
+    border: 1px solid var(--border-ui);
     padding: 6px 10px;
     font-size: 0.73rem;
-    color: #333;
+    color: var(--text);
     letter-spacing: 0.02em;
     line-height: 1.5;
     max-width: 200px;
