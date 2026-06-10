@@ -7,9 +7,21 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: clamp(17px, 1.3vw, 26px); }
+  :root {
+    --bg:           #f8f8f5;
+    --bg-panel:     #edeae3;
+    --bg-output:    #f3f1eb;
+    --text:         #222;
+    --text-2:       #666;
+    --text-3:       #777;
+    --border:       #d0d0cc;
+    --border-ui:    #ccc;
+    --border-hover: #888;
+    --accent:       #4a7ab4;
+  }
   body {
-    background: #f8f8f5;
-    color: #222;
+    background: var(--bg);
+    color: var(--text);
     font-family: 'Courier New', monospace;
     font-size: 1rem;
     min-height: 100vh;
@@ -18,13 +30,13 @@
   }
   header {
     padding: 28px 40px 22px;
-    border-bottom: 1px solid #d0d0cc;
+    border-bottom: 1px solid var(--border);
   }
   header h1 {
     font-size: 1.07rem;
     font-weight: normal;
     letter-spacing: 0.2em;
-    color: #222;
+    color: var(--text);
     text-transform: uppercase;
   }
   .header-title {
@@ -34,14 +46,14 @@
   }
   header p {
     font-size: 0.75rem;
-    color: #888;
+    color: var(--border-hover);
     letter-spacing: 0.04em;
   }
   header ul {
     margin-top: 10px;
     padding-left: 18px;
     font-size: 0.8rem;
-    color: #666;
+    color: var(--text-2);
     letter-spacing: 0.03em;
     line-height: 1.9;
   }
@@ -59,16 +71,16 @@
     align-items: baseline;
     gap: 20px;
     padding: 12px 0;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border);
     text-decoration: none;
     color: inherit;
   }
   .tool-link:last-child { border-bottom: none; }
-  .tool-link:hover .tool-name { color: #000; }
+  .tool-link:hover .tool-name { color: var(--text); }
   .tool-name {
     font-size: 0.93rem;
     letter-spacing: 0.08em;
-    color: #222;
+    color: var(--text);
     text-transform: uppercase;
     transition: color 0.1s;
     flex-shrink: 0;
@@ -76,15 +88,15 @@
   }
   .tool-desc {
     font-size: 0.87rem;
-    color: #555;
+    color: var(--text-2);
     letter-spacing: 0.02em;
     flex: 1;
   }
   footer {
     padding: 14px 40px;
-    border-top: 1px solid #d0d0cc;
+    border-top: 1px solid var(--border);
     font-size: 0.8rem;
-    color: #777;
+    color: var(--text-3);
     letter-spacing: 0.06em;
   }
 </style>
@@ -131,7 +143,7 @@
   </div>
 </main>
 
-<footer></footer>
+<footer><span class="version" style="font-size:0.67rem;letter-spacing:0.06em;">v1.0.0</span></footer>
 
 </body>
 </html>
