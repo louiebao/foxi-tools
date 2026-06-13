@@ -34,31 +34,6 @@
   --cell-size: 48px;
 }
 
-.dark {
-  --bg:           #1a1a18;
-  --bg-panel:     #252520;
-  --text:         #f0f0ed;
-  --text-2:       #aaa;
-  --text-3:       #777;
-  --border:       #3a3a36;
-  --accent:       #6a9ad4;
-
-  --cat-alkali-metal:    #7a4422;
-  --cat-alkaline-earth:  #7a5420;
-  --cat-transition-metal:#22445a;
-  --cat-post-transition: #225a22;
-  --cat-metalloid:       #3a2a6a;
-  --cat-nonmetal:        #4a4a20;
-  --cat-noble-gas:       #1a4a5a;
-  --cat-lanthanide:      #6a2828;
-  --cat-actinide:        #5a2020;
-
-  --theme-body:   #d4902a;
-  --theme-spacex: #4a7aa8;
-  --theme-edible: #5a9a5a;
-  --theme-burning:#c84828;
-}
-
 body {
   background: var(--bg);
   color: var(--text);
@@ -92,39 +67,38 @@ header h1 {
   letter-spacing: 0.06em;
 }
 .back-link:hover { color: var(--text); }
-.dark-toggle {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text-2);
-  font-family: inherit;
-  font-size: 0.72rem;
-  padding: 3px 8px;
-  cursor: pointer;
-  letter-spacing: 0.06em;
-}
-.dark-toggle:hover { border-color: var(--text-2); color: var(--text); }
 
-/* ── Theme controls ── */
-#controls {
-  padding: 12px 24px;
-  border-bottom: 1px solid var(--border);
+/* ── Sidebar (spotlight) ── */
+#sidebar {
+  width: 150px;
+  min-width: 150px;
+  border-right: 1px solid var(--border);
+  padding: 16px 14px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
+  flex-direction: column;
+  gap: 6px;
   flex-shrink: 0;
+  overflow-y: auto;
+}
+.sidebar-label {
+  font-size: 0.62rem;
+  color: var(--text-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
 .theme-btn {
   background: none;
   border: 1px solid var(--border);
   color: var(--text-2);
   font-family: inherit;
-  font-size: 0.75rem;
-  padding: 5px 12px;
+  font-size: 0.72rem;
+  padding: 7px 10px;
   cursor: pointer;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+  text-align: left;
+  width: 100%;
   transition: background 0.1s, color 0.1s, border-color 0.1s;
-  position: relative;
 }
 .theme-btn:hover { border-color: var(--text-2); color: var(--text); }
 .theme-btn.active {
@@ -138,24 +112,17 @@ header h1 {
 
 #clear-btn {
   background: none;
-  border: 1px solid var(--border);
+  border: none;
   color: var(--text-3);
   font-family: inherit;
-  font-size: 0.72rem;
-  padding: 5px 10px;
+  font-size: 0.65rem;
+  padding: 4px 0;
   cursor: pointer;
-  letter-spacing: 0.05em;
-  margin-left: 4px;
+  letter-spacing: 0.06em;
+  text-align: left;
+  margin-top: 4px;
 }
-#clear-btn:hover { border-color: var(--text-2); color: var(--text); }
-
-.controls-label {
-  font-size: 0.68rem;
-  color: var(--text-3);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-right: 4px;
-}
+#clear-btn:hover { color: var(--text); }
 
 /* ── Main layout ── */
 #main {
@@ -418,6 +385,20 @@ footer {
     overflow: visible;
   }
 
+  #sidebar {
+    width: 100%;
+    min-width: unset;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    gap: 6px;
+  }
+  .sidebar-label { display: none; }
+  #clear-btn { margin-top: 0; }
+  .theme-btn { width: auto; padding: 5px 10px; }
+
   #grid-wrapper {
     overflow-x: auto;
     overflow-y: visible;
@@ -439,10 +420,6 @@ footer {
     transform: translateY(0);
   }
 
-  #controls {
-    padding: 10px 12px;
-  }
-
   #legend { display: none; }
 }
 </style>
@@ -452,19 +429,17 @@ footer {
 <header>
   <a class="back-link" href="../">< Home</a>
   <h1>Periodic Table Explorer</h1>
-  <button class="dark-toggle" id="dark-toggle" aria-pressed="false">dark</button>
 </header>
 
-<div id="controls" role="toolbar" aria-label="Theme filters">
-  <span class="controls-label">Spotlight</span>
-  <button class="theme-btn" data-key="body"    aria-pressed="false">Human Body</button>
-  <button class="theme-btn" data-key="spacex"  aria-pressed="false">SpaceX / Rockets</button>
-  <button class="theme-btn" data-key="edible"  aria-pressed="false">Lickable / Edible</button>
-  <button class="theme-btn" data-key="burning" aria-pressed="false">Burning / Reactive</button>
-  <button id="clear-btn">clear all</button>
-</div>
-
 <div id="main">
+  <nav id="sidebar" role="toolbar" aria-label="Theme filters">
+    <span class="sidebar-label">Spotlight</span>
+    <button class="theme-btn" data-key="body"    aria-pressed="false">Human Body</button>
+    <button class="theme-btn" data-key="spacex"  aria-pressed="false">SpaceX / Rockets</button>
+    <button class="theme-btn" data-key="edible"  aria-pressed="false">Lickable / Edible</button>
+    <button class="theme-btn" data-key="burning" aria-pressed="false">Burning / Reactive</button>
+    <button id="clear-btn">clear all</button>
+  </nav>
   <div id="grid-wrapper">
     <div id="grid" role="grid" aria-label="Periodic table of elements"></div>
   </div>
@@ -474,7 +449,6 @@ footer {
       <div class="panel-name" id="panel-name"></div>
       <div class="panel-meta">
         <span><span class="meta-label">Number</span><span id="panel-number"></span></span>
-        <span><span class="meta-label">Mass</span><span id="panel-mass"></span></span>
       </div>
       <span class="panel-cat-tag" id="panel-cat"></span>
     </div>
@@ -1606,7 +1580,6 @@ function openPanel(el, cellEl) {
   document.getElementById('panel-symbol').textContent = el.symbol;
   document.getElementById('panel-name').textContent = el.name;
   document.getElementById('panel-number').textContent = el.number;
-  document.getElementById('panel-mass').textContent = el.mass;
   document.getElementById('panel-cat').textContent = CAT_LABELS[el.category] || el.category;
 
   const body = document.getElementById('panel-body');
@@ -1684,16 +1657,6 @@ function clearAll() {
 }
 
 // ─────────────────────────────────────────────
-// DARK MODE
-// ─────────────────────────────────────────────
-function toggleDark() {
-  const isDark = document.body.classList.toggle('dark');
-  document.getElementById('dark-toggle').setAttribute('aria-pressed', isDark ? 'true' : 'false');
-  document.getElementById('dark-toggle').textContent = isDark ? 'light' : 'dark';
-  try { localStorage.setItem('foxi-periodic-dark', isDark ? '1' : '0'); } catch(e) {}
-}
-
-// ─────────────────────────────────────────────
 // EVENT LISTENERS
 // ─────────────────────────────────────────────
 document.querySelectorAll('.theme-btn').forEach(btn => {
@@ -1701,19 +1664,20 @@ document.querySelectorAll('.theme-btn').forEach(btn => {
 });
 document.getElementById('clear-btn').addEventListener('click', clearAll);
 document.getElementById('close-panel-btn').addEventListener('click', closePanel);
-document.getElementById('dark-toggle').addEventListener('click', toggleDark);
+
+// Close panel when clicking outside the grid and panel
+document.addEventListener('click', (e) => {
+  if (!selectedElement) return;
+  const panel = document.getElementById('panel');
+  const grid = document.getElementById('grid');
+  if (!panel.contains(e.target) && !grid.contains(e.target)) {
+    closePanel();
+  }
+});
 
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
-try {
-  if (localStorage.getItem('foxi-periodic-dark') === '1') {
-    document.body.classList.add('dark');
-    document.getElementById('dark-toggle').textContent = 'light';
-    document.getElementById('dark-toggle').setAttribute('aria-pressed', 'true');
-  }
-} catch(e) {}
-
 buildGrid();
 </script>
 </body>
