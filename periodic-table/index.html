@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Periodic Table Explorer — foxi-tools</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #f8f8f5;
+  --bg-panel:     #edeae3;
+  --text:         #222;
+  --text-2:       #666;
+  --text-3:       #888;
+  --border:       #d0d0cc;
+  --accent:       #4a7ab4;
+
+  --cat-alkali-metal:    #f4a26b;
+  --cat-alkaline-earth:  #f6c27a;
+  --cat-transition-metal:#b8d4e8;
+  --cat-post-transition: #c3e0c3;
+  --cat-metalloid:       #d4c5e8;
+  --cat-nonmetal:        #e8e4a0;
+  --cat-noble-gas:       #a8d8ea;
+  --cat-lanthanide:      #f0c8c8;
+  --cat-actinide:        #e8b8b8;
+
+  --theme-body:   #e8a84c;
+  --theme-spacex: #5b8db8;
+  --theme-edible: #7aad7a;
+  --theme-burning:#e05c3a;
+
+  --cell-size: 48px;
+}
+
+.dark {
+  --bg:           #1a1a18;
+  --bg-panel:     #252520;
+  --text:         #f0f0ed;
+  --text-2:       #aaa;
+  --text-3:       #777;
+  --border:       #3a3a36;
+  --accent:       #6a9ad4;
+
+  --cat-alkali-metal:    #7a4422;
+  --cat-alkaline-earth:  #7a5420;
+  --cat-transition-metal:#22445a;
+  --cat-post-transition: #225a22;
+  --cat-metalloid:       #3a2a6a;
+  --cat-nonmetal:        #4a4a20;
+  --cat-noble-gas:       #1a4a5a;
+  --cat-lanthanide:      #6a2828;
+  --cat-actinide:        #5a2020;
+
+  --theme-body:   #d4902a;
+  --theme-spacex: #4a7aa8;
+  --theme-edible: #5a9a5a;
+  --theme-burning:#c84828;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+  padding: 14px 24px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+header h1 {
+  font-size: 0.88rem;
+  font-weight: normal;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  flex: 1;
+}
+.back-link {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+}
+.back-link:hover { color: var(--text); }
+.dark-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+}
+.dark-toggle:hover { border-color: var(--text-2); color: var(--text); }
+
+/* ── Theme controls ── */
+#controls {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.theme-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+  position: relative;
+}
+.theme-btn:hover { border-color: var(--text-2); color: var(--text); }
+.theme-btn.active {
+  color: #fff;
+  border-color: transparent;
+}
+.theme-btn[data-key="body"].active    { background: var(--theme-body); }
+.theme-btn[data-key="spacex"].active  { background: var(--theme-spacex); }
+.theme-btn[data-key="edible"].active  { background: var(--theme-edible); }
+.theme-btn[data-key="burning"].active { background: var(--theme-burning); }
+
+#clear-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  font-family: inherit;
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+}
+#clear-btn:hover { border-color: var(--text-2); color: var(--text); }
+
+.controls-label {
+  font-size: 0.68rem;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+/* ── Main layout ── */
+#main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Grid wrapper ── */
+#grid-wrapper {
+  flex: 1;
+  overflow: auto;
+  padding: 16px 16px 16px 24px;
+}
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(18, var(--cell-size));
+  grid-template-rows: repeat(10, var(--cell-size));
+  gap: 2px;
+  width: fit-content;
+  min-width: calc(18 * (var(--cell-size) + 2px));
+}
+
+/* ── Period/group gap label row for lanthanides/actinides ── */
+#grid-wrapper .f-block-gap {
+  grid-row: 8;
+  grid-column: 3 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.52rem;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+
+/* ── Element cells ── */
+.cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.15s, background-color 0.15s;
+  user-select: none;
+  overflow: hidden;
+}
+.cell:hover { border-color: var(--text); z-index: 1; }
+.cell.selected { border-color: var(--text); border-width: 2px; }
+
+.cell .num {
+  font-size: 0.52rem;
+  color: var(--text-2);
+  line-height: 1;
+  align-self: flex-start;
+  padding: 3px 3px 0;
+}
+.cell .sym {
+  font-size: 1.05rem;
+  font-weight: bold;
+  line-height: 1.1;
+  color: var(--text);
+}
+.cell .name-short {
+  font-size: 0.42rem;
+  color: var(--text-2);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-align: center;
+  padding: 0 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+}
+
+.cell .theme-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.5rem;
+  padding: 1px 2px;
+  line-height: 1;
+  display: none;
+}
+
+.cell.dimmed {
+  opacity: 0.22;
+}
+
+/* Category base colors */
+.cat-alkali-metal    { background: var(--cat-alkali-metal); }
+.cat-alkaline-earth  { background: var(--cat-alkaline-earth); }
+.cat-transition-metal{ background: var(--cat-transition-metal); }
+.cat-post-transition { background: var(--cat-post-transition); }
+.cat-metalloid       { background: var(--cat-metalloid); }
+.cat-nonmetal        { background: var(--cat-nonmetal); }
+.cat-noble-gas       { background: var(--cat-noble-gas); }
+.cat-lanthanide      { background: var(--cat-lanthanide); }
+.cat-actinide        { background: var(--cat-actinide); }
+
+/* ── Detail panel ── */
+#panel {
+  width: 280px;
+  min-width: 280px;
+  border-left: 1px solid var(--border);
+  background: var(--bg-panel);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 200ms ease;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+#panel.open {
+  transform: translateX(0);
+}
+
+#panel-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.panel-symbol {
+  font-size: 3.2rem;
+  font-weight: bold;
+  line-height: 1;
+  color: var(--text);
+}
+.panel-name {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-top: 4px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.panel-meta {
+  font-size: 0.7rem;
+  color: var(--text-2);
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.panel-meta span {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.panel-meta .meta-label {
+  font-size: 0.58rem;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.panel-cat-tag {
+  font-size: 0.62rem;
+  padding: 2px 6px;
+  color: var(--text);
+  border: 1px solid var(--border);
+  letter-spacing: 0.04em;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+#panel-body {
+  padding: 16px 20px;
+  flex: 1;
+}
+.fact-block {
+  margin-bottom: 14px;
+}
+.fact-theme-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fact-theme-dot {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.fact-text {
+  font-size: 0.75rem;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+#panel-close {
+  position: sticky;
+  bottom: 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+  padding: 10px 20px;
+}
+#panel-close button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  font-family: inherit;
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  width: 100%;
+}
+#panel-close button:hover { border-color: var(--text-2); color: var(--text); }
+
+/* ── Legend ── */
+#legend {
+  padding: 8px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.62rem;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/* ── Footer ── */
+footer {
+  padding: 10px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.version { font-size: 0.65rem; color: var(--text-3); letter-spacing: 0.06em; }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  :root { --cell-size: 36px; }
+
+  #main {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  #grid-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #panel {
+    width: 100%;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    transform: translateY(100%);
+    transition: transform 200ms ease;
+    max-height: 50vh;
+    min-height: 200px;
+  }
+  #panel.open {
+    transform: translateY(0);
+  }
+
+  #controls {
+    padding: 10px 12px;
+  }
+
+  #legend { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back-link" href="../">< Home</a>
+  <h1>Periodic Table Explorer</h1>
+  <button class="dark-toggle" id="dark-toggle" aria-pressed="false">dark</button>
+</header>
+
+<div id="controls" role="toolbar" aria-label="Theme filters">
+  <span class="controls-label">Spotlight</span>
+  <button class="theme-btn" data-key="body"    aria-pressed="false">Human Body</button>
+  <button class="theme-btn" data-key="spacex"  aria-pressed="false">SpaceX / Rockets</button>
+  <button class="theme-btn" data-key="edible"  aria-pressed="false">Lickable / Edible</button>
+  <button class="theme-btn" data-key="burning" aria-pressed="false">Burning / Reactive</button>
+  <button id="clear-btn">clear all</button>
+</div>
+
+<div id="main">
+  <div id="grid-wrapper">
+    <div id="grid" role="grid" aria-label="Periodic table of elements"></div>
+  </div>
+  <div id="panel" role="complementary" aria-live="polite" aria-label="Element detail">
+    <div id="panel-header">
+      <div class="panel-symbol" id="panel-symbol"></div>
+      <div class="panel-name" id="panel-name"></div>
+      <div class="panel-meta">
+        <span><span class="meta-label">Number</span><span id="panel-number"></span></span>
+        <span><span class="meta-label">Mass</span><span id="panel-mass"></span></span>
+      </div>
+      <span class="panel-cat-tag" id="panel-cat"></span>
+    </div>
+    <div id="panel-body"></div>
+    <div id="panel-close"><button id="close-panel-btn">close ×</button></div>
+  </div>
+</div>
+
+<div id="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-alkali-metal)"></div>alkali metal</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-alkaline-earth)"></div>alkaline earth</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-transition-metal)"></div>transition metal</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-post-transition)"></div>post-transition</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-metalloid)"></div>metalloid</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-nonmetal)"></div>nonmetal</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-noble-gas)"></div>noble gas</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-lanthanide)"></div>lanthanide</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-actinide)"></div>actinide</div>
+</div>
+
+<footer>
+  <a class="back-link" href="../">< Home</a>
+  <span class="version">v1.0.0</span>
+</footer>
+
+<script>
+// ─────────────────────────────────────────────
+// THEMES
+// ─────────────────────────────────────────────
+const THEMES = [
+  { key: 'body',    label: 'Human Body',       color: 'var(--theme-body)'   },
+  { key: 'spacex',  label: 'SpaceX / Rockets', color: 'var(--theme-spacex)' },
+  { key: 'edible',  label: 'Lickable / Edible',color: 'var(--theme-edible)' },
+  { key: 'burning', label: 'Burning / Reactive',color:'var(--theme-burning)'},
+];
+
+// ─────────────────────────────────────────────
+// ELEMENTS
+// All 118 elements.
+// period = chemical period (1–7), group = chemical group (1–18).
+// Renderer uses grid-row: period, grid-column: group for normal elements.
+// La (57) and Ac (89) stay in the main grid at group 3; they do NOT have fBlock: true.
+// fBlock: true → Ce–Lu (58–71) and Th–Lr (90–103) only.
+//   displayRow: lanthanides → 9, actinides → 10
+//   displayCol: (number - 58 + 4) lanthanides, (number - 90 + 4) actinides
+// Theme membership = key presence. Missing key = non-member.
+// ─────────────────────────────────────────────
+const ELEMENTS = [
+  // ── Period 1 ──────────────────────────────
+  {
+    symbol: 'H', name: 'Hydrogen', number: 1, mass: 1.008,
+    category: 'nonmetal', period: 1, group: 1,
+    defaultFact: 'The simplest atom in the universe — one proton, one electron. Three-quarters of all visible matter is hydrogen.',
+    themes: {
+      body:    { fact: 'Water is two hydrogen atoms bonded to one oxygen. You are roughly 60% water, making hydrogen the most abundant element in your body by number of atoms.' },
+      spacex:  { fact: 'SpaceX\'s Raptor engines burn liquid methane (CH₄), while the upper atmosphere exit nozzles on some missions use liquid hydrogen. It produces only water when burned.' },
+      edible:  { fact: 'Every food you eat is packed with hydrogen — water, sugars, fats, and proteins all contain it. It\'s in every sip and every bite.' },
+      burning: { fact: 'Hydrogen burns with an invisible flame hot enough to melt steel. The Hindenburg disaster (1937) killed 36 people when 200,000 m³ of hydrogen ignited in 34 seconds.' },
+    }
+  },
+  {
+    symbol: 'He', name: 'Helium', number: 2, mass: 4.003,
+    category: 'noble-gas', period: 1, group: 18,
+    defaultFact: 'The only element first discovered in the sun before Earth — its name comes from Helios, the Greek sun god. It was found on Earth 27 years later.',
+    themes: {
+      spacex: { fact: 'SpaceX uses liquid helium at −269°C to pressurize propellant tanks and purge lines on Falcon 9. When liquid helium leaks, it can trigger catastrophic tank overpressure — this caused the 2016 Amos-6 pad explosion.' },
+    }
+  },
+
+  // ── Period 2 ──────────────────────────────
+  {
+    symbol: 'Li', name: 'Lithium', number: 3, mass: 6.941,
+    category: 'alkali-metal', period: 2, group: 1,
+    defaultFact: 'The lightest metal on Earth — so light it floats on water. Every smartphone, laptop, and electric car runs on lithium batteries.',
+    themes: {
+      spacex:  { fact: 'SpaceX uses aluminum–lithium alloys in Falcon 9\'s propellant tanks. Adding lithium makes aluminum 10% lighter and 10% stronger — critical when every kilogram costs thousands to launch.' },
+      burning: { fact: 'Lithium reacts with water to produce hydrogen gas and heat. Lithium battery fires are uniquely dangerous — they can reignite for hours after appearing extinguished.' },
+    }
+  },
+  {
+    symbol: 'Be', name: 'Beryllium', number: 4, mass: 9.012,
+    category: 'alkaline-earth', period: 2, group: 2,
+    defaultFact: 'One of the lightest metals, yet stiffer than steel. The James Webb Space Telescope\'s 18 mirror segments are made of beryllium coated in gold.',
+    themes: {
+      spacex: { fact: 'Beryllium was used in early rocket nozzle inserts for its extreme heat resistance. Its combination of low weight and high stiffness makes it ideal for aerospace, though its toxicity requires careful handling.' },
+    }
+  },
+  {
+    symbol: 'B', name: 'Boron', number: 5, mass: 10.811,
+    category: 'metalloid', period: 2, group: 13,
+    defaultFact: 'The element behind your Pyrex glass and Borax laundry booster. Boron is also a critical neutron absorber in nuclear reactor control rods.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'C', name: 'Carbon', number: 6, mass: 12.011,
+    category: 'nonmetal', period: 2, group: 14,
+    defaultFact: 'The backbone of all life. Carbon can bond with itself in rings, chains, and sheets — creating everything from diamond to graphite to DNA to plastic.',
+    themes: {
+      body:    { fact: 'Your body is 18% carbon by mass. Every protein, fat, sugar, and DNA strand is a carbon scaffold. A 70 kg human contains about 16 kg of carbon — roughly the weight of a large bag of charcoal.' },
+      spacex:  { fact: 'Carbon fiber composites are 70% lighter than steel and stronger by weight. SpaceX uses them in Falcon 9 interstage sections and the Dragon capsule. Starship shifted to stainless steel, which Elon deemed cheaper and better at high heat.' },
+      edible:  { fact: 'Every calorie you eat is carbon chemistry. Sugar, fat, starch — all carbon rings and chains. Carbon is so central to food that nutritional science once called organic molecules "carbonaceous."' },
+      burning: { fact: 'Carbon in the form of charcoal has powered human civilization for millennia. Diamonds can burn too — at ~900°C in pure oxygen, a diamond will oxidize completely to CO₂.' },
+    }
+  },
+  {
+    symbol: 'N', name: 'Nitrogen', number: 7, mass: 14.007,
+    category: 'nonmetal', period: 2, group: 15,
+    defaultFact: 'Nitrogen makes up 78% of the air you breathe — and you exhale almost all of it unchanged. Triple-bonded N₂ is one of the strongest bonds in nature.',
+    themes: {
+      body:   { fact: 'Nitrogen is in every protein you\'ve ever eaten. Amino acids — the building blocks of protein — all contain nitrogen. You are about 3% nitrogen by mass: ~2 kg in a 70 kg person.' },
+      spacex: { fact: 'Spacecraft use cold nitrogen gas for attitude control thrusters — cheap, storable, and non-toxic. The ISS and early Starship prototypes use nitrogen cold-gas systems. Liquid nitrogen also purges rocket systems before launch.' },
+    }
+  },
+  {
+    symbol: 'O', name: 'Oxygen', number: 8, mass: 15.999,
+    category: 'nonmetal', period: 2, group: 16,
+    defaultFact: 'Oxygen makes up 21% of air but ~65% of your body mass. It is the third most abundant element in the universe, forged in dying stars.',
+    themes: {
+      body:    { fact: 'Oxygen is the most abundant element in the human body by mass — 65% of you is oxygen, mostly locked in water molecules (H₂O). Every breath you take delivers it to your 37 trillion cells.' },
+      spacex:  { fact: 'Liquid oxygen (LOX) is the oxidizer in every SpaceX rocket. Raptor engines burn methane + LOX at extreme pressure. LOX is stored at −183°C and makes up most of the propellant mass on any orbital rocket.' },
+      edible:  { fact: 'Every sip of water is two hydrogens and one oxygen. Oxygen atoms are in every carbohydrate (carbo-HYDRATE = carbon + water). You couldn\'t digest food without it.' },
+      burning: { fact: 'Oxygen doesn\'t burn — it makes everything else burn. Increase oxygen to 30% and materials that smolder at normal air concentrations burst into flame. The Apollo 1 crew died in a pure oxygen atmosphere at just 1 atm.' },
+    }
+  },
+  {
+    symbol: 'F', name: 'Fluorine', number: 9, mass: 18.998,
+    category: 'nonmetal', period: 2, group: 17,
+    defaultFact: 'The most reactive element on the periodic table. Fluorine attacks glass, reacts with noble gases, and was nearly impossible to isolate — it killed or blinded several 19th-century chemists who tried.',
+    themes: {
+      body:    { fact: 'Fluoride (F⁻) makes tooth enamel harder by replacing hydroxyl groups in hydroxyapatite — the mineral in your teeth — creating fluorapatite, which is more acid-resistant. That\'s why it\'s in toothpaste.' },
+      burning: { fact: 'Fluorine reacts with everything. It ignites sand, glass, water, and even some noble gases. It was used as a rocket oxidizer in experimental programs — more powerful than oxygen, but so corrosive it destroyed almost everything it touched.' },
+    }
+  },
+  {
+    symbol: 'Ne', name: 'Neon', number: 10, mass: 20.180,
+    category: 'noble-gas', period: 2, group: 18,
+    defaultFact: 'Neon signs don\'t actually contain much neon — only red-orange signs do. Other colors use different gases: argon for blue, mercury for green, krypton for white.',
+    themes: {
+    }
+  },
+
+  // ── Period 3 ──────────────────────────────
+  {
+    symbol: 'Na', name: 'Sodium', number: 11, mass: 22.990,
+    category: 'alkali-metal', period: 3, group: 1,
+    defaultFact: 'Your body runs on sodium. Nerve impulses, heartbeats, and muscle contractions all depend on sodium ions flowing in and out of cells.',
+    themes: {
+      body:    { fact: 'The sodium-potassium pump in every cell membrane uses ATP to move 3 Na⁺ out and 2 K⁺ in — constantly. This gradient powers your nerves, your heartbeat, and your ability to think right now.' },
+      edible:  { fact: 'Table salt is sodium chloride (NaCl). Sodium is why food tastes savory. The average person eats about 3,400 mg of sodium per day — mostly from processed food, not the salt shaker.' },
+      burning: { fact: 'Pure sodium metal dropped in water sparks, pops, and skitters across the surface as it reacts violently, producing hydrogen gas and heat. A large chunk will explode. It\'s stored under mineral oil to prevent contact with air.' },
+    }
+  },
+  {
+    symbol: 'Mg', name: 'Magnesium', number: 12, mass: 24.305,
+    category: 'alkaline-earth', period: 3, group: 2,
+    defaultFact: 'The central atom in chlorophyll — every green plant on Earth uses magnesium to capture sunlight. Without it, photosynthesis stops.',
+    themes: {
+      body:    { fact: 'Magnesium is involved in over 300 enzyme reactions in your body. It helps muscles relax (calcium makes them contract), regulates blood sugar, and keeps your heart rhythm steady. Most people don\'t get enough.' },
+      edible:  { fact: 'Dark chocolate is one of the richest food sources of magnesium. Nuts, seeds, leafy greens, and whole grains also pack it in. Low magnesium is linked to muscle cramps and poor sleep.' },
+      burning: { fact: 'Magnesium burns with a blinding white light at ~3,100°C — bright enough to cause permanent eye damage. You cannot put it out with water (makes it worse). Used in military flares and incendiary devices for this exact reason.' },
+    }
+  },
+  {
+    symbol: 'Al', name: 'Aluminum', number: 13, mass: 26.982,
+    category: 'post-transition', period: 3, group: 13,
+    defaultFact: 'The most abundant metal in Earth\'s crust, yet unknown as a pure metal until 1825. It was once more valuable than gold — Napoleon III served honored guests with aluminum cutlery.',
+    themes: {
+      spacex:  { fact: 'Falcon 9\'s fuel tanks and interstage section use aluminum–lithium alloys. Starship ditched aluminum for stainless steel, but aluminum remains in countless rocket components. SpaceX\'s Merlin engine turbopump housing is aluminum.' },
+      burning: { fact: 'Thermite — aluminum powder mixed with iron oxide — burns at over 2,500°C, hot enough to melt through steel. Aluminum itself burns in oxygen once ignited. Powdered aluminum is a key component of solid rocket propellant.' },
+    }
+  },
+  {
+    symbol: 'Si', name: 'Silicon', number: 14, mass: 28.086,
+    category: 'metalloid', period: 3, group: 14,
+    defaultFact: 'Silicon Valley is named after this element. It\'s the second most abundant element in Earth\'s crust and the foundation of all modern electronics.',
+    themes: {
+      spacex: { fact: 'Silicon solar cells power every satellite SpaceX launches — Starlink satellites include solar arrays. Silicon chips run the flight computers, guidance systems, and communications on every rocket and spacecraft.' },
+    }
+  },
+  {
+    symbol: 'P', name: 'Phosphorus', number: 15, mass: 30.974,
+    category: 'nonmetal', period: 3, group: 15,
+    defaultFact: 'Life requires phosphorus and we\'re running out of accessible reserves. Phosphate fertilizers feed half the world\'s population — without them, billions would starve.',
+    themes: {
+      body:    { fact: 'Phosphorus is in every cell\'s energy currency: ATP (adenosine triphosphate). Every time your muscles contract or your brain fires a signal, a phosphorus-oxygen bond breaks to release energy. Your bones are 85% hydroxyapatite, which is mostly phosphate.' },
+      edible:  { fact: 'Phosphorus is in meat, dairy, eggs, and beans. The average American gets twice the daily recommended amount — it\'s in virtually every processed food as a preservative or emulsifier.' },
+      burning: { fact: 'White phosphorus ignites spontaneously in air above 30°C and burns at 1,300°C, impossible to extinguish by smothering. It was used in WWII incendiary bombs and leaves chemical burns that reignite when wounds are exposed to oxygen.' },
+    }
+  },
+  {
+    symbol: 'S', name: 'Sulfur', number: 16, mass: 32.065,
+    category: 'nonmetal', period: 3, group: 16,
+    defaultFact: 'The smell of rotten eggs, garlic, and matches is sulfur compounds. Sulfur has been known since ancient times as brimstone — the "burning stone" of biblical fire.',
+    themes: {
+      body:    { fact: 'Sulfur is in two amino acids — cysteine and methionine — that give proteins their 3D shape through disulfide bonds. It\'s why hair is springy (keratin is loaded with sulfur bridges) and why cutting your hair doesn\'t hurt.' },
+      edible:  { fact: 'Garlic, onions, and eggs smell pungent because of sulfur compounds. Allicin (from garlic) and the lachrymatory factor (what makes onions make you cry) are both sulfur-based. Cruciferous vegetables like broccoli owe their distinctive taste to sulfur.' },
+      burning: { fact: 'Sulfur burns with a blue flame to produce sulfur dioxide (SO₂), one of the most choking gases known. Gunpowder is potassium nitrate + charcoal + sulfur. Volcanoes release massive amounts of SO₂, which creates acid rain downwind.' },
+    }
+  },
+  {
+    symbol: 'Cl', name: 'Chlorine', number: 17, mass: 35.453,
+    category: 'nonmetal', period: 3, group: 17,
+    defaultFact: 'Chlorine kills bacteria in your tap water and pool, but the same gas was used as a chemical weapon in WWI, killing thousands at Ypres in 1915.',
+    themes: {
+      body:   { fact: 'Chloride (Cl⁻) is the main negative ion in your blood and digestive juices. Your stomach makes hydrochloric acid (HCl) to digest food. Without stomach acid, you couldn\'t absorb vitamin B12, iron, or calcium properly.' },
+      edible: { fact: 'Table salt is sodium chloride. The chloride half is just as important as the sodium half for flavor. Salt has preserved human food for thousands of years — cod, prosciutto, and kimchi all use chloride chemistry to inhibit bacteria.' },
+    }
+  },
+  {
+    symbol: 'Ar', name: 'Argon', number: 18, mass: 39.948,
+    category: 'noble-gas', period: 3, group: 18,
+    defaultFact: 'Argon makes up nearly 1% of the atmosphere — more than CO₂ — yet was unknown until 1894. It forms no compounds naturally and simply cycles through the air unused.',
+    themes: {
+      spacex: { fact: 'Argon is used as a shielding gas in TIG (tungsten inert gas) welding — the precise welding process SpaceX uses to build Starship\'s stainless steel propellant tanks. Without argon shielding, the weld oxidizes and fails.' },
+    }
+  },
+
+  // ── Period 4 ──────────────────────────────
+  {
+    symbol: 'K', name: 'Potassium', number: 19, mass: 39.098,
+    category: 'alkali-metal', period: 4, group: 1,
+    defaultFact: 'K comes from the Latin "kalium." Potassium and sodium work as a paired pump in every nerve cell — without this balance, your heart stops.',
+    themes: {
+      body:    { fact: 'Potassium is the main positive ion inside cells (sodium is outside). The Na⁺/K⁺ gradient powers every nerve signal and muscle contraction in your body. Low potassium (hypokalemia) causes muscle weakness, cramps, and dangerous heart arrhythmias.' },
+      edible:  { fact: 'Bananas are famous for potassium, but a medium potato has more than a banana. Avocados, spinach, salmon, and white beans are even richer sources. Most people eat far less potassium than they should.' },
+      burning: { fact: 'Potassium reacts more violently with water than sodium — it ignites immediately, burning with a distinctive purple-pink flame before exploding. It must be stored in mineral oil or sealed containers. Potassium superoxide (KO₂) is even more reactive.' },
+    }
+  },
+  {
+    symbol: 'Ca', name: 'Calcium', number: 20, mass: 40.078,
+    category: 'alkaline-earth', period: 4, group: 2,
+    defaultFact: 'Calcium is the most abundant mineral in the human body — 99% of it is in your bones and teeth. You\'re essentially a calcium-based structure.',
+    themes: {
+      body:    { fact: 'Your skeleton contains about 1 kg of calcium. But the 1% not in bones is critical: calcium signals trigger every muscle contraction (including your heartbeat), enables blood clotting, and mediates nerve signaling. Low blood calcium causes tetany — uncontrolled muscle spasms.' },
+      edible:  { fact: 'Dairy is calcium-famous, but sardines eaten with bones, tofu, kale, and fortified plant milks are excellent sources. Vitamin D is required to absorb calcium — without it, all the milk in the world won\'t reach your bones.' },
+      burning: { fact: 'Burning calcium metal produces an orange-red flame. Calcium carbide reacts with water to make acetylene gas, which was used in early miners\' headlamps and is still used for welding. Calcium oxide (quicklime) gets intensely hot when mixed with water.' },
+    }
+  },
+  {
+    symbol: 'Sc', name: 'Scandium', number: 21, mass: 44.956,
+    category: 'transition-metal', period: 4, group: 3,
+    defaultFact: 'Scandium is so rare that most people have never encountered it, yet its discovery in 1879 perfectly confirmed a gap Mendeleev had predicted in his periodic table.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Ti', name: 'Titanium', number: 22, mass: 47.867,
+    category: 'transition-metal', period: 4, group: 4,
+    defaultFact: 'As strong as steel but 45% lighter. Titanium is completely corrosion-resistant, biocompatible, and used everywhere from aircraft to hip replacements to Apple Watch cases.',
+    themes: {
+      spacex:  { fact: 'SpaceX\'s Starship heat shield uses hexagonal tiles partly derived from titanium alloys. Titanium fasteners, structural components, and plumbing are used throughout Falcon 9 for their strength-to-weight ratio at both cryogenic and high temperatures.' },
+      burning: { fact: 'Titanium burns brilliantly silver-white in nitrogen as well as oxygen — most metals won\'t do that. Fine titanium powder is pyrophoric (spontaneously ignites in air). Titanium is used in pyrotechnics for its brilliant white sparks.' },
+    }
+  },
+  {
+    symbol: 'V', name: 'Vanadium', number: 23, mass: 50.942,
+    category: 'transition-metal', period: 4, group: 5,
+    defaultFact: 'Named after Vanadis, the Norse goddess of beauty, because its compounds form spectacularly colorful crystals. Vanadium steel is used in high-strength tools and Henry Ford\'s early cars.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Cr', name: 'Chromium', number: 24, mass: 51.996,
+    category: 'transition-metal', period: 4, group: 6,
+    defaultFact: 'Chromium makes stainless steel "stainless" — add 10.5% chromium to steel and it self-repairs its protective oxide layer instantly. Rubies and emeralds get their color from chromium impurities.',
+    themes: {
+      body:   { fact: 'Chromium (as Cr³⁺) enhances insulin\'s effectiveness in moving glucose into cells. It\'s found in tiny amounts in meat, whole grains, and broccoli. Deficiency is associated with impaired glucose tolerance.' },
+      edible: { fact: 'Broccoli, grape juice, and whole grains contain small amounts of chromium. The recommended daily intake is just 25–35 micrograms — a speck too small to see. Chromium in stainless steel cookware can leach into food in trace amounts.' },
+    }
+  },
+  {
+    symbol: 'Mn', name: 'Manganese', number: 25, mass: 54.938,
+    category: 'transition-metal', period: 4, group: 7,
+    defaultFact: 'Manganese is in your phone\'s battery and in ancient cave paintings — prehistoric artists used manganese dioxide as black pigment over 30,000 years ago.',
+    themes: {
+      body:    { fact: 'Manganese activates dozens of enzymes, including those that neutralize free radicals in the mitochondria. You need it for bone formation, blood clotting, and metabolism. About 20 mg lives in your bones, liver, and kidneys at any given time.' },
+      edible:  { fact: 'One cup of cooked oats delivers over 100% of the daily recommended manganese. Hazelnuts, pineapple, and brown rice are also rich sources. Tea is surprisingly high in manganese — a few cups covers your daily needs.' },
+      spacex:  { fact: 'Manganese is an alloying element in high-strength steels used throughout aerospace structures. Starship\'s 304L stainless steel contains manganese, which improves weldability and prevents cracking at cryogenic temperatures.' },
+    }
+  },
+  {
+    symbol: 'Fe', name: 'Iron', number: 26, mass: 55.845,
+    category: 'transition-metal', period: 4, group: 8,
+    defaultFact: 'Your blood is red because of iron. Earth\'s core is mostly iron. Iron meteorites have been found on every continent. Iron made swords, built empires, and launched the Industrial Revolution.',
+    themes: {
+      body:    { fact: 'Iron in hemoglobin carries oxygen from your lungs to every cell in your body. A 70 kg adult has about 4 grams of iron — most of it in 25 trillion red blood cells. Iron deficiency (anemia) is the world\'s most common nutritional disorder, affecting ~2 billion people.' },
+      spacex:  { fact: 'Starship is built from stainless steel — primarily 304L grade, which is ~70% iron. Elon chose stainless steel over carbon fiber for its strength at both cryogenic temperatures (−183°C LOX) and the 1,500°C+ of reentry heating.' },
+      edible:  { fact: 'Fortified cereal contains actual iron particles small enough to extract with a magnet. Spinach has iron, but oxalates reduce absorption. Red meat provides heme iron, which absorbs 2–3× better than the non-heme iron in plants. Vitamin C dramatically boosts iron absorption.' },
+      burning: { fact: 'Steel wool burns spectacularly in oxygen — thin iron strands have enough surface area to ignite easily and glow red-orange. Thermite (iron oxide + aluminum powder) burns at 2,500°C — hot enough to melt through the steel of a ship\'s hull.' },
+    }
+  },
+  {
+    symbol: 'Co', name: 'Cobalt', number: 27, mass: 58.933,
+    category: 'transition-metal', period: 4, group: 9,
+    defaultFact: 'The brilliant blue in medieval stained glass, ancient Egyptian glass, and Delft pottery is cobalt. Artists have used cobalt blue for over 2,000 years.',
+    themes: {
+      body:    { fact: 'Cobalt is the metal at the center of vitamin B12 (cobalamin) — the only vitamin that contains a metal ion. B12 is essential for making DNA, forming red blood cells, and protecting nerve sheaths. Deficiency causes neurological damage and megaloblastic anemia.' },
+      edible:  { fact: 'Meat, fish, dairy, and eggs contain vitamin B12 — the cobalt-containing vitamin that\'s almost entirely absent from plant foods. Strict vegans must supplement; without B12, nerve damage develops silently over years.' },
+      spacex:  { fact: 'Cobalt-based superalloys (like Mar-M-509) are used in turbine blades of rocket engines. SpaceX\'s Merlin and Raptor engines experience temperatures and pressures that would melt ordinary steel — cobalt superalloys hold their strength above 1,000°C.' },
+    }
+  },
+  {
+    symbol: 'Ni', name: 'Nickel', number: 28, mass: 58.693,
+    category: 'transition-metal', period: 4, group: 10,
+    defaultFact: 'Nickel is named after "Kupfernickel" (devil\'s copper) — miners found a red ore that looked like copper but yielded no copper, frustrating them. The "devil" had stolen it.',
+    themes: {
+      spacex: { fact: 'Inconel — a nickel superalloy — is used in SpaceX\'s Merlin engine nozzle extensions and Raptor combustion chambers. It retains strength at temperatures exceeding 1,000°C, making it irreplaceable in rocket propulsion where other metals would melt or fail.' },
+    }
+  },
+  {
+    symbol: 'Cu', name: 'Copper', number: 29, mass: 63.546,
+    category: 'transition-metal', period: 4, group: 11,
+    defaultFact: 'Copper was humanity\'s first metal tool, 10,000 years ago. It\'s still the best electrical conductor after silver, which is why every wall in your home is wired with it.',
+    themes: {
+      body:    { fact: 'Copper is essential for forming collagen (the structural protein of skin and tendons), absorbing iron, and operating cytochrome c oxidase — the enzyme that makes 90% of your energy. You have about 100 mg in your body, mostly in your liver and muscles.' },
+      spacex:  { fact: 'SpaceX\'s Merlin engine regenerative cooling system uses channels etched into a copper alloy combustion chamber shell. Liquid RP-1 fuel flows through these channels, absorbing heat before combustion. Copper\'s thermal conductivity is what makes this possible.' },
+      edible:  { fact: 'Oysters contain more copper per serving than any other food — one medium oyster can provide a full day\'s supply. Liver, dark chocolate, cashews, and shiitake mushrooms are also copper-rich. Copper deficiency causes anemia that doesn\'t respond to iron supplements.' },
+    }
+  },
+  {
+    symbol: 'Zn', name: 'Zinc', number: 30, mass: 65.38,
+    category: 'transition-metal', period: 4, group: 12,
+    defaultFact: 'Zinc is in over 300 enzymes in your body and is required by every cell to read DNA. It\'s also what makes pennies cheap — post-1982 US pennies are 97.5% zinc with a copper coating.',
+    themes: {
+      body:    { fact: 'Zinc is essential for immune function, wound healing, taste and smell, and fertility. You lose zinc in sweat — athletes need more than sedentary people. Your prostate has the highest concentration of zinc of any organ in the body.' },
+      edible:  { fact: 'Oysters have more zinc per serving than any food on Earth — six raw oysters deliver 33 mg, over 3× the daily recommended amount. Beef, pumpkin seeds, and chickpeas are also excellent sources. Zinc lozenges may slightly shorten cold duration.' },
+    }
+  },
+  {
+    symbol: 'Ga', name: 'Gallium', number: 31, mass: 69.723,
+    category: 'post-transition', period: 4, group: 13,
+    defaultFact: 'Gallium melts in the palm of your hand (melting point: 29.7°C / 85.5°F). A fun trick is to make a spoon out of gallium and serve it to someone for their coffee.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Ge', name: 'Germanium', number: 32, mass: 72.630,
+    category: 'metalloid', period: 4, group: 14,
+    defaultFact: 'Germanium was the first transistor material — the 1947 Bell Labs transistor that started the electronics revolution was made of germanium. Silicon later replaced it for most uses.',
+    themes: {
+      spacex: { fact: 'Germanium solar cells achieve ~30% efficiency vs. silicon\'s ~22% in space applications, justifying their higher cost for satellite power generation. Multi-junction germanium-based solar cells power most deep space probes and high-power commercial satellites.' },
+    }
+  },
+  {
+    symbol: 'As', name: 'Arsenic', number: 33, mass: 74.922,
+    category: 'metalloid', period: 4, group: 15,
+    defaultFact: 'Arsenic was the "inheritance powder" — the preferred poison of Renaissance poisoners because it\'s odorless, tasteless, and mimics natural illness. Napoleon may have been slowly poisoned by arsenic in his wallpaper.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Se', name: 'Selenium', number: 34, mass: 78.971,
+    category: 'nonmetal', period: 4, group: 16,
+    defaultFact: 'Selenium was named after the moon (Selene). It converts sunlight to electricity in photocopiers and solar cells, and it\'s essential for life at trace amounts but toxic at higher doses.',
+    themes: {
+      body:    { fact: 'Selenium is the active component of glutathione peroxidase, your body\'s primary antioxidant enzyme system. It also regulates thyroid hormone production. Selenium deficiency causes Keshan disease — a potentially fatal heart condition endemic in regions with selenium-poor soil.' },
+      edible:  { fact: 'A single Brazil nut contains 68–91 micrograms of selenium — the entire recommended daily intake. Eating 2–3 Brazil nuts per day is an easy way to hit your selenium target. Tuna, sardines, eggs, and sunflower seeds are also excellent sources.' },
+    }
+  },
+  {
+    symbol: 'Br', name: 'Bromine', number: 35, mass: 79.904,
+    category: 'nonmetal', period: 4, group: 17,
+    defaultFact: 'Bromine is one of only two elements that are liquid at room temperature (the other is mercury). It\'s a fuming reddish-brown liquid with a smell so foul it\'s named from the Greek "bromos" meaning stench.',
+    themes: {
+      burning: { fact: 'Bromine is toxic, corrosive, and highly reactive. Bromine vapor at 10 ppm causes serious lung damage. Organic bromine compounds are used as flame retardants in furniture and electronics, though many are now banned due to environmental persistence.' },
+    }
+  },
+  {
+    symbol: 'Kr', name: 'Krypton', number: 36, mass: 83.798,
+    category: 'noble-gas', period: 4, group: 18,
+    defaultFact: 'Krypton\'s name inspired Superman\'s home planet Krypton. The meter was officially defined from 1960–1983 by the wavelength of krypton-86 light — the most precise measurement standard of its era.',
+    themes: {
+      spacex: { fact: 'SpaceX Starlink V2 satellites use krypton Hall-effect ion thrusters instead of xenon, cutting propellant costs dramatically. Krypton ionizes well and is far cheaper than xenon, making it the propellant of choice for large satellite constellations.' },
+    }
+  },
+
+  // ── Period 5 ──────────────────────────────
+  {
+    symbol: 'Rb', name: 'Rubidium', number: 37, mass: 85.468,
+    category: 'alkali-metal', period: 5, group: 1,
+    defaultFact: 'Rubidium\'s name comes from "rubidus" (deepest red) — it burns with a striking red-violet flame. Rubidium atomic clocks are in GPS satellites, keeping time accurate to nanoseconds.',
+    themes: {
+      burning: { fact: 'Rubidium ignites spontaneously in air and reacts explosively with water, more violently than potassium. It must be stored under inert gas or mineral oil. A piece of rubidium dropped in water creates a spectacular explosion with a purple-tinged flame.' },
+    }
+  },
+  {
+    symbol: 'Sr', name: 'Strontium', number: 38, mass: 87.62,
+    category: 'alkaline-earth', period: 5, group: 2,
+    defaultFact: 'Strontium gives fireworks their brilliant crimson red. It\'s also the element that "misbehaves" in bones — radioactive strontium-90 from nuclear fallout can accumulate in children\'s bones instead of calcium.',
+    themes: {
+      burning: { fact: 'Strontium burns with a brilliant crimson-red flame — the same color as emergency flares on highways and the red component of fireworks. Strontium salts are chosen specifically for their vivid, unmistakable red color in pyrotechnics.' },
+    }
+  },
+  {
+    symbol: 'Y', name: 'Yttrium', number: 39, mass: 88.906,
+    category: 'transition-metal', period: 5, group: 3,
+    defaultFact: 'Four elements — yttrium, ytterbium, erbium, and terbium — are all named after the same Swedish village: Ytterby, where they were discovered in a single mineral deposit.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Zr', name: 'Zirconium', number: 40, mass: 91.224,
+    category: 'transition-metal', period: 5, group: 4,
+    defaultFact: 'Zirconium is the reason nuclear reactors have containment problems. Zirconium cladding on fuel rods, when overheated, reacts with water to produce explosive hydrogen — what happened at Fukushima.',
+    themes: {
+      spacex:  { fact: 'SpaceX uses zirconium in pyrotechnic ignition systems for Merlin and Raptor engines. Zirconium ignites easily and burns extremely hot — ideal for reliable ignition in a vacuum where conventional sparks fail.' },
+      burning: { fact: 'Fine zirconium powder is pyrophoric — it ignites spontaneously in air. Zirconium burns at over 4,000°C, one of the highest combustion temperatures of any metal. Zirconium-based compositions produce brilliant white sparks in pyrotechnics.' },
+    }
+  },
+  {
+    symbol: 'Nb', name: 'Niobium', number: 41, mass: 92.906,
+    category: 'transition-metal', period: 5, group: 5,
+    defaultFact: 'Brazil holds 98% of the world\'s niobium reserves — making it a geopolitical chokepoint for high-strength steel production. Most high-strength steel structures in the world contain niobium.',
+    themes: {
+      spacex: { fact: 'Niobium superalloys are used in rocket nozzles and turbine components that must withstand extreme temperatures. Niobium-C103 alloy was used in Apollo\'s lunar module descent engine nozzle and continues to be used in cryogenic and high-temperature aerospace applications.' },
+    }
+  },
+  {
+    symbol: 'Mo', name: 'Molybdenum', number: 42, mass: 95.95,
+    category: 'transition-metal', period: 5, group: 6,
+    defaultFact: 'Molybdenum has the sixth-highest melting point of all elements (2,623°C). It\'s added to steel to make it hard at high temperatures — essential for jet engines, drill bits, and gun barrels.',
+    themes: {
+      body:    { fact: 'Molybdenum is required by the enzyme that breaks down sulfite (sulfite oxidase) — critical for detoxifying preservatives in wine and dried fruit. It also processes xanthine to uric acid. People with molybdenum deficiency develop sulfite toxicity.' },
+      edible:  { fact: 'Legumes — lentils, beans, chickpeas — are by far the richest dietary source of molybdenum. Grains and nuts also contribute. Most people get adequate molybdenum from everyday plant foods without any special effort.' },
+      spacex:  { fact: 'Molybdenum disulfide (MoS₂) is a space-grade dry lubricant used in mechanisms that must operate in the vacuum of space, where oil-based lubricants evaporate and conventional lubricants fail. It\'s used in satellite actuators, solar panel deployment mechanisms, and more.' },
+    }
+  },
+  {
+    symbol: 'Tc', name: 'Technetium', number: 43, mass: 98,
+    category: 'transition-metal', period: 5, group: 7,
+    defaultFact: 'Technetium was the first artificially made element — its name means "artificial" in Greek. Every atom of it on Earth was either man-made or produced in a nuclear reactor. It has no stable isotopes.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Ru', name: 'Ruthenium', number: 44, mass: 101.07,
+    category: 'transition-metal', period: 5, group: 8,
+    defaultFact: 'Named after Ruthenia (Russia), ruthenium is one of the rarest elements on Earth but is critical for hard disk drives — a thin ruthenium layer improves magnetic recording density in HDDs.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Rh', name: 'Rhodium', number: 45, mass: 102.906,
+    category: 'transition-metal', period: 5, group: 9,
+    defaultFact: 'Rhodium is the rarest and most expensive precious metal — often trading at $10,000+ per troy ounce, far above gold or platinum. Every catalytic converter in a car contains about 1–3 grams of rhodium.',
+    themes: {
+      spacex: { fact: 'Rhodium is used as a catalyst in rocket propellant decomposition systems and in the platinum-rhodium thermocouples that measure extreme temperatures in rocket engine testing, where accuracy at 3,000°C+ is critical.' },
+    }
+  },
+  {
+    symbol: 'Pd', name: 'Palladium', number: 46, mass: 106.42,
+    category: 'transition-metal', period: 5, group: 10,
+    defaultFact: 'Palladium can absorb up to 900 times its own volume of hydrogen gas — making it the world\'s best hydrogen storage medium. It\'s also the key metal in catalytic converters that clean car exhaust.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Ag', name: 'Silver', number: 47, mass: 107.868,
+    category: 'transition-metal', period: 5, group: 11,
+    defaultFact: 'Silver is the best electrical conductor of all metals (better than copper) and the best thermal conductor. Before germ theory, people stored water in silver vessels because silver ions kill bacteria.',
+    themes: {
+      edible:  { fact: 'Pure silver leaf (vark) is genuinely edible and used to decorate Indian sweets, biryanis, and desserts. 24-karat silver has no taste and passes through the body harmlessly. Silver is food-safe at any amount you\'d realistically eat.' },
+      spacex:  { fact: 'Silver electrical contacts and silver-coated wiring are used throughout spacecraft for their unmatched conductivity. Silver is also used in brazing alloys that join components in Raptor engine plumbing and fuel systems.' },
+    }
+  },
+  {
+    symbol: 'Cd', name: 'Cadmium', number: 48, mass: 112.411,
+    category: 'transition-metal', period: 5, group: 12,
+    defaultFact: 'Cadmium sulfide produces the vivid yellow pigment in some artist paints (cadmium yellow). It\'s also toxic enough to cause Itai-itai disease — "ouch-ouch disease" — named for the bone pain it causes in Japan\'s industrial contamination cases.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'In', name: 'Indium', number: 49, mass: 114.818,
+    category: 'post-transition', period: 5, group: 13,
+    defaultFact: 'Your touchscreen exists because of indium. Indium tin oxide (ITO) is the transparent conductor on every smartphone, tablet, and flat-panel display that makes touch detection possible.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Sn', name: 'Tin', number: 50, mass: 118.710,
+    category: 'post-transition', period: 5, group: 14,
+    defaultFact: 'Tin cans are actually steel cans with a 0.015 mm tin coating. The Bronze Age (3300–1200 BCE) was defined by tin-alloyed copper. Tin pest — an allotropic transformation at −13°C — made Napoleon\'s soldiers\' buttons crumble in Russia.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Sb', name: 'Antimony', number: 51, mass: 121.760,
+    category: 'metalloid', period: 5, group: 15,
+    defaultFact: 'Ancient Egyptians used antimony sulfide (kohl) as mascara — it\'s the eye makeup that gives pharaohs their iconic look in paintings. Antimony was also used in early medicine as a "purging" agent.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Te', name: 'Tellurium', number: 52, mass: 127.60,
+    category: 'metalloid', period: 5, group: 16,
+    defaultFact: 'Tellurium is rarer on Earth than platinum and harder to find than gold. Inhaling even nanograms of tellurium compounds causes an overpowering garlic smell in breath and sweat that persists for months.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'I', name: 'Iodine', number: 53, mass: 126.904,
+    category: 'nonmetal', period: 5, group: 17,
+    defaultFact: 'Iodine deficiency is the leading preventable cause of intellectual disability worldwide. Adding iodine to table salt — one of history\'s simplest public health interventions — has dramatically raised average IQ in iodine-deficient regions.',
+    themes: {
+      body:    { fact: 'Iodine is needed to make thyroid hormones (T3 and T4), which regulate your metabolic rate, body temperature, and growth. Without enough iodine, the thyroid gland enlarges into a goiter. The RDA is just 150 micrograms — about the size of a single grain of salt.' },
+      edible:  { fact: 'Seaweed is the richest dietary source of iodine — some varieties contain over 1,000× the daily requirement per serving. Iodized salt, dairy, eggs, and seafood also provide it. Landlocked regions historically had severe iodine deficiency before salt iodization.' },
+    }
+  },
+  {
+    symbol: 'Xe', name: 'Xenon', number: 54, mass: 131.293,
+    category: 'noble-gas', period: 5, group: 18,
+    defaultFact: 'Xenon makes the brightest and most realistic artificial light — xenon headlights and IMAX projectors use it. At high pressure, xenon acts as an anesthetic, and it\'s been banned from the Olympics as a performance-enhancing gas.',
+    themes: {
+      spacex: { fact: 'Xenon Hall-effect ion thrusters power many commercial satellites. Xenon ionizes easily, accelerates to 40 km/s in an electric field, and produces thrust for years using tiny amounts of propellant. The Dawn mission to Ceres used xenon ion propulsion. SpaceX early Starlink versions used xenon.' },
+    }
+  },
+
+  // ── Period 6 ──────────────────────────────
+  {
+    symbol: 'Cs', name: 'Cesium', number: 55, mass: 132.905,
+    category: 'alkali-metal', period: 6, group: 1,
+    defaultFact: 'The official definition of one second is based on cesium: 9,192,631,770 oscillations of cesium-133 atoms. Every GPS timestamp, internet synchronization, and financial transaction depends on cesium atomic clocks.',
+    themes: {
+      burning: { fact: 'Cesium is the most reactive stable alkali metal. Dropped into water, it explodes immediately — far more violently than potassium. It ignites spontaneously in air and must be stored in sealed ampoules under inert gas. Even a few grams of cesium in water produces an explosion visible from a safe distance.' },
+    }
+  },
+  {
+    symbol: 'Ba', name: 'Barium', number: 56, mass: 137.327,
+    category: 'alkaline-earth', period: 6, group: 2,
+    defaultFact: 'A "barium meal" — drinking barium sulfate before an X-ray — lets doctors see your digestive tract because barium blocks X-rays. It looks like thick white chalk and tastes like chalk too.',
+    themes: {
+      burning: { fact: 'Barium compounds produce a vivid apple-green flame — the green in fireworks is almost always barium-based. Barium chlorate and barium nitrate are key components in green pyrotechnics. The color is unmistakably bright green, unlike the duller greens from other metals.' },
+    }
+  },
+  {
+    symbol: 'La', name: 'Lanthanum', number: 57, mass: 138.905,
+    category: 'lanthanide', period: 6, group: 3,
+    defaultFact: 'Lanthanum\'s name means "hidden" in Greek — it was difficult to detect and long confused with other rare earth elements. Lanthanum is used in high-performance camera and telescope lenses for its high refractive index.',
+    themes: {
+    }
+  },
+
+  // ── Lanthanides (f-block, displayRow 9) ──────────────────────────────
+  {
+    symbol: 'Ce', name: 'Cerium', number: 58, mass: 140.116,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Cerium is the most abundant rare earth element. A cerium-iron alloy (mischmetal) is what makes lighters spark — the flint in most cigarette lighters is actually a cerium compound.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Pr', name: 'Praseodymium', number: 59, mass: 140.908,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Praseodymium (green twin) and neodymium (new twin) were originally thought to be one element. Praseodymium compounds make aviation goggles and glassblowing glasses that filter the intense yellow-orange glare of hot glass.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Nd', name: 'Neodymium', number: 60, mass: 144.242,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Neodymium magnets (Nd₂Fe₁₄B) are the strongest permanent magnets in the world. The small magnet in your earbuds, electric car motor, and hard drive is almost certainly neodymium. They\'re so strong they can shatter bones if handled carelessly.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Pm', name: 'Promethium', number: 61, mass: 145,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Promethium is the only lanthanide with no stable isotopes — it was predicted to exist before it was discovered and named after Prometheus, who stole fire from the gods. It was the last naturally occurring element to be discovered (1945).',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Sm', name: 'Samarium', number: 62, mass: 150.36,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Samarium-cobalt magnets work at temperatures where neodymium magnets fail — up to 350°C. They\'re used in jet engine sensors, space systems, and applications where reliability under extreme heat matters more than cost.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Eu', name: 'Europium', number: 63, mass: 151.964,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Europium makes euro banknotes glow red and blue under UV light — it\'s the anti-counterfeiting element. The same phosphorescent property makes europium the red and blue phosphor in LED lights and old CRT television screens.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Gd', name: 'Gadolinium', number: 64, mass: 157.25,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Gadolinium contrast agents are injected before MRI scans to make tissues light up more clearly. Gadolinium is strongly paramagnetic — it\'s pulled toward magnetic fields more than any other element, which makes MRI imaging uniquely powerful.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Tb', name: 'Terbium', number: 65, mass: 158.925,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Terbium is the green phosphor in energy-efficient fluorescent and LED lights. It also makes alloys that physically expand and contract in magnetic fields — called "magnetostriction" — used in precision actuators and sonar systems.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Dy', name: 'Dysprosium', number: 66, mass: 162.500,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Dysprosium is added to neodymium magnets to make them work at higher temperatures — critical for electric car motors. China controls ~99% of dysprosium production, making it a significant geopolitical chokepoint for the EV transition.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Ho', name: 'Holmium', number: 67, mass: 164.930,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Holmium has the highest magnetic moment of any element — it creates the strongest magnetic fields of any known material when placed at the poles of an electromagnet. Named after Stockholm (Holmia in Latin).',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Er', name: 'Erbium', number: 68, mass: 167.259,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Erbium makes optical fiber internet possible. Erbium-doped fiber amplifiers (EDFAs) boost light signals in undersea cables without converting them to electricity — enabling the global internet backbone.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Tm', name: 'Thulium', number: 69, mass: 168.934,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Thulium is one of the rarest stable lanthanides. Named after Thule — the ancient name for the farthest north — it\'s used in portable X-ray devices for field medicine and in blue-green surgical lasers.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Yb', name: 'Ytterbium', number: 70, mass: 173.045,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Ytterbium atomic clocks are so precise they\'d lose only one second in 10 billion years — accurate enough that they can detect gravitational differences between floors of a building (relativity at work).',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Lu', name: 'Lutetium', number: 71, mass: 174.967,
+    category: 'lanthanide', period: 6, group: 3, fBlock: true,
+    defaultFact: 'Lutetium is the last and densest of the lanthanides. Named after Lutetia (ancient Paris), it\'s used in PET scanners. Lutetium-177 is a radioactive medical isotope that targets and destroys cancer cells.',
+    themes: {
+    }
+  },
+
+  // ── Back to Period 6 main block ─────────────
+  {
+    symbol: 'Hf', name: 'Hafnium', number: 72, mass: 178.49,
+    category: 'transition-metal', period: 6, group: 4,
+    defaultFact: 'Hafnium is chemically almost identical to zirconium — making them the hardest pair of elements to separate. Hafnium was famously used in Intel\'s 2007 CPU transistors, solving the "leaky transistor" problem that had been slowing Moore\'s Law.',
+    themes: {
+      spacex: { fact: 'SpaceX\'s Raptor engines use hafnium igniter cartridges — a small charge of hafnium that ignites when exposed to liquid oxygen, reliably starting the main propellant combustion. Hafnium\'s spontaneous reaction with pure oxygen at cryogenic temperatures makes it perfect for this safety-critical function.' },
+    }
+  },
+  {
+    symbol: 'Ta', name: 'Tantalum', number: 73, mass: 180.948,
+    category: 'transition-metal', period: 6, group: 5,
+    defaultFact: 'Tantalum is in your phone — tantalum capacitors store the electrical charge in virtually every smartphone, laptop, and tablet. Mining tantalum (as "coltan") has funded wars in the Democratic Republic of Congo.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'W', name: 'Tungsten', number: 74, mass: 183.84,
+    category: 'transition-metal', period: 6, group: 6,
+    defaultFact: 'Tungsten has the highest melting point of all metals (3,422°C) and was the filament in incandescent light bulbs for over a century. "W" comes from its German name Wolfram, meaning "wolf cream" — it consumed tin like a wolf.',
+    themes: {
+      spacex:  { fact: 'Tungsten is used in nozzle throat inserts for rocket engines that experience the most extreme heat. It\'s also used in counterweights, radiation shielding, and high-temperature fasteners throughout spacecraft systems. Its density (19.3 g/cm³) makes it ideal for compact heavy ballast.' },
+      burning: { fact: 'Tungsten glows white-hot in incandescent bulbs at ~2,500°C without melting (it melts at 3,422°C). Tungsten can sustain combustion in an extreme oxygen environment — in a pure-oxygen fire, tungsten burns as a white-hot solid.' },
+    }
+  },
+  {
+    symbol: 'Re', name: 'Rhenium', number: 75, mass: 186.207,
+    category: 'transition-metal', period: 6, group: 7,
+    defaultFact: 'Rhenium was the last stable element to be discovered (1925). It has the second-highest melting point of all elements and is used in jet and rocket turbine blades because it maintains creep resistance at 1,600°C+.',
+    themes: {
+      spacex: { fact: 'SpaceX\'s Raptor engine uses rhenium-containing single-crystal turbine blades in its turbopumps. Rhenium additions to nickel superalloys improve high-temperature strength by up to 50%, enabling turbines to run hotter and more efficiently — directly improving rocket performance.' },
+    }
+  },
+  {
+    symbol: 'Os', name: 'Osmium', number: 76, mass: 190.23,
+    category: 'transition-metal', period: 6, group: 8,
+    defaultFact: 'Osmium is the densest naturally occurring element (22.59 g/cm³) — a golf ball-sized piece weighs as much as a small bowling ball. Its name comes from "osme" (Greek for smell) because osmium tetroxide has a pungent, acrid odor and is highly toxic.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Ir', name: 'Iridium', number: 77, mass: 192.217,
+    category: 'transition-metal', period: 6, group: 9,
+    defaultFact: 'A thin layer of iridium in the global geological record marks the K-Pg boundary — the mass extinction 66 million years ago. Iridium is rare on Earth\'s surface (it sank to the core) but common in meteorites, confirming an asteroid impact killed the dinosaurs.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Pt', name: 'Platinum', number: 78, mass: 195.084,
+    category: 'transition-metal', period: 6, group: 10,
+    defaultFact: 'Platinum is so unreactive that the international prototype kilogram was made of platinum-iridium alloy. Platinum catalytic converters convert ~90% of toxic car exhaust into less harmful gases. Your car produces this reaction millions of times per mile.',
+    themes: {
+      spacex:  { fact: 'Platinum is used in spacecraft thermocouple sensors, catalysts for fuel cell systems, and electrical contacts. The high-precision measurements needed for engine testing rely on platinum resistance thermometers, which are accurate to ±0.01°C even at extreme temperatures.' },
+      edible:  { fact: 'Some high-end chocolatiers and restaurants sell platinum-leaf-coated chocolates and desserts — platinum is biologically inert and passes through the body harmlessly, just like gold and silver leaf.' },
+    }
+  },
+  {
+    symbol: 'Au', name: 'Gold', number: 79, mass: 196.967,
+    category: 'transition-metal', period: 6, group: 11,
+    defaultFact: 'All the gold ever mined by humanity — 190,000 tonnes — would fit in a cube about 21 meters on each side. All of it came from asteroid impacts after Earth formed; gold that existed at Earth\'s formation sank to the core.',
+    themes: {
+      edible:  { fact: '24-karat gold leaf is genuinely edible and food-safe. It\'s used in luxury foods, Indian desserts (Waraq), Japanese sake, and fancy cocktails. Gold has no taste, provides zero nutrition, and passes through your body unchanged. It costs ~$0.05 per decorative leaf.' },
+      spacex:  { fact: 'Gold-plated electrical connectors and circuit boards are standard in spacecraft — gold\'s corrosion resistance and conductivity ensure reliable connections in the vacuum of space for decades. The James Webb Space Telescope\'s mirrors are coated with ultra-thin gold to reflect infrared light.' },
+    }
+  },
+  {
+    symbol: 'Hg', name: 'Mercury', number: 80, mass: 200.592,
+    category: 'transition-metal', period: 6, group: 12,
+    defaultFact: 'Mercury is the only metal liquid at room temperature. Alchemists called it "quicksilver" and thought it was the primordial substance of all metals. It was used in thermometers, vaccines, and dental fillings for centuries before its toxicity was understood.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Tl', name: 'Thallium', number: 81, mass: 204.38,
+    category: 'post-transition', period: 6, group: 13,
+    defaultFact: 'Thallium poisoning (tasteless, odorless) causes hair to fall out before death — earning it the "poisoner\'s poison." Agatha Christie featured thallium poisoning in "The Pale Horse." It was a key Cold War assassination tool.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Pb', name: 'Lead', number: 82, mass: 207.2,
+    category: 'post-transition', period: 6, group: 14,
+    defaultFact: 'Lead pipes in ancient Rome may have contributed to cognitive decline and even the fall of the empire — Romans used lead vessels for cooking wine and as a sweetener (lead acetate tastes sweet). The word "plumber" comes from "plumbum" — the Latin for lead.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Bi', name: 'Bismuth', number: 83, mass: 208.980,
+    category: 'post-transition', period: 6, group: 15,
+    defaultFact: 'Bismuth crystals grow in spectacular rainbow-colored geometric hopper crystal formations. Pepto-Bismol\'s active ingredient is bismuth subsalicylate — it literally contains a heavy metal that soothes your stomach.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Po', name: 'Polonium', number: 84, mass: 209,
+    category: 'post-transition', period: 6, group: 16,
+    defaultFact: 'Polonium is so radioactive that a speck smaller than a grain of sand emits enough radiation to kill a person. Alexander Litvinenko, a Russian spy, was assassinated with polonium-210 in London in 2006.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'At', name: 'Astatine', number: 85, mass: 210,
+    category: 'metalloid', period: 6, group: 17,
+    defaultFact: 'Astatine is the rarest naturally occurring element — the entire Earth contains only about 30 grams at any time. It\'s so radioactive that no one has ever seen a visible sample; even a microgram would vaporize instantly from its own heat.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Rn', name: 'Radon', number: 86, mass: 222,
+    category: 'noble-gas', period: 6, group: 18,
+    defaultFact: 'Radon seeps from rock and soil into basements and is the second leading cause of lung cancer in the US (after smoking). It\'s radioactive, colorless, and odorless — you can\'t detect it without a special test kit.',
+    themes: {
+    }
+  },
+
+  // ── Period 7 ──────────────────────────────
+  {
+    symbol: 'Fr', name: 'Francium', number: 87, mass: 223,
+    category: 'alkali-metal', period: 7, group: 1,
+    defaultFact: 'Francium is so unstable that the entire Earth contains less than 30 grams at any moment. It has never been weighed or seen. Theoretically the most reactive metal — but its radioactivity prevents any direct experiment.',
+    themes: {
+      burning: { fact: 'Francium would be the most explosive alkali metal if you could ever collect enough of it. Theoretical predictions suggest it would react even more violently with water than cesium. Its half-life of 22 minutes means any sample vanishes before you can study it.' },
+    }
+  },
+  {
+    symbol: 'Ra', name: 'Radium', number: 88, mass: 226,
+    category: 'alkaline-earth', period: 7, group: 2,
+    defaultFact: 'Marie Curie discovered radium in 1898. The "Radium Girls" — factory workers who painted watch dials with radium-based luminous paint using their lips to point their brushes — developed devastating radiation poisoning, changing workplace safety law forever.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Ac', name: 'Actinium', number: 89, mass: 227,
+    category: 'actinide', period: 7, group: 3,
+    defaultFact: 'Actinium is so radioactive it glows blue in the dark — the glow comes from ionized air molecules around it. It lends its name to the actinide series and is being studied as a cancer treatment in targeted alpha therapy.',
+    themes: {
+    }
+  },
+
+  // ── Actinides (f-block, displayRow 10) ──────────────────────────────
+  {
+    symbol: 'Th', name: 'Thorium', number: 90, mass: 232.038,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Thorium is three times more abundant than uranium and could theoretically power humanity for thousands of years in liquid fluoride thorium reactors (LFTR). India, which has vast thorium deposits, is actively developing this technology.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Pa', name: 'Protactinium', number: 91, mass: 231.036,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Protactinium is one of the rarest and most expensive naturally occurring elements — even rarer than platinum. Its name means "before actinium" because it decays into actinium. It has few practical uses due to its rarity and radioactivity.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'U', name: 'Uranium', number: 92, mass: 238.029,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Uranium was discovered in 1789, named after the planet Uranus, and used as yellow glass dye for 150 years before its radioactivity was discovered. One kilogram of U-235 releases as much energy as 3,000 tons of coal.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Np', name: 'Neptunium', number: 93, mass: 237,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Neptunium was the first transuranium element, discovered in 1940 at Berkeley by bombarding uranium with neutrons. Named after Neptune (beyond Uranus in the solar system, just as Np is beyond U in the periodic table).',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Pu', name: 'Plutonium', number: 94, mass: 244,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Plutonium-238 powers the Voyager 1 probe — still transmitting from 23 billion km away — via a radioisotope thermoelectric generator (RTG) that converts its heat to electricity without any moving parts.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Am', name: 'Americium', number: 95, mass: 243,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Americium is in every ionization smoke detector in your home. A tiny speck of Am-241 (about 37 kBq) ionizes air between two plates; smoke disrupts the current and triggers the alarm. It\'s one of the most beneficial uses of radioactivity in daily life.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Cm', name: 'Curium', number: 96, mass: 247,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Curium is named after Marie and Pierre Curie. It glows red in the dark from its own radioactive decay heat. The Mars Science Laboratory rover Curiosity carries a curium-244 X-ray spectrometer to analyze Martian rocks.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Bk', name: 'Berkelium', number: 97, mass: 247,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Berkelium is named after Berkeley, California. It can only be made in microgram quantities in particle accelerators. All of the world\'s berkelium is produced at Oak Ridge National Laboratory in batches of about 22 milligrams every 18 months.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Cf', name: 'Californium', number: 98, mass: 251,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Californium-252 is one of the few known neutron sources intense enough to start a nuclear chain reaction. 1 microgram emits 170 million neutrons per minute. It\'s used to start nuclear reactors and treat cervical cancer. It costs ~$6 million per gram.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Es', name: 'Einsteinium', number: 99, mass: 252,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Einsteinium was discovered in the fallout debris of the first hydrogen bomb test (Ivy Mike, 1952) — the explosion created conditions intense enough to fuse uranium atoms together into new elements. Named for Einstein the year before he died.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Fm', name: 'Fermium', number: 100, mass: 257,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Fermium, also discovered in the Ivy Mike hydrogen bomb fallout, marked a turning point: no elements heavier than fermium can be produced in nuclear reactors (the neutron absorption chain stops here). Everything above must be made in particle accelerators.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Md', name: 'Mendelevium', number: 101, mass: 258,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Named for Dmitri Mendeleev, who invented the periodic table. Mendelevium was first made in 1955 by bombarding einsteinium with alpha particles — producing exactly 17 atoms. It has never been seen in bulk.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'No', name: 'Nobelium', number: 102, mass: 259,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Nobelium is named after Alfred Nobel (inventor of dynamite, founder of the Nobel Prize). Its discovery was disputed between American, Swedish, and Soviet teams for years — the Soviets ultimately got credit for the first verified synthesis.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Lr', name: 'Lawrencium', number: 103, mass: 262,
+    category: 'actinide', period: 7, group: 3, fBlock: true,
+    defaultFact: 'Lawrencium, named for cyclotron inventor Ernest Lawrence, is the last actinide. It was synthesized at Berkeley in 1961. With a half-life of minutes, it exists only fleetingly — yet its behavior confirmed key predictions about the periodic table\'s structure.',
+    themes: {
+    }
+  },
+
+  // ── Back to Period 7 main block ─────────────
+  {
+    symbol: 'Rf', name: 'Rutherfordium', number: 104, mass: 267,
+    category: 'transition-metal', period: 7, group: 4,
+    defaultFact: 'Rutherfordium, named after Ernest Rutherford (who discovered the atomic nucleus), was the first transactinide element. It exists for only seconds. Its discovery was disputed between Cold War US and Soviet scientists for over a decade.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Db', name: 'Dubnium', number: 105, mass: 268,
+    category: 'transition-metal', period: 7, group: 5,
+    defaultFact: 'Named after Dubna, Russia (home of the Joint Institute for Nuclear Research), after a long Cold War dispute with the US team who had called it Hahnium. Dubnium atoms last only about 28 hours before radioactive decay.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Sg', name: 'Seaborgium', number: 106, mass: 271,
+    category: 'transition-metal', period: 7, group: 6,
+    defaultFact: 'Glenn Seaborg is the only person to have an element named after them while still alive. When asked his opinion on the honor, he reportedly said: "At least I didn\'t have to die first." He co-discovered 10 elements.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Bh', name: 'Bohrium', number: 107, mass: 272,
+    category: 'transition-metal', period: 7, group: 7,
+    defaultFact: 'Named after Niels Bohr, who developed the first quantum model of the atom. Bohrium atoms exist for only seconds. Despite its brief existence, scientists have confirmed it behaves chemically like its lighter group-7 sibling, rhenium.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Hs', name: 'Hassium', number: 108, mass: 270,
+    category: 'transition-metal', period: 7, group: 8,
+    defaultFact: 'Named after Hassia (the Latin name for the German state of Hesse). Hassium was first synthesized by bombarding lead with iron nuclei at GSI in Darmstadt. Its longest-lived isotope has a half-life of about 9 seconds.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Mt', name: 'Meitnerium', number: 109, mass: 276,
+    category: 'transition-metal', period: 7, group: 9,
+    defaultFact: 'Named after Lise Meitner, who co-discovered nuclear fission but was excluded from the Nobel Prize that went solely to her male collaborator. The element honors a profound scientific injustice.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Ds', name: 'Darmstadtium', number: 110, mass: 281,
+    category: 'transition-metal', period: 7, group: 10,
+    defaultFact: 'Named for Darmstadt, Germany, where it was first synthesized in 1994. Darmstadtium exists for only microseconds. It takes about a week of bombardment to produce a single atom, and then it vanishes almost instantly.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Rg', name: 'Roentgenium', number: 111, mass: 280,
+    category: 'transition-metal', period: 7, group: 11,
+    defaultFact: 'Named for Wilhelm Röntgen, discoverer of X-rays. Roentgenium was first synthesized in 1994 at GSI Darmstadt. Only a few atoms have ever been made; their half-lives are measured in seconds.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Cn', name: 'Copernicium', number: 112, mass: 285,
+    category: 'transition-metal', period: 7, group: 12,
+    defaultFact: 'Named after Nicolaus Copernicus. Relativistic effects in copernicium are so extreme that its electrons move at significant fractions of the speed of light — theoretical models predict it may behave more like a noble gas than a metal.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Nh', name: 'Nihonium', number: 113, mass: 284,
+    category: 'post-transition', period: 7, group: 13,
+    defaultFact: 'Nihonium is the first element discovered in Asia — by a Japanese team at RIKEN in 2004. Its name means "Japan" (Nihon). Only 3 atoms were confirmed over 9 years of experiments before the discovery was officially recognized in 2016.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Fl', name: 'Flerovium', number: 114, mass: 289,
+    category: 'post-transition', period: 7, group: 14,
+    defaultFact: 'Named after the Flerov Laboratory of Nuclear Reactions (itself named after physicist Georgy Flyorov). Relativistic effects in flerovium are predicted to make it behave more like a noble gas than a metal — a radical departure from its position in group 14.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Mc', name: 'Moscovium', number: 115, mass: 288,
+    category: 'post-transition', period: 7, group: 15,
+    defaultFact: 'Named after the Moscow Oblast (home of the Joint Institute for Nuclear Research at Dubna). First synthesized in 2003 in a collaboration between Russia and the US. Its longest-lived isotope has a half-life of about 220 milliseconds.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Lv', name: 'Livermorium', number: 116, mass: 293,
+    category: 'post-transition', period: 7, group: 16,
+    defaultFact: 'Named after Lawrence Livermore National Laboratory in California (a co-discoverer). Livermorium was first made in 2000 at Dubna in a US-Russia collaboration. Its name was officially approved in 2012.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Ts', name: 'Tennessine', number: 117, mass: 294,
+    category: 'metalloid', period: 7, group: 17,
+    defaultFact: 'Named after Tennessee, honoring Oak Ridge National Laboratory, Vanderbilt University, and the University of Tennessee. Tennessine was first synthesized in 2010 in Russia. The heaviest halogen-like element, it has a half-life of about 51 milliseconds.',
+    themes: {
+    }
+  },
+  {
+    symbol: 'Og', name: 'Oganesson', number: 118, mass: 294,
+    category: 'noble-gas', period: 7, group: 18,
+    defaultFact: 'Oganesson is named after Yuri Oganessian, one of the last living scientists to have an element named after them. The heaviest known element, it was first synthesized in 2002. Theoretical models suggest it may actually be a solid at room temperature, not a gas like lighter noble gases.',
+    themes: {
+    }
+  },
+];
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let activeThemes = new Set();
+let selectedElement = null;
+
+// ─────────────────────────────────────────────
+// GRID POSITION HELPERS
+// ─────────────────────────────────────────────
+function getDisplayRow(el) {
+  if (!el.fBlock) return el.period;
+  return el.number >= 90 ? 10 : 9;
+}
+
+function getDisplayCol(el) {
+  if (!el.fBlock) return el.group;
+  if (el.number >= 90) return el.number - 90 + 4;
+  return el.number - 58 + 4;
+}
+
+// ─────────────────────────────────────────────
+// BUILD GRID
+// ─────────────────────────────────────────────
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  // Validation: assert no two elements share the same (displayRow, displayCol)
+  const seen = new Map();
+  for (const el of ELEMENTS) {
+    const key = `${getDisplayRow(el)},${getDisplayCol(el)}`;
+    if (seen.has(key)) {
+      console.error(`Grid conflict: ${el.symbol} and ${seen.get(key)} both at (${key})`);
+    }
+    seen.set(key, el.symbol);
+  }
+
+  for (const el of ELEMENTS) {
+    const row = getDisplayRow(el);
+    const col = getDisplayCol(el);
+    const cell = document.createElement('div');
+    cell.className = `cell cat-${el.category}`;
+    cell.style.gridRow = row;
+    cell.style.gridColumn = col;
+    cell.dataset.number = el.number;
+    cell.setAttribute('role', 'gridcell');
+    cell.setAttribute('aria-label', `${el.name}, atomic number ${el.number}`);
+    cell.setAttribute('tabindex', '0');
+
+    cell.innerHTML = `
+      <span class="num">${el.number}</span>
+      <span class="sym">${el.symbol}</span>
+      <span class="name-short">${el.name}</span>
+      <span class="theme-badge"></span>
+    `;
+
+    cell.addEventListener('click', () => openPanel(el, cell));
+    cell.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPanel(el, cell); }
+    });
+
+    grid.appendChild(cell);
+  }
+
+  // Gap label row (visual connector between main grid and f-block rows)
+  const gapSpan = document.createElement('div');
+  gapSpan.style.gridRow = '8';
+  gapSpan.style.gridColumn = '1 / 19';
+  gapSpan.style.height = '6px';
+  grid.appendChild(gapSpan);
+
+  applyThemeHighlights();
+}
+
+// ─────────────────────────────────────────────
+// THEME HIGHLIGHT RENDER
+// ─────────────────────────────────────────────
+function applyThemeHighlights() {
+  const cells = document.querySelectorAll('.cell');
+  const anyActive = activeThemes.size > 0;
+
+  cells.forEach(cell => {
+    const num = parseInt(cell.dataset.number, 10);
+    const el = ELEMENTS[num - 1];
+    const badge = cell.querySelector('.theme-badge');
+
+    // Iterate THEMES array (not activeThemes Set) to preserve leftmost-button tie-break
+    const matchingThemes = THEMES.filter(t => activeThemes.has(t.key) && t.key in el.themes);
+
+    if (!anyActive) {
+      cell.classList.remove('dimmed');
+      cell.style.backgroundColor = '';
+      badge.style.display = 'none';
+    } else if (matchingThemes.length === 0) {
+      cell.classList.add('dimmed');
+      cell.style.backgroundColor = '';
+      badge.style.display = 'none';
+    } else {
+      cell.classList.remove('dimmed');
+      // Use CSS variable resolved value for leftmost matching theme
+      cell.style.backgroundColor = `var(--theme-${matchingThemes[0].key})`;
+      if (matchingThemes.length >= 2) {
+        badge.textContent = matchingThemes.length;
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    // Keep selected cell border
+    if (selectedElement && selectedElement.number === num) {
+      cell.classList.add('selected');
+    } else {
+      cell.classList.remove('selected');
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+// DETAIL PANEL
+// ─────────────────────────────────────────────
+const CAT_LABELS = {
+  'alkali-metal':     'Alkali Metal',
+  'alkaline-earth':   'Alkaline Earth',
+  'transition-metal': 'Transition Metal',
+  'post-transition':  'Post-Transition Metal',
+  'metalloid':        'Metalloid',
+  'nonmetal':         'Nonmetal',
+  'noble-gas':        'Noble Gas',
+  'lanthanide':       'Lanthanide',
+  'actinide':         'Actinide',
+};
+
+function openPanel(el, cellEl) {
+  selectedElement = el;
+  applyThemeHighlights();
+
+  document.getElementById('panel-symbol').textContent = el.symbol;
+  document.getElementById('panel-name').textContent = el.name;
+  document.getElementById('panel-number').textContent = el.number;
+  document.getElementById('panel-mass').textContent = el.mass;
+  document.getElementById('panel-cat').textContent = CAT_LABELS[el.category] || el.category;
+
+  const body = document.getElementById('panel-body');
+  body.innerHTML = '';
+
+  // Matching active themes for this element
+  const matchingThemes = THEMES.filter(t => activeThemes.has(t.key) && t.key in el.themes);
+
+  if (matchingThemes.length === 0) {
+    // No theme active, or element not in any active theme → show defaultFact
+    const block = document.createElement('div');
+    block.className = 'fact-block';
+    block.innerHTML = `<p class="fact-text">${el.defaultFact}</p>`;
+    body.appendChild(block);
+  } else {
+    // Show theme-specific facts for matching themes
+    for (const theme of matchingThemes) {
+      const block = document.createElement('div');
+      block.className = 'fact-block';
+      block.innerHTML = `
+        <div class="fact-theme-label">
+          <span class="fact-theme-dot" style="background:var(--theme-${theme.key})"></span>
+          ${theme.label}
+        </div>
+        <p class="fact-text">${el.themes[theme.key].fact}</p>
+      `;
+      body.appendChild(block);
+    }
+  }
+
+  document.getElementById('panel').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  selectedElement = null;
+  applyThemeHighlights();
+}
+
+// ─────────────────────────────────────────────
+// THEME TOGGLE
+// ─────────────────────────────────────────────
+function toggleTheme(key) {
+  if (activeThemes.has(key)) {
+    activeThemes.delete(key);
+  } else {
+    activeThemes.add(key);
+  }
+
+  // Update button states
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    const active = activeThemes.has(btn.dataset.key);
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+
+  // Re-render panel facts if open
+  if (selectedElement) {
+    openPanel(selectedElement, null);
+  }
+
+  applyThemeHighlights();
+}
+
+function clearAll() {
+  activeThemes.clear();
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
+  });
+  applyThemeHighlights();
+  if (selectedElement) {
+    openPanel(selectedElement, null);
+  }
+}
+
+// ─────────────────────────────────────────────
+// DARK MODE
+// ─────────────────────────────────────────────
+function toggleDark() {
+  const isDark = document.body.classList.toggle('dark');
+  document.getElementById('dark-toggle').setAttribute('aria-pressed', isDark ? 'true' : 'false');
+  document.getElementById('dark-toggle').textContent = isDark ? 'light' : 'dark';
+  try { localStorage.setItem('foxi-periodic-dark', isDark ? '1' : '0'); } catch(e) {}
+}
+
+// ─────────────────────────────────────────────
+// EVENT LISTENERS
+// ─────────────────────────────────────────────
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => toggleTheme(btn.dataset.key));
+});
+document.getElementById('clear-btn').addEventListener('click', clearAll);
+document.getElementById('close-panel-btn').addEventListener('click', closePanel);
+document.getElementById('dark-toggle').addEventListener('click', toggleDark);
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+try {
+  if (localStorage.getItem('foxi-periodic-dark') === '1') {
+    document.body.classList.add('dark');
+    document.getElementById('dark-toggle').textContent = 'light';
+    document.getElementById('dark-toggle').setAttribute('aria-pressed', 'true');
+  }
+} catch(e) {}
+
+buildGrid();
+</script>
+</body>
+</html>
