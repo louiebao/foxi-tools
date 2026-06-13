@@ -358,6 +358,27 @@ header h1 {
   font-size: 0.62rem;
   color: var(--text-3);
   letter-spacing: 0.04em;
+  position: relative;
+  cursor: default;
+}
+.legend-item:hover { color: var(--text-2); }
+.legend-item[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.65rem;
+  line-height: 1.45;
+  padding: 6px 10px;
+  white-space: normal;
+  width: 190px;
+  text-align: left;
+  pointer-events: none;
+  z-index: 200;
+  letter-spacing: 0.02em;
 }
 .legend-swatch {
   width: 12px;
@@ -458,15 +479,15 @@ footer {
 </div>
 
 <div id="legend">
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-alkali-metal)"></div>alkali metal</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-alkaline-earth)"></div>alkaline earth</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-transition-metal)"></div>transition metal</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-post-transition)"></div>post-transition</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-metalloid)"></div>metalloid</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-nonmetal)"></div>nonmetal</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-noble-gas)"></div>noble gas</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-lanthanide)"></div>lanthanide</div>
-  <div class="legend-item"><div class="legend-swatch" style="background:var(--cat-actinide)"></div>actinide</div>
+  <div class="legend-item" data-tooltip="Soft, reactive metals that explode or fizz in water. Lithium (batteries), sodium (table salt), potassium (bananas)."><div class="legend-swatch" style="background:var(--cat-alkali-metal)"></div>alkali metal</div>
+  <div class="legend-item" data-tooltip="Harder reactive metals. Calcium (bones &amp; teeth), magnesium (bright white fireworks), beryllium (telescope mirrors)."><div class="legend-swatch" style="background:var(--cat-alkaline-earth)"></div>alkaline earth</div>
+  <div class="legend-item" data-tooltip="The big middle block. Most metals you encounter every day: iron, copper, gold, silver, nickel, zinc."><div class="legend-swatch" style="background:var(--cat-transition-metal)"></div>transition metal</div>
+  <div class="legend-item" data-tooltip="Softer metals that melt at lower temperatures. Aluminum (foil &amp; cans), tin (food cans), lead (old pipes)."><div class="legend-swatch" style="background:var(--cat-post-transition)"></div>post-transition</div>
+  <div class="legend-item" data-tooltip="Part metal, part non-metal. Silicon (every computer chip ever made), arsenic (historic poison)."><div class="legend-swatch" style="background:var(--cat-metalloid)"></div>metalloid</div>
+  <div class="legend-item" data-tooltip="Life's building blocks — mostly gases. Oxygen (breathing), carbon (all living things), hydrogen (water), nitrogen (air)."><div class="legend-swatch" style="background:var(--cat-nonmetal)"></div>nonmetal</div>
+  <div class="legend-item" data-tooltip="Gases that almost never react with anything. Helium (balloons), neon (signs), argon (inside light bulbs)."><div class="legend-swatch" style="background:var(--cat-noble-gas)"></div>noble gas</div>
+  <div class="legend-item" data-tooltip="Rare earth metals used in phone screens, EV motors, and lasers. Most of the world's supply is mined in China."><div class="legend-swatch" style="background:var(--cat-lanthanide)"></div>lanthanide</div>
+  <div class="legend-item" data-tooltip="Heavy radioactive elements. Uranium and plutonium live here — nuclear power and weapons are built from this row."><div class="legend-swatch" style="background:var(--cat-actinide)"></div>actinide</div>
 </div>
 
 <footer>
