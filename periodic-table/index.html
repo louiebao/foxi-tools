@@ -315,8 +315,9 @@ header h1 {
 }
 .panel-meta span {
   display: inline-flex;
-  flex-direction: column;
-  gap: 1px;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 4px;
 }
 .panel-meta .meta-label {
   font-size: 0.58rem;
@@ -328,7 +329,6 @@ header h1 {
   font-size: 0.62rem;
   padding: 2px 6px;
   color: var(--text);
-  border: 1px solid var(--border);
   letter-spacing: 0.04em;
   margin-top: 8px;
   display: inline-block;
@@ -548,7 +548,7 @@ footer {
       <div class="panel-symbol" id="panel-symbol"></div>
       <div class="panel-name" id="panel-name"></div>
       <div class="panel-meta">
-        <span><span class="meta-label">Number</span><span id="panel-number"></span></span>
+        <span><span class="meta-label">Atomic Number</span><span id="panel-number"></span></span>
       </div>
       <span class="panel-cat-tag" id="panel-cat"></span>
     </div>
@@ -1825,7 +1825,9 @@ function openPanel(el, cellEl) {
   document.getElementById('panel-symbol').textContent = el.symbol;
   document.getElementById('panel-name').textContent = el.name;
   document.getElementById('panel-number').textContent = el.number;
-  document.getElementById('panel-cat').textContent = CAT_LABELS[el.category] || el.category;
+  const catEl = document.getElementById('panel-cat');
+  catEl.textContent = CAT_LABELS[el.category] || el.category;
+  catEl.className = `panel-cat-tag cat-${el.category}`;
 
   const body = document.getElementById('panel-body');
   body.innerHTML = '';
