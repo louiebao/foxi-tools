@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Periodic Table Explorer — foxi-tools</title>
+<title>Periodic Table — foxi-tools</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -26,10 +26,20 @@
   --cat-lanthanide:      #f0c8c8;
   --cat-actinide:        #e8b8b8;
 
-  --theme-body:   #e8a84c;
-  --theme-spacex: #5b8db8;
-  --theme-edible: #7aad7a;
-  --theme-burning:#e05c3a;
+  --theme-human:   #e8a84c;
+  --theme-rocket: #5b8db8;
+  --theme-food: #7aad7a;
+  --theme-fire:#e05c3a;
+  --theme-air:    #9ecce0;
+  --theme-water:  #3478a0;
+  --theme-earth:  #9e7840;
+  --theme-weapon: #b83030;
+  --theme-plant: #3a8a3a;
+  --theme-animal: #8858a8;
+  --theme-moon:   #788898;
+  --theme-mars:   #b84028;
+  --theme-sun:    #c89010;
+  --theme-fuel:   #486038;
 
   --cell-size: 48px;
 }
@@ -87,6 +97,22 @@ header h1 {
   text-transform: uppercase;
   margin-bottom: 4px;
 }
+.theme-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.theme-group + .theme-group {
+  margin-top: 6px;
+}
+.theme-group-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 2px;
+  text-align: center;
+}
 .theme-btn {
   background: none;
   border: 1px solid var(--border);
@@ -105,10 +131,20 @@ header h1 {
   color: #fff;
   border-color: transparent;
 }
-.theme-btn[data-key="body"].active    { background: var(--theme-body); }
-.theme-btn[data-key="spacex"].active  { background: var(--theme-spacex); }
-.theme-btn[data-key="edible"].active  { background: var(--theme-edible); }
-.theme-btn[data-key="burning"].active { background: var(--theme-burning); }
+.theme-btn[data-key="human"].active    { background: var(--theme-human); }
+.theme-btn[data-key="rocket"].active  { background: var(--theme-rocket); }
+.theme-btn[data-key="food"].active  { background: var(--theme-food); }
+.theme-btn[data-key="fire"].active { background: var(--theme-fire); }
+.theme-btn[data-key="air"].active     { background: var(--theme-air); }
+.theme-btn[data-key="water"].active   { background: var(--theme-water); color: var(--bg); }
+.theme-btn[data-key="earth"].active   { background: var(--theme-earth); color: var(--bg); }
+.theme-btn[data-key="weapon"].active  { background: var(--theme-weapon); color: var(--bg); }
+.theme-btn[data-key="plant"].active  { background: var(--theme-plant); color: var(--bg); }
+.theme-btn[data-key="animal"].active  { background: var(--theme-animal); color: var(--bg); }
+.theme-btn[data-key="moon"].active    { background: var(--theme-moon);   color: var(--bg); }
+.theme-btn[data-key="mars"].active    { background: var(--theme-mars);   color: var(--bg); }
+.theme-btn[data-key="sun"].active     { background: var(--theme-sun);    color: var(--bg); }
+.theme-btn[data-key="fuel"].active    { background: var(--theme-fuel);   color: var(--bg); }
 
 #clear-btn {
   background: none;
@@ -119,7 +155,8 @@ header h1 {
   padding: 4px 0;
   cursor: pointer;
   letter-spacing: 0.06em;
-  text-align: left;
+  text-align: center;
+  width: 100%;
   margin-top: 4px;
 }
 #clear-btn:hover { color: var(--text); }
@@ -470,18 +507,38 @@ footer {
 <body>
 
 <header>
-  <a class="back-link" href="../">< Home</a>
-  <h1>Periodic Table Explorer</h1>
+  <h1>Periodic Table</h1>
 </header>
 
 <div id="main">
   <nav id="sidebar" role="toolbar" aria-label="Theme filters">
-    <span class="sidebar-label">Spotlight</span>
-    <button class="theme-btn" data-key="body"    aria-pressed="false">Human Body</button>
-    <button class="theme-btn" data-key="spacex"  aria-pressed="false">SpaceX / Rockets</button>
-    <button class="theme-btn" data-key="edible"  aria-pressed="false">Lickable / Edible</button>
-    <button class="theme-btn" data-key="burning" aria-pressed="false">Burning / Reactive</button>
-    <button id="clear-btn">clear all</button>
+    <div class="theme-group">
+      <span class="theme-group-label">Elements</span>
+      <button class="theme-btn" data-key="air"     aria-pressed="false">Air</button>
+      <button class="theme-btn" data-key="earth"   aria-pressed="false">Earth</button>
+      <button class="theme-btn" data-key="fire" aria-pressed="false">Fire</button>
+      <button class="theme-btn" data-key="water"   aria-pressed="false">Water</button>
+    </div>
+    <div class="theme-group">
+      <span class="theme-group-label">Life</span>
+      <button class="theme-btn" data-key="animal"  aria-pressed="false">Animal</button>
+      <button class="theme-btn" data-key="human"    aria-pressed="false">Human</button>
+      <button class="theme-btn" data-key="food"  aria-pressed="false">Food</button>
+      <button class="theme-btn" data-key="plant"  aria-pressed="false">Plant</button>
+    </div>
+    <div class="theme-group">
+      <span class="theme-group-label">Technology</span>
+      <button class="theme-btn" data-key="fuel"    aria-pressed="false">Fuel</button>
+      <button class="theme-btn" data-key="rocket"  aria-pressed="false">Rocket</button>
+      <button class="theme-btn" data-key="weapon"  aria-pressed="false">Weapon</button>
+    </div>
+    <div class="theme-group">
+      <span class="theme-group-label">Universe</span>
+      <button class="theme-btn" data-key="mars"    aria-pressed="false">Mars</button>
+      <button class="theme-btn" data-key="moon"    aria-pressed="false">Moon</button>
+      <button class="theme-btn" data-key="sun"     aria-pressed="false">Sun</button>
+    </div>
+    <button id="clear-btn">Reset</button>
   </nav>
   <div id="grid-wrapper">
     <div id="grid" role="grid" aria-label="Periodic table of elements"></div>
@@ -496,7 +553,6 @@ footer {
       <span class="panel-cat-tag" id="panel-cat"></span>
     </div>
     <div id="panel-body"></div>
-    <div id="panel-close"><button id="close-panel-btn">close ×</button></div>
   </div>
 </div>
 
@@ -514,7 +570,7 @@ footer {
 
 <footer>
   <a class="back-link" href="../">< Home</a>
-  <span class="version">v1.0.0</span>
+  <span class="version" style="margin-left: auto">v1.0.0</span>
 </footer>
 
 <script>
@@ -522,10 +578,24 @@ footer {
 // THEMES
 // ─────────────────────────────────────────────
 const THEMES = [
-  { key: 'body',    label: 'Human Body',       color: 'var(--theme-body)'   },
-  { key: 'spacex',  label: 'SpaceX / Rockets', color: 'var(--theme-spacex)' },
-  { key: 'edible',  label: 'Lickable / Edible',color: 'var(--theme-edible)' },
-  { key: 'burning', label: 'Burning / Reactive',color:'var(--theme-burning)'},
+  // Elements
+  { key: 'air',     label: 'Air',        color: 'var(--theme-air)'     },
+  { key: 'earth',   label: 'Earth',      color: 'var(--theme-earth)'   },
+  { key: 'fire', label: 'Fire',       color: 'var(--theme-fire)' },
+  { key: 'water',   label: 'Water',      color: 'var(--theme-water)'   },
+  // Life
+  { key: 'animal',  label: 'Animal', color: 'var(--theme-animal)'  },
+  { key: 'human',    label: 'Human',  color: 'var(--theme-human)'    },
+  { key: 'food',  label: 'Food',   color: 'var(--theme-food)'  },
+  { key: 'plant',  label: 'Plant',  color: 'var(--theme-plant)'  },
+  // Technology
+  { key: 'fuel',    label: 'Fuel',      color: 'var(--theme-fuel)'    },
+  { key: 'rocket',  label: 'Rocket',    color: 'var(--theme-rocket)'  },
+  { key: 'weapon',  label: 'Weapon',    color: 'var(--theme-weapon)'  },
+  // Universe
+  { key: 'mars',    label: 'Mars',      color: 'var(--theme-mars)'    },
+  { key: 'moon',    label: 'Moon',      color: 'var(--theme-moon)'    },
+  { key: 'sun',     label: 'Sun',       color: 'var(--theme-sun)'     },
 ];
 
 // ─────────────────────────────────────────────
@@ -546,10 +616,19 @@ const ELEMENTS = [
     category: 'nonmetal', period: 1, group: 1,
     defaultFact: 'The simplest atom in the universe — one proton, one electron. Three-quarters of all visible matter is hydrogen.',
     themes: {
-      body:    { fact: 'Water is two hydrogen atoms bonded to one oxygen. You are roughly 60% water, making hydrogen the most abundant element in your body by number of atoms.' },
-      spacex:  { fact: 'SpaceX\'s Raptor engines burn liquid methane (CH₄), while the upper atmosphere exit nozzles on some missions use liquid hydrogen. It produces only water when burned.' },
-      edible:  { fact: 'Every food you eat is packed with hydrogen — water, sugars, fats, and proteins all contain it. It\'s in every sip and every bite.' },
-      burning: { fact: 'Hydrogen burns with an invisible flame hot enough to melt steel. The Hindenburg disaster (1937) killed 36 people when 200,000 m³ of hydrogen ignited in 34 seconds.' },
+      human:    { fact: 'Water is two hydrogen atoms bonded to one oxygen. You are roughly 60% water, making hydrogen the most abundant element in your body by number of atoms.' },
+      rocket:  { fact: 'SpaceX\'s Raptor engines burn liquid methane (CH₄), while the upper atmosphere exit nozzles on some missions use liquid hydrogen. It produces only water when burned.' },
+      food:  { fact: 'Every food you eat is packed with hydrogen — water, sugars, fats, and proteins all contain it. It\'s in every sip and every bite.' },
+      fire: { fact: 'Hydrogen burns with an invisible flame hot enough to melt steel. The Hindenburg disaster (1937) killed 36 people when 200,000 m³ of hydrogen ignited in 34 seconds.' },
+      air:     { fact: 'In the upper atmosphere, hydrogen floats freely — the lightest gas rises above everything. The exosphere is mostly hydrogen. Water vapor (H₂O) in clouds is hydrogen bonded to oxygen.' },
+      water:   { fact: 'Hydrogen IS water — two hydrogen atoms per molecule. Every ocean, river, raindrop, and ice cube is mostly hydrogen by atom count. Without hydrogen, water doesn\'t exist.' },
+      plant:  { fact: 'Plant split water molecules (H₂O) during photosynthesis, releasing oxygen and keeping the hydrogen to build sugars. Every leaf, root, and fruit is built partly from hydrogen atoms originally in water.' },
+      moon:   { fact: 'NASA confirmed water ice in the Moon\'s permanently shadowed polar craters in 2009 — hydrogen locked in ice for billions of years. Future lunar bases could mine it for drinking water, and split it into hydrogen rocket fuel and breathable oxygen.' },
+      mars:   { fact: 'Water ice lies just centimeters below the Martian surface at mid-latitudes. Mars Odyssey detected it in 2002; later missions confirmed it. Future Mars colonies can mine this ice for water, and electrolyze it into hydrogen fuel and oxygen — everything a base needs from a single resource.' },
+    
+      sun:   { fact: 'The Sun is 74% hydrogen by mass — 1.5 × 10²⁷ kg of it. Every second, 600 million tonnes of hydrogen fuse into helium in the core, releasing energy that reaches Earth as sunlight 8 minutes later. This has been running for 4.6 billion years and has enough fuel for 5 billion more.' },
+    
+      fuel:   { fact: 'Hydrogen is the cleanest fuel: burn it and get only water. Green hydrogen is made by electrolyzing water with renewable electricity; blue hydrogen strips it from natural gas while capturing the CO₂. Hydrogen fuel cells power Toyota\'s Mirai and prototype cargo ships. SpaceX\'s Starship could burn liquid hydrogen if Elon hadn\'t switched to methane.' },
     }
   },
   {
@@ -557,7 +636,11 @@ const ELEMENTS = [
     category: 'noble-gas', period: 1, group: 18,
     defaultFact: 'The only element first discovered in the sun before Earth — its name comes from Helios, the Greek sun god. It was found on Earth 27 years later.',
     themes: {
-      spacex: { fact: 'SpaceX uses liquid helium at −269°C to pressurize propellant tanks and purge lines on Falcon 9. When liquid helium leaks, it can trigger catastrophic tank overpressure — this caused the 2016 Amos-6 pad explosion.' },
+      rocket: { fact: 'SpaceX uses liquid helium at −269°C to pressurize propellant tanks and purge lines on Falcon 9. When liquid helium leaks, it can trigger catastrophic tank overpressure — this caused the 2016 Amos-6 pad explosion.' },
+      air:    { fact: 'Helium makes up about 0.0005% of the atmosphere — trace amounts that continuously escape into space because Earth\'s gravity isn\'t quite strong enough to hold it. All helium on Earth comes from radioactive decay underground.' },
+      moon:   { fact: 'The Moon has been bathed in solar wind for 4.5 billion years, embedding helium-3 in its surface soil. Earth\'s magnetic field deflects this rare isotope away from us. He-3 is a potential fusion fuel: one tonne could power a city for a year. Some space agencies are seriously studying lunar He-3 mining.' },
+    
+      sun:   { fact: 'Helium was discovered in the Sun before it was found on Earth. In 1868, astronomer Jules Janssen spotted an unknown spectral line in sunlight and named it after Helios, the Greek sun god. It took 27 more years to isolate helium on Earth. The Sun fuses 600 million tonnes of hydrogen into helium every second.' },
     }
   },
 
@@ -567,8 +650,10 @@ const ELEMENTS = [
     category: 'alkali-metal', period: 2, group: 1,
     defaultFact: 'The lightest metal on Earth — so light it floats on water. Every smartphone, laptop, and electric car runs on lithium batteries.',
     themes: {
-      spacex:  { fact: 'SpaceX uses aluminum–lithium alloys in Falcon 9\'s propellant tanks. Adding lithium makes aluminum 10% lighter and 10% stronger — critical when every kilogram costs thousands to launch.' },
-      burning: { fact: 'Lithium reacts with water to produce hydrogen gas and heat. Lithium battery fires are uniquely dangerous — they can reignite for hours after appearing extinguished.' },
+      rocket:  { fact: 'SpaceX uses aluminum–lithium alloys in Falcon 9\'s propellant tanks. Adding lithium makes aluminum 10% lighter and 10% stronger — critical when every kilogram costs thousands to launch.' },
+      fire: { fact: 'Lithium reacts with water to produce hydrogen gas and heat. Lithium battery fires are uniquely dangerous — they can reignite for hours after appearing extinguished.' },
+    
+      fuel:   { fact: 'Lithium is the fuel of the electric age. Lithium-ion batteries power every EV, from a Tesla to an e-bike. A typical EV battery contains 10–15 kg of lithium. The global energy transition requires lithium demand to increase ~40× by 2040. Most lithium comes from lithite brine deposits in the Atacama (Chile, Argentina) and hard-rock spodumene mines in Australia.' },
     }
   },
   {
@@ -576,7 +661,7 @@ const ELEMENTS = [
     category: 'alkaline-earth', period: 2, group: 2,
     defaultFact: 'One of the lightest metals, yet stiffer than steel. The James Webb Space Telescope\'s 18 mirror segments are made of beryllium coated in gold.',
     themes: {
-      spacex: { fact: 'Beryllium was used in early rocket nozzle inserts for its extreme heat resistance. Its combination of low weight and high stiffness makes it ideal for aerospace, though its toxicity requires careful handling.' },
+      rocket: { fact: 'Beryllium was used in early rocket nozzle inserts for its extreme heat resistance. Its combination of low weight and high stiffness makes it ideal for aerospace, though its toxicity requires careful handling.' },
     }
   },
   {
@@ -584,6 +669,7 @@ const ELEMENTS = [
     category: 'metalloid', period: 2, group: 13,
     defaultFact: 'The element behind your Pyrex glass and Borax laundry booster. Boron is also a critical neutron absorber in nuclear reactor control rods.',
     themes: {
+      plant: { fact: 'Boron is essential for plant cell walls and the transport of sugars between leaves and roots. Boron-deficient plants develop hollow stems, deformed leaves, and fail to set fruit. It\'s the element that makes celery crisp and apples firm.' },
     }
   },
   {
@@ -591,10 +677,18 @@ const ELEMENTS = [
     category: 'nonmetal', period: 2, group: 14,
     defaultFact: 'The backbone of all life. Carbon can bond with itself in rings, chains, and sheets — creating everything from diamond to graphite to DNA to plastic.',
     themes: {
-      body:    { fact: 'Your body is 18% carbon by mass. Every protein, fat, sugar, and DNA strand is a carbon scaffold. A 70 kg human contains about 16 kg of carbon — roughly the weight of a large bag of charcoal.' },
-      spacex:  { fact: 'Carbon fiber composites are 70% lighter than steel and stronger by weight. SpaceX uses them in Falcon 9 interstage sections and the Dragon capsule. Starship shifted to stainless steel, which Elon deemed cheaper and better at high heat.' },
-      edible:  { fact: 'Every calorie you eat is carbon chemistry. Sugar, fat, starch — all carbon rings and chains. Carbon is so central to food that nutritional science once called organic molecules "carbonaceous."' },
-      burning: { fact: 'Carbon in the form of charcoal has powered human civilization for millennia. Diamonds can burn too — at ~900°C in pure oxygen, a diamond will oxidize completely to CO₂.' },
+      human:    { fact: 'Your body is 18% carbon by mass. Every protein, fat, sugar, and DNA strand is a carbon scaffold. A 70 kg human contains about 16 kg of carbon — roughly the weight of a large bag of charcoal.' },
+      rocket:  { fact: 'Carbon fiber composites are 70% lighter than steel and stronger by weight. SpaceX uses them in Falcon 9 interstage sections and the Dragon capsule. Starship shifted to stainless steel, which Elon deemed cheaper and better at high heat.' },
+      food:  { fact: 'Every calorie you eat is carbon chemistry. Sugar, fat, starch — all carbon rings and chains. Carbon is so central to food that nutritional science once called organic molecules "carbonaceous."' },
+      fire: { fact: 'Carbon in the form of charcoal has powered human civilization for millennia. Diamonds can burn too — at ~900°C in pure oxygen, a diamond will oxidize completely to CO₂.' },
+      air:     { fact: 'CO₂ makes up only 0.04% of the atmosphere but drives the entire greenhouse effect and climate system. Every breath you exhale adds carbon dioxide to the air. Methane (CH₄) — another carbon compound — is a far more potent greenhouse gas.' },
+      weapon:  { fact: 'Carbon is the backbone of gunpowder (charcoal + sulfur + potassium nitrate), TNT, and RDX. Carbon fiber armor protects soldiers. Every explosive and most propellants are carbon chemistry — carbon\'s ability to store and release energy rapidly is what makes them work.' },
+      plant:  { fact: 'Plant are carbon-capture machines. Through photosynthesis, they pull CO₂ from the air and build it into wood, leaves, and roots. A single tree can store hundreds of kilograms of carbon. All organic matter — every living thing — is a carbon structure.' },
+      mars:   { fact: 'Mars\'s atmosphere is 95% carbon dioxide — a thick blanket of CO₂ that keeps the planet frozen. NASA\'s MOXIE experiment on the Perseverance rover split Martian CO₂ into oxygen and carbon monoxide in 2021, proving future missions can manufacture rocket propellant from thin Martian air.' },
+    
+      sun:   { fact: 'Massive stars — those more than 1.3× the Sun\'s mass — are powered by the CNO cycle, where carbon, nitrogen, and oxygen act as catalysts to fuse hydrogen into helium. Carbon is not consumed, just rearranged in a loop. In these hot stellar cores, carbon-12 acts as a nuclear assembly line for helium production.' },
+    
+      fuel:   { fact: 'Every fossil fuel is carbon chemistry. Coal is nearly pure carbon; oil is long carbon chains; natural gas is carbon bonded to hydrogen (CH₄). When you burn any of them, you\'re releasing carbon that was sequestered underground over millions of years. The entire fossil fuel economy is a giant carbon release experiment with no precedent in Earth\'s history.' },
     }
   },
   {
@@ -602,8 +696,16 @@ const ELEMENTS = [
     category: 'nonmetal', period: 2, group: 15,
     defaultFact: 'Nitrogen makes up 78% of the air you breathe — and you exhale almost all of it unchanged. Triple-bonded N₂ is one of the strongest bonds in nature.',
     themes: {
-      body:   { fact: 'Nitrogen is in every protein you\'ve ever eaten. Amino acids — the building blocks of protein — all contain nitrogen. You are about 3% nitrogen by mass: ~2 kg in a 70 kg person.' },
-      spacex: { fact: 'Spacecraft use cold nitrogen gas for attitude control thrusters — cheap, storable, and non-toxic. The ISS and early Starship prototypes use nitrogen cold-gas systems. Liquid nitrogen also purges rocket systems before launch.' },
+      human:   { fact: 'Nitrogen is in every protein you\'ve ever eaten. Amino acids — the building blocks of protein — all contain nitrogen. You are about 3% nitrogen by mass: ~2 kg in a 70 kg person.' },
+      rocket: { fact: 'Spacecraft use cold nitrogen gas for attitude control thrusters — cheap, storable, and non-toxic. The ISS and early Starship prototypes use nitrogen cold-gas systems. Liquid nitrogen also purges rocket systems before launch.' },
+      air:    { fact: 'Nitrogen is air. It makes up 78% of every breath you take — yet your body can\'t use it directly. It just passes in and out, doing nothing. Only certain bacteria can "fix" atmospheric nitrogen into forms plants and animals can actually use.' },
+      weapon: { fact: 'Nitrogen is the explosive element. TNT, RDX, nitroglycerin, gunpowder — all are nitrogen compounds. The triple bond in N₂ stores enormous energy; when an explosive detonates, that energy releases in microseconds. Without nitrogen chemistry, modern warfare doesn\'t exist.' },
+      plant: { fact: 'Nitrogen is the most critical fertilizer. Plant need it for chlorophyll (the green in leaves), proteins, and DNA. Without nitrogen, plants turn yellow and stop growing. The Haber-Bosch process — making nitrogen fertilizer from air — feeds half the people alive today.' },
+      mars:  { fact: 'Nitrogen makes up 2.6% of the Martian atmosphere — not enough to breathe, but critically enough to dilute oxygen in a pressurized habitat. Pure oxygen is dangerously flammable; future Mars colonies will need to capture atmospheric nitrogen as a buffer gas for their air supplies.' },
+    
+      sun:   { fact: 'Nitrogen is a catalyst in the CNO cycle — the dominant fusion process in stars hotter and heavier than our Sun. A nitrogen nucleus captures a proton, decays, and eventually regenerates itself while helium-4 is ejected as the net product. Stars burn nitrogen the way an engine burns fuel — without consuming it.' },
+    
+      fuel:   { fact: 'Nitrogen oxides (NOₓ) are an unavoidable byproduct of burning fuels at high temperatures — the nitrogen and oxygen in air react together. Diesel engines and jet engines produce substantial NOₓ, which causes smog and acid rain. Catalytic converters use platinum and rhodium to convert NOₓ back into harmless N₂ and O₂.' },
     }
   },
   {
@@ -611,10 +713,21 @@ const ELEMENTS = [
     category: 'nonmetal', period: 2, group: 16,
     defaultFact: 'Oxygen makes up 21% of air but ~65% of your body mass. It is the third most abundant element in the universe, forged in dying stars.',
     themes: {
-      body:    { fact: 'Oxygen is the most abundant element in the human body by mass — 65% of you is oxygen, mostly locked in water molecules (H₂O). Every breath you take delivers it to your 37 trillion cells.' },
-      spacex:  { fact: 'Liquid oxygen (LOX) is the oxidizer in every SpaceX rocket. Raptor engines burn methane + LOX at extreme pressure. LOX is stored at −183°C and makes up most of the propellant mass on any orbital rocket.' },
-      edible:  { fact: 'Every sip of water is two hydrogens and one oxygen. Oxygen atoms are in every carbohydrate (carbo-HYDRATE = carbon + water). You couldn\'t digest food without it.' },
-      burning: { fact: 'Oxygen doesn\'t burn — it makes everything else burn. Increase oxygen to 30% and materials that smolder at normal air concentrations burst into flame. The Apollo 1 crew died in a pure oxygen atmosphere at just 1 atm.' },
+      human:    { fact: 'Oxygen is the most abundant element in the human body by mass — 65% of you is oxygen, mostly locked in water molecules (H₂O). Every breath you take delivers it to your 37 trillion cells.' },
+      rocket:  { fact: 'Liquid oxygen (LOX) is the oxidizer in every SpaceX rocket. Raptor engines burn methane + LOX at extreme pressure. LOX is stored at −183°C and makes up most of the propellant mass on any orbital rocket.' },
+      food:  { fact: 'Every sip of water is two hydrogens and one oxygen. Oxygen atoms are in every carbohydrate (carbo-HYDRATE = carbon + water). You couldn\'t digest food without it.' },
+      fire: { fact: 'Oxygen doesn\'t burn — it makes everything else burn. Increase oxygen to 30% and materials that smolder at normal air concentrations burst into flame. The Apollo 1 crew died in a pure oxygen atmosphere at just 1 atm.' },
+      air:     { fact: 'Oxygen is 21% of the air — the fraction that keeps every fire burning and every animal alive. Too little and you suffocate; too much and everything becomes flammable. This precise balance has been stable for hundreds of millions of years.' },
+      water:   { fact: 'Oxygen is half of every water molecule. Earth\'s oceans are essentially liquid oxygen (bound to hydrogen). The oxygen dissolved in water lets fish breathe — aquatic life depends on tiny amounts of O₂ gas dissolved in rivers, lakes, and seas.' },
+      earth:   { fact: 'Oxygen is the most abundant element in Earth\'s crust — 46% by mass. Most of it is locked in minerals: silicates, oxides, carbonates. Every rock, soil, and stone you\'ve ever touched is mostly oxygen atoms.' },
+      weapon:  { fact: 'Oxygen is what makes explosives explosive. Every bomb, bullet propellant, and rocket needs an oxidizer — oxygen atoms stored in the compound itself so it can detonate without outside air. Remove the oxygen chemistry and the weapons stop working.' },
+      plant:  { fact: 'Plant produce all the oxygen in the air. Photosynthesis splits water and releases O₂ as a byproduct — a waste gas that became the breath of all animal life. Every lungful of oxygen you\'ve ever taken was made by a plant or algae.' },
+      moon:   { fact: 'Oxygen makes up ~45% of lunar regolith by mass, locked in silicate minerals. NASA\'s ISRU (in-situ resource utilization) experiments can extract it by melting and electrolyzing lunar rock. Future Moon bases won\'t ship oxygen from Earth — they\'ll mine it from the ground they walk on.' },
+      mars:   { fact: 'NASA\'s MOXIE experiment on Perseverance rover produced breathable oxygen from Martian CO₂ in 2021 — the first resource ever manufactured on another planet. Scaled up, MOXIE-type reactors could produce the liquid oxygen needed for rockets to return to Earth, eliminating the need to carry return propellant from home.' },
+    
+      sun:   { fact: 'Oxygen is forged inside massive stars by fusing helium nuclei together (the triple-alpha process makes carbon; one more helium capture makes oxygen). When those stars explode as supernovae, they scatter oxygen across the galaxy. Every oxygen atom in your body — and in every breath of air — was made in a star that died before our Sun was born.' },
+    
+      fuel:   { fact: 'Combustion is fundamentally an oxygen reaction — every fuel, from wood to jet fuel to hydrogen, needs oxygen to burn. Liquid oxygen (LOX) is the oxidizer in rocket engines. Internal combustion engines breathe air; jet engines compress it. Without oxygen, all fire goes out. The entire energy system humans have built runs on oxidizing things.' },
     }
   },
   {
@@ -622,8 +735,8 @@ const ELEMENTS = [
     category: 'nonmetal', period: 2, group: 17,
     defaultFact: 'The most reactive element on the periodic table. Fluorine attacks glass, reacts with noble gases, and was nearly impossible to isolate — it killed or blinded several 19th-century chemists who tried.',
     themes: {
-      body:    { fact: 'Fluoride (F⁻) makes tooth enamel harder by replacing hydroxyl groups in hydroxyapatite — the mineral in your teeth — creating fluorapatite, which is more acid-resistant. That\'s why it\'s in toothpaste.' },
-      burning: { fact: 'Fluorine reacts with everything. It ignites sand, glass, water, and even some noble gases. It was used as a rocket oxidizer in experimental programs — more powerful than oxygen, but so corrosive it destroyed almost everything it touched.' },
+      human:    { fact: 'Fluoride (F⁻) makes tooth enamel harder by replacing hydroxyl groups in hydroxyapatite — the mineral in your teeth — creating fluorapatite, which is more acid-resistant. That\'s why it\'s in toothpaste.' },
+      fire: { fact: 'Fluorine reacts with everything. It ignites sand, glass, water, and even some noble gases. It was used as a rocket oxidizer in experimental programs — more powerful than oxygen, but so corrosive it destroyed almost everything it touched.' },
     }
   },
   {
@@ -631,6 +744,7 @@ const ELEMENTS = [
     category: 'noble-gas', period: 2, group: 18,
     defaultFact: 'Neon signs don\'t actually contain much neon — only red-orange signs do. Other colors use different gases: argon for blue, mercury for green, krypton for white.',
     themes: {
+      air: { fact: 'Neon is the fifth most abundant gas in the atmosphere at about 18 parts per million. It\'s constantly cycling through the air around you — every breath contains a few trillion neon atoms, all completely inert and invisible.' },
     }
   },
 
@@ -640,9 +754,14 @@ const ELEMENTS = [
     category: 'alkali-metal', period: 3, group: 1,
     defaultFact: 'Your body runs on sodium. Nerve impulses, heartbeats, and muscle contractions all depend on sodium ions flowing in and out of cells.',
     themes: {
-      body:    { fact: 'The sodium-potassium pump in every cell membrane uses ATP to move 3 Na⁺ out and 2 K⁺ in — constantly. This gradient powers your nerves, your heartbeat, and your ability to think right now.' },
-      edible:  { fact: 'Table salt is sodium chloride (NaCl). Sodium is why food tastes savory. The average person eats about 3,400 mg of sodium per day — mostly from processed food, not the salt shaker.' },
-      burning: { fact: 'Pure sodium metal dropped in water sparks, pops, and skitters across the surface as it reacts violently, producing hydrogen gas and heat. A large chunk will explode. It\'s stored under mineral oil to prevent contact with air.' },
+      human:    { fact: 'The sodium-potassium pump in every cell membrane uses ATP to move 3 Na⁺ out and 2 K⁺ in — constantly. This gradient powers your nerves, your heartbeat, and your ability to think right now.' },
+      food:  { fact: 'Table salt is sodium chloride (NaCl). Sodium is why food tastes savory. The average person eats about 3,400 mg of sodium per day — mostly from processed food, not the salt shaker.' },
+      fire: { fact: 'Pure sodium metal dropped in water sparks, pops, and skitters across the surface as it reacts violently, producing hydrogen gas and heat. A large chunk will explode. It\'s stored under mineral oil to prevent contact with air.' },
+      water:   { fact: 'Sodium chloride dissolved in water is what makes the ocean salty. Seawater is about 3.5% salt by mass — that\'s mostly sodium ions. Every litre of seawater holds about 11 grams of sodium. Rivers carry sodium from eroded rocks to the sea.' },
+      earth:   { fact: 'Sodium is the sixth most abundant element in Earth\'s crust. Feldspars and other silicate minerals are full of sodium. When rock weathers and erodes, sodium washes into rivers and eventually the ocean — it\'s why the sea is salty.' },
+      moon:    { fact: 'The Moon has a trace sodium exosphere — a whisper of an atmosphere too thin to breathe. Sodium atoms are knocked off the lunar surface by solar UV and micrometeorites, then drift away to space. It can actually be detected spectroscopically from Earth, glowing faintly yellow against the moon\'s limb.' },
+    
+      sun:   { fact: 'The two bright yellow lines of sodium — the sodium D-lines — were among the first spectral features identified in sunlight by Joseph von Fraunhofer in 1814. These dark absorption lines in the solar spectrum revealed the chemical composition of a star from 150 million kilometers away, founding the field of stellar spectroscopy.' },
     }
   },
   {
@@ -650,9 +769,14 @@ const ELEMENTS = [
     category: 'alkaline-earth', period: 3, group: 2,
     defaultFact: 'The central atom in chlorophyll — every green plant on Earth uses magnesium to capture sunlight. Without it, photosynthesis stops.',
     themes: {
-      body:    { fact: 'Magnesium is involved in over 300 enzyme reactions in your body. It helps muscles relax (calcium makes them contract), regulates blood sugar, and keeps your heart rhythm steady. Most people don\'t get enough.' },
-      edible:  { fact: 'Dark chocolate is one of the richest food sources of magnesium. Nuts, seeds, leafy greens, and whole grains also pack it in. Low magnesium is linked to muscle cramps and poor sleep.' },
-      burning: { fact: 'Magnesium burns with a blinding white light at ~3,100°C — bright enough to cause permanent eye damage. You cannot put it out with water (makes it worse). Used in military flares and incendiary devices for this exact reason.' },
+      human:    { fact: 'Magnesium is involved in over 300 enzyme reactions in your body. It helps muscles relax (calcium makes them contract), regulates blood sugar, and keeps your heart rhythm steady. Most people don\'t get enough.' },
+      food:  { fact: 'Dark chocolate is one of the richest food sources of magnesium. Nuts, seeds, leafy greens, and whole grains also pack it in. Low magnesium is linked to muscle cramps and poor sleep.' },
+      fire: { fact: 'Magnesium burns with a blinding white light at ~3,100°C — bright enough to cause permanent eye damage. You cannot put it out with water (makes it worse). Used in military flares and incendiary devices for this exact reason.' },
+      water:   { fact: 'Magnesium is the third most abundant dissolved element in seawater. "Hard water" gets its hardness from dissolved magnesium and calcium ions. Seawater contains enough magnesium that most of the world\'s supply is now extracted directly from the ocean.' },
+      earth:   { fact: 'Magnesium is the eighth most abundant element in Earth\'s crust and makes up ~13% of Earth\'s total mass. The lower mantle — the massive layer between crust and core — is largely magnesium silicate minerals.' },
+      plant:  { fact: 'Magnesium sits at the exact center of every chlorophyll molecule — it\'s the atom that catches sunlight. Without magnesium, plants can\'t photosynthesize, leaves turn yellow from the outside in, and the plant slowly starves of energy despite standing in full sun.' },
+      moon:   { fact: 'The dark maria (lunar "seas") are rich in magnesium silicate minerals — olivine and pyroxene — erupted from the Moon\'s interior 3–4 billion years ago. These basaltic plains make up the "face" of the Man in the Moon. Future lunar miners may extract magnesium from these volcanic deposits.' },
+      mars:   { fact: 'Magnesium perchlorate (Mg(ClO₄)₂) was discovered in Martian soil by the Phoenix lander in 2008. Perchlorates are toxic to humans but are also rocket oxidizers. They lower water\'s freezing point, which may allow salty liquid brines to exist just below the Martian surface even in extreme cold.' },
     }
   },
   {
@@ -660,8 +784,11 @@ const ELEMENTS = [
     category: 'post-transition', period: 3, group: 13,
     defaultFact: 'The most abundant metal in Earth\'s crust, yet unknown as a pure metal until 1825. It was once more valuable than gold — Napoleon III served honored guests with aluminum cutlery.',
     themes: {
-      spacex:  { fact: 'Falcon 9\'s fuel tanks and interstage section use aluminum–lithium alloys. Starship ditched aluminum for stainless steel, but aluminum remains in countless rocket components. SpaceX\'s Merlin engine turbopump housing is aluminum.' },
-      burning: { fact: 'Thermite — aluminum powder mixed with iron oxide — burns at over 2,500°C, hot enough to melt through steel. Aluminum itself burns in oxygen once ignited. Powdered aluminum is a key component of solid rocket propellant.' },
+      rocket:  { fact: 'Falcon 9\'s fuel tanks and interstage section use aluminum–lithium alloys. Starship ditched aluminum for stainless steel, but aluminum remains in countless rocket components. SpaceX\'s Merlin engine turbopump housing is aluminum.' },
+      fire: { fact: 'Thermite — aluminum powder mixed with iron oxide — burns at over 2,500°C, hot enough to melt through steel. Aluminum itself burns in oxygen once ignited. Powdered aluminum is a key component of solid rocket propellant.' },
+      earth:   { fact: 'Aluminum is the most abundant metal in Earth\'s crust — 8% by mass. Every clay soil, granite rock, and mountain range contains aluminum minerals. Despite its abundance, it was so hard to extract that it was once more precious than gold.' },
+      moon:    { fact: 'The lunar highlands — the bright regions visible from Earth — are primarily anorthosite, a calcium-aluminum silicate rock. Apollo 15 retrieved the "Genesis Rock": a chunk of primordial lunar crust, 4.1 billion years old, almost pure anorthosite. Aluminum is the Moon\'s third most abundant element.' },
+      mars:    { fact: 'Curiosity rover found the Martian crust is rich in aluminum silicates similar to Earth\'s continental crust — a surprise, since scientists expected more basalt. The aluminum-rich rocks at Gale Crater suggest ancient geological processes far more Earth-like than expected from a planet that "died" geologically long ago.' },
     }
   },
   {
@@ -669,7 +796,13 @@ const ELEMENTS = [
     category: 'metalloid', period: 3, group: 14,
     defaultFact: 'Silicon Valley is named after this element. It\'s the second most abundant element in Earth\'s crust and the foundation of all modern electronics.',
     themes: {
-      spacex: { fact: 'Silicon solar cells power every satellite SpaceX launches — Starlink satellites include solar arrays. Silicon chips run the flight computers, guidance systems, and communications on every rocket and spacecraft.' },
+      rocket: { fact: 'Silicon solar cells power every satellite SpaceX launches — Starlink satellites include solar arrays. Silicon chips run the flight computers, guidance systems, and communications on every rocket and spacecraft.' },
+      earth:  { fact: 'Silicon is the second most abundant element in Earth\'s crust — 28% by mass. Sand, quartz, granite, and most rocks are silicate minerals. Glass is melted silicon dioxide. Every beach, desert, and mountain is largely silicon.' },
+      plant: { fact: 'Silicon strengthens grass, rice, and bamboo stems — making them rigid enough to stand upright. Silicon-rich plants are more resistant to fungal infections and insect attack. Rice plants absorb so much silicon that rice straw can scratch glass.' },
+      moon:  { fact: 'Silicon dioxide is ~45% of the lunar surface by mass. Moon rocks are silicates, just like Earth rocks — but with no water, no plate tectonics, and no weathering, the lunar surface has been essentially unchanged for 3–4 billion years. Lunar regolith is a pristine record of the early solar system.' },
+      mars:  { fact: 'Curiosity rover found silica concentrations up to 90% at ancient hot spring sites in Gale Crater — far higher than anywhere else on Mars. On Earth, high silica minerals like opal form when hot water flows through rock. These deposits are powerful evidence that Mars once had long-lived hydrothermal systems.' },
+    
+      fuel:   { fact: 'Silicon is how sunlight becomes electricity. Photovoltaic cells are slices of ultra-pure silicon; photons knock electrons loose, creating a current. Over 90% of solar panels worldwide use silicon. The cost of silicon solar has dropped 90% since 2010, making it the cheapest electricity source in history in sunny regions.' },
     }
   },
   {
@@ -677,9 +810,11 @@ const ELEMENTS = [
     category: 'nonmetal', period: 3, group: 15,
     defaultFact: 'Life requires phosphorus and we\'re running out of accessible reserves. Phosphate fertilizers feed half the world\'s population — without them, billions would starve.',
     themes: {
-      body:    { fact: 'Phosphorus is in every cell\'s energy currency: ATP (adenosine triphosphate). Every time your muscles contract or your brain fires a signal, a phosphorus-oxygen bond breaks to release energy. Your bones are 85% hydroxyapatite, which is mostly phosphate.' },
-      edible:  { fact: 'Phosphorus is in meat, dairy, eggs, and beans. The average American gets twice the daily recommended amount — it\'s in virtually every processed food as a preservative or emulsifier.' },
-      burning: { fact: 'White phosphorus ignites spontaneously in air above 30°C and burns at 1,300°C, impossible to extinguish by smothering. It was used in WWII incendiary bombs and leaves chemical burns that reignite when wounds are exposed to oxygen.' },
+      human:    { fact: 'Phosphorus is in every cell\'s energy currency: ATP (adenosine triphosphate). Every time your muscles contract or your brain fires a signal, a phosphorus-oxygen bond breaks to release energy. Your bones are 85% hydroxyapatite, which is mostly phosphate.' },
+      food:  { fact: 'Phosphorus is in meat, dairy, eggs, and beans. The average American gets twice the daily recommended amount — it\'s in virtually every processed food as a preservative or emulsifier.' },
+      fire: { fact: 'White phosphorus ignites spontaneously in air above 30°C and burns at 1,300°C, impossible to extinguish by smothering. It was used in WWII incendiary bombs and leaves chemical burns that reignite when wounds are exposed to oxygen.' },
+      weapon:  { fact: 'White phosphorus (WP) is one of the most feared incendiary weapons — it burns at 1,300°C through flesh and bone and reignites when wounds are exposed to air. WP grenades and artillery shells are used for smoke screens and incendiary effect. It has been condemned by human rights groups.' },
+      plant:  { fact: 'Phosphorus is the "P" in NPK fertilizer — the second most important plant nutrient after nitrogen. It powers every energy transaction in the plant via ATP and is the backbone of DNA. Without phosphorus, plants can\'t flower, set seed, or root properly.' },
     }
   },
   {
@@ -687,9 +822,14 @@ const ELEMENTS = [
     category: 'nonmetal', period: 3, group: 16,
     defaultFact: 'The smell of rotten eggs, garlic, and matches is sulfur compounds. Sulfur has been known since ancient times as brimstone — the "burning stone" of biblical fire.',
     themes: {
-      body:    { fact: 'Sulfur is in two amino acids — cysteine and methionine — that give proteins their 3D shape through disulfide bonds. It\'s why hair is springy (keratin is loaded with sulfur bridges) and why cutting your hair doesn\'t hurt.' },
-      edible:  { fact: 'Garlic, onions, and eggs smell pungent because of sulfur compounds. Allicin (from garlic) and the lachrymatory factor (what makes onions make you cry) are both sulfur-based. Cruciferous vegetables like broccoli owe their distinctive taste to sulfur.' },
-      burning: { fact: 'Sulfur burns with a blue flame to produce sulfur dioxide (SO₂), one of the most choking gases known. Gunpowder is potassium nitrate + charcoal + sulfur. Volcanoes release massive amounts of SO₂, which creates acid rain downwind.' },
+      human:    { fact: 'Sulfur is in two amino acids — cysteine and methionine — that give proteins their 3D shape through disulfide bonds. It\'s why hair is springy (keratin is loaded with sulfur bridges) and why cutting your hair doesn\'t hurt.' },
+      food:  { fact: 'Garlic, onions, and eggs smell pungent because of sulfur compounds. Allicin (from garlic) and the lachrymatory factor (what makes onions make you cry) are both sulfur-based. Cruciferous vegetables like broccoli owe their distinctive taste to sulfur.' },
+      fire: { fact: 'Sulfur burns with a blue flame to produce sulfur dioxide (SO₂), one of the most choking gases known. Gunpowder is potassium nitrate + charcoal + sulfur. Volcanoes release massive amounts of SO₂, which creates acid rain downwind.' },
+      weapon:  { fact: 'Sulfur has been a weapon ingredient since ancient China invented gunpowder around 850 CE — sulfur + charcoal + potassium nitrate. The smell of "brimstone" in battle was sulfur smoke. WWI\'s mustard gas is a sulfur compound. Sulfur\'s reactive chemistry has been weaponized for over 1,000 years.' },
+      plant:  { fact: 'Sulfur is essential for the amino acids cysteine and methionine in plant proteins. Plant absorb it from soil as sulfate ions. Cruciferous vegetables (broccoli, kale, mustard) are especially rich in sulfur compounds — that sharp taste is actually a plant defense mechanism.' },
+      mars:   { fact: 'Curiosity rover found calcium sulfate vein minerals cutting through ancient lake sediments at Gale Crater — gypsum (CaSO₄·2H₂O) deposited when water evaporated. Spirit rover found sulfur-rich soil near its landing site. Sulfate minerals on Mars are a rock record of ancient standing water.' },
+    
+      fuel:   { fact: 'Sulfur is the problem element in fossil fuels. Crude oil contains 0.1–5% sulfur; coal can reach 10%. When burned, sulfur becomes SO₂ — the main cause of acid rain. Every barrel of oil must be hydrodesulfurized before it becomes gasoline or diesel. Ultra-low-sulfur diesel (ULSD) regulations have saved millions of tonnes of SO₂ emissions.' },
     }
   },
   {
@@ -697,8 +837,12 @@ const ELEMENTS = [
     category: 'nonmetal', period: 3, group: 17,
     defaultFact: 'Chlorine kills bacteria in your tap water and pool, but the same gas was used as a chemical weapon in WWI, killing thousands at Ypres in 1915.',
     themes: {
-      body:   { fact: 'Chloride (Cl⁻) is the main negative ion in your blood and digestive juices. Your stomach makes hydrochloric acid (HCl) to digest food. Without stomach acid, you couldn\'t absorb vitamin B12, iron, or calcium properly.' },
-      edible: { fact: 'Table salt is sodium chloride. The chloride half is just as important as the sodium half for flavor. Salt has preserved human food for thousands of years — cod, prosciutto, and kimchi all use chloride chemistry to inhibit bacteria.' },
+      human:   { fact: 'Chloride (Cl⁻) is the main negative ion in your blood and digestive juices. Your stomach makes hydrochloric acid (HCl) to digest food. Without stomach acid, you couldn\'t absorb vitamin B12, iron, or calcium properly.' },
+      food: { fact: 'Table salt is sodium chloride. The chloride half is just as important as the sodium half for flavor. Salt has preserved human food for thousands of years — cod, prosciutto, and kimchi all use chloride chemistry to inhibit bacteria.' },
+      water:  { fact: 'Chloride is the most abundant dissolved anion in seawater — about 19 g per litre. The ocean\'s saltiness is mostly chloride paired with sodium. Chlorine gas dissolves in water to form hypochlorous acid, which is why chlorine disinfects swimming pools and tap water.' },
+      weapon: { fact: 'Chlorine gas was the first large-scale chemical weapon used in WWI — at Ypres in April 1915, German forces released 150 tonnes of chlorine gas, killing or injuring thousands. It attacks the lungs, causing soldiers to drown in their own fluid. The Geneva Protocol (1925) later banned chemical weapons.' },
+      plant: { fact: 'Chlorine (as chloride ions) helps plants regulate water pressure in their cells and plays a role in the water-splitting step of photosynthesis. Plant need only tiny amounts — deficiency is rare — but without any chloride, leaves wilt and growth stops.' },
+      mars:  { fact: 'Phoenix lander discovered perchlorates (ClO₄⁻) everywhere in Martian soil in 2008 — at 0.5–1% by weight, they\'re one of the most abundant Martian minerals. Perchlorates are toxic to human thyroids but are also powerful rocket oxidizers. Any Mars colony will need to detoxify soil before farming in it.' },
     }
   },
   {
@@ -706,7 +850,9 @@ const ELEMENTS = [
     category: 'noble-gas', period: 3, group: 18,
     defaultFact: 'Argon makes up nearly 1% of the atmosphere — more than CO₂ — yet was unknown until 1894. It forms no compounds naturally and simply cycles through the air unused.',
     themes: {
-      spacex: { fact: 'Argon is used as a shielding gas in TIG (tungsten inert gas) welding — the precise welding process SpaceX uses to build Starship\'s stainless steel propellant tanks. Without argon shielding, the weld oxidizes and fails.' },
+      rocket: { fact: 'Argon is used as a shielding gas in TIG (tungsten inert gas) welding — the precise welding process SpaceX uses to build Starship\'s stainless steel propellant tanks. Without argon shielding, the weld oxidizes and fails.' },
+      air:    { fact: 'Argon is the third most abundant gas in the atmosphere at nearly 1% — far more than CO₂. You inhale it every breath without noticing; it does nothing at all. Because it never reacts with anything, argon is used to fill incandescent light bulbs, wine preservation sprays, and museum display cases.' },
+      mars:   { fact: 'Argon makes up 1.9% of the Martian atmosphere — twice its proportion on Earth. NASA\'s MAVEN mission studied how Mars lost its atmosphere over billions of years via solar wind stripping; heavier argon escapes more slowly than lighter gases, so it\'s proportionally enriched in what\'s left. It\'s a frozen record of atmospheric escape.' },
     }
   },
 
@@ -716,9 +862,13 @@ const ELEMENTS = [
     category: 'alkali-metal', period: 4, group: 1,
     defaultFact: 'K comes from the Latin "kalium." Potassium and sodium work as a paired pump in every nerve cell — without this balance, your heart stops.',
     themes: {
-      body:    { fact: 'Potassium is the main positive ion inside cells (sodium is outside). The Na⁺/K⁺ gradient powers every nerve signal and muscle contraction in your body. Low potassium (hypokalemia) causes muscle weakness, cramps, and dangerous heart arrhythmias.' },
-      edible:  { fact: 'Bananas are famous for potassium, but a medium potato has more than a banana. Avocados, spinach, salmon, and white beans are even richer sources. Most people eat far less potassium than they should.' },
-      burning: { fact: 'Potassium reacts more violently with water than sodium — it ignites immediately, burning with a distinctive purple-pink flame before exploding. It must be stored in mineral oil or sealed containers. Potassium superoxide (KO₂) is even more reactive.' },
+      human:    { fact: 'Potassium is the main positive ion inside cells (sodium is outside). The Na⁺/K⁺ gradient powers every nerve signal and muscle contraction in your body. Low potassium (hypokalemia) causes muscle weakness, cramps, and dangerous heart arrhythmias.' },
+      food:  { fact: 'Bananas are famous for potassium, but a medium potato has more than a banana. Avocados, spinach, salmon, and white beans are even richer sources. Most people eat far less potassium than they should.' },
+      fire: { fact: 'Potassium reacts more violently with water than sodium — it ignites immediately, burning with a distinctive purple-pink flame before exploding. It must be stored in mineral oil or sealed containers. Potassium superoxide (KO₂) is even more reactive.' },
+      water:   { fact: 'Potassium ions are dissolved in every ocean and river. Seawater contains about 0.4 g of potassium per litre. Freshwater fish maintain potassium balance by actively pumping ions across their gills. Without dissolved potassium, aquatic ecosystems collapse.' },
+      earth:   { fact: 'Potassium is the seventh most abundant element in Earth\'s crust. Feldspars and micas — the minerals in granite and much of the continental crust — are potassium silicates. When these minerals weather, potassium enters soil and becomes plant food.' },
+      weapon:  { fact: 'Potassium nitrate (saltpeter) is the key ingredient in gunpowder — the oxidizer that lets charcoal and sulfur burn explosively without air. Gunpowder dominated warfare for 700 years. Every cannon, musket, and firework in history ran on potassium chemistry.' },
+      plant:  { fact: 'Potassium is the "K" in NPK fertilizer — the third pillar of plant nutrition. Plant need enormous amounts of it to open and close leaf pores (stomata), activate dozens of enzymes, and build strong stems. Potassium deficiency causes brown leaf edges and weak, disease-prone plants.' },
     }
   },
   {
@@ -726,9 +876,15 @@ const ELEMENTS = [
     category: 'alkaline-earth', period: 4, group: 2,
     defaultFact: 'Calcium is the most abundant mineral in the human body — 99% of it is in your bones and teeth. You\'re essentially a calcium-based structure.',
     themes: {
-      body:    { fact: 'Your skeleton contains about 1 kg of calcium. But the 1% not in bones is critical: calcium signals trigger every muscle contraction (including your heartbeat), enables blood clotting, and mediates nerve signaling. Low blood calcium causes tetany — uncontrolled muscle spasms.' },
-      edible:  { fact: 'Dairy is calcium-famous, but sardines eaten with bones, tofu, kale, and fortified plant milks are excellent sources. Vitamin D is required to absorb calcium — without it, all the milk in the world won\'t reach your bones.' },
-      burning: { fact: 'Burning calcium metal produces an orange-red flame. Calcium carbide reacts with water to make acetylene gas, which was used in early miners\' headlamps and is still used for welding. Calcium oxide (quicklime) gets intensely hot when mixed with water.' },
+      human:    { fact: 'Your skeleton contains about 1 kg of calcium. But the 1% not in bones is critical: calcium signals trigger every muscle contraction (including your heartbeat), enables blood clotting, and mediates nerve signaling. Low blood calcium causes tetany — uncontrolled muscle spasms.' },
+      food:  { fact: 'Dairy is calcium-famous, but sardines eaten with bones, tofu, kale, and fortified plant milks are excellent sources. Vitamin D is required to absorb calcium — without it, all the milk in the world won\'t reach your bones.' },
+      fire: { fact: 'Burning calcium metal produces an orange-red flame. Calcium carbide reacts with water to make acetylene gas, which was used in early miners\' headlamps and is still used for welding. Calcium oxide (quicklime) gets intensely hot when mixed with water.' },
+      water:   { fact: 'Calcium is one of the most abundant ions in seawater and freshwater. Limestone, chalk, marble, and coral reefs are all calcium carbonate — built by organisms that extracted dissolved calcium from seawater. When water is "hard," it\'s calcium (and magnesium) ions you\'re tasting.' },
+      earth:   { fact: 'Calcium is the fifth most abundant element in Earth\'s crust. Limestone, marble, chalk, and gypsum are all calcium minerals. The Alps, the White Cliffs of Dover, and the Florida Keys are all calcium formations built from ancient seabeds.' },
+      plant:  { fact: 'Calcium is the mortar of plant cell walls — it cements pectin molecules together to give cells rigidity. Without calcium, new growth collapses: tomato blossom end rot, tip burn in lettuce, and hollow heart in celery are all calcium deficiency symptoms. Plant can\'t move calcium around once it\'s deposited.' },
+      moon:   { fact: 'The lunar highlands are made of anorthosite — nearly pure calcium-aluminum silicate (plagioclase feldspar). Apollo astronauts brought back chunks of it; the "Genesis Rock" collected by Apollo 15 is 4.1 billion years old, a remnant of the global magma ocean that covered the Moon after its formation.' },
+    
+      sun:   { fact: 'The H and K absorption lines of calcium are the strongest features in the visible solar spectrum — an enormous imprint of the Sun\'s calcium-rich photosphere. Astronomers use these lines to track the solar magnetic cycle and measure activity levels on the Sun\'s surface. Stars are read like chemical fingerprints through their calcium lines.' },
     }
   },
   {
@@ -743,8 +899,10 @@ const ELEMENTS = [
     category: 'transition-metal', period: 4, group: 4,
     defaultFact: 'As strong as steel but 45% lighter. Titanium is completely corrosion-resistant, biocompatible, and used everywhere from aircraft to hip replacements to Apple Watch cases.',
     themes: {
-      spacex:  { fact: 'SpaceX\'s Starship heat shield uses hexagonal tiles partly derived from titanium alloys. Titanium fasteners, structural components, and plumbing are used throughout Falcon 9 for their strength-to-weight ratio at both cryogenic and high temperatures.' },
-      burning: { fact: 'Titanium burns brilliantly silver-white in nitrogen as well as oxygen — most metals won\'t do that. Fine titanium powder is pyrophoric (spontaneously ignites in air). Titanium is used in pyrotechnics for its brilliant white sparks.' },
+      rocket:  { fact: 'SpaceX\'s Starship heat shield uses hexagonal tiles partly derived from titanium alloys. Titanium fasteners, structural components, and plumbing are used throughout Falcon 9 for their strength-to-weight ratio at both cryogenic and high temperatures.' },
+      fire: { fact: 'Titanium burns brilliantly silver-white in nitrogen as well as oxygen — most metals won\'t do that. Fine titanium powder is pyrophoric (spontaneously ignites in air). Titanium is used in pyrotechnics for its brilliant white sparks.' },
+      earth:   { fact: 'Titanium is the ninth most abundant element in Earth\'s crust. Black sand beaches get their dark color from titanium-iron minerals like ilmenite. Every handful of red clay soil contains titanium dioxide — the same pigment used in white paint and sunscreen.' },
+      moon:    { fact: 'The Sea of Tranquility — where Apollo 11 first landed in 1969 — sits on some of the most titanium-rich terrain on the Moon. High-titanium basalts appear darker than other maria. The key mineral is ilmenite (FeTiO₃); NASA lunar scientists use titanium content as a proxy for understanding the Moon\'s volcanic history.' },
     }
   },
   {
@@ -759,8 +917,8 @@ const ELEMENTS = [
     category: 'transition-metal', period: 4, group: 6,
     defaultFact: 'Chromium makes stainless steel "stainless" — add 10.5% chromium to steel and it self-repairs its protective oxide layer instantly. Rubies and emeralds get their color from chromium impurities.',
     themes: {
-      body:   { fact: 'Chromium (as Cr³⁺) enhances insulin\'s effectiveness in moving glucose into cells. It\'s found in tiny amounts in meat, whole grains, and broccoli. Deficiency is associated with impaired glucose tolerance.' },
-      edible: { fact: 'Broccoli, grape juice, and whole grains contain small amounts of chromium. The recommended daily intake is just 25–35 micrograms — a speck too small to see. Chromium in stainless steel cookware can leach into food in trace amounts.' },
+      human:   { fact: 'Chromium (as Cr³⁺) enhances insulin\'s effectiveness in moving glucose into cells. It\'s found in tiny amounts in meat, whole grains, and broccoli. Deficiency is associated with impaired glucose tolerance.' },
+      food: { fact: 'Broccoli, grape juice, and whole grains contain small amounts of chromium. The recommended daily intake is just 25–35 micrograms — a speck too small to see. Chromium in stainless steel cookware can leach into food in trace amounts.' },
     }
   },
   {
@@ -768,9 +926,12 @@ const ELEMENTS = [
     category: 'transition-metal', period: 4, group: 7,
     defaultFact: 'Manganese is in your phone\'s battery and in ancient cave paintings — prehistoric artists used manganese dioxide as black pigment over 30,000 years ago.',
     themes: {
-      body:    { fact: 'Manganese activates dozens of enzymes, including those that neutralize free radicals in the mitochondria. You need it for bone formation, blood clotting, and metabolism. About 20 mg lives in your bones, liver, and kidneys at any given time.' },
-      edible:  { fact: 'One cup of cooked oats delivers over 100% of the daily recommended manganese. Hazelnuts, pineapple, and brown rice are also rich sources. Tea is surprisingly high in manganese — a few cups covers your daily needs.' },
-      spacex:  { fact: 'Manganese is an alloying element in high-strength steels used throughout aerospace structures. Starship\'s 304L stainless steel contains manganese, which improves weldability and prevents cracking at cryogenic temperatures.' },
+      human:    { fact: 'Manganese activates dozens of enzymes, including those that neutralize free radicals in the mitochondria. You need it for bone formation, blood clotting, and metabolism. About 20 mg lives in your bones, liver, and kidneys at any given time.' },
+      food:  { fact: 'One cup of cooked oats delivers over 100% of the daily recommended manganese. Hazelnuts, pineapple, and brown rice are also rich sources. Tea is surprisingly high in manganese — a few cups covers your daily needs.' },
+      rocket:  { fact: 'Manganese is an alloying element in high-strength steels used throughout aerospace structures. Starship\'s 304L stainless steel contains manganese, which improves weldability and prevents cracking at cryogenic temperatures.' },
+      earth:   { fact: 'Manganese is the 12th most abundant element in Earth\'s crust. It concentrates on the seafloor in manganese nodules — mysterious black lumps that litter the deep ocean bed, containing trillions of tonnes of metal. These are now being eyed as a future mining frontier.' },
+      plant:  { fact: 'Manganese is the enzyme that splits water molecules during photosynthesis — it\'s literally the mechanism by which plants produce all the oxygen in the atmosphere. Without manganese, the oxygen-releasing step of photosynthesis fails and the plant suffocates.' },
+      mars:   { fact: 'Curiosity rover found dramatically elevated manganese levels in ancient Gale Crater rocks — far higher than typical Martian basalt. On Earth, manganese concentrates in oxygen-rich water. Scientists interpreted this as evidence ancient Mars had oxygen-rich water 3–4 billion years ago — a potentially habitable environment.' },
     }
   },
   {
@@ -778,10 +939,17 @@ const ELEMENTS = [
     category: 'transition-metal', period: 4, group: 8,
     defaultFact: 'Your blood is red because of iron. Earth\'s core is mostly iron. Iron meteorites have been found on every continent. Iron made swords, built empires, and launched the Industrial Revolution.',
     themes: {
-      body:    { fact: 'Iron in hemoglobin carries oxygen from your lungs to every cell in your body. A 70 kg adult has about 4 grams of iron — most of it in 25 trillion red blood cells. Iron deficiency (anemia) is the world\'s most common nutritional disorder, affecting ~2 billion people.' },
-      spacex:  { fact: 'Starship is built from stainless steel — primarily 304L grade, which is ~70% iron. Elon chose stainless steel over carbon fiber for its strength at both cryogenic temperatures (−183°C LOX) and the 1,500°C+ of reentry heating.' },
-      edible:  { fact: 'Fortified cereal contains actual iron particles small enough to extract with a magnet. Spinach has iron, but oxalates reduce absorption. Red meat provides heme iron, which absorbs 2–3× better than the non-heme iron in plants. Vitamin C dramatically boosts iron absorption.' },
-      burning: { fact: 'Steel wool burns spectacularly in oxygen — thin iron strands have enough surface area to ignite easily and glow red-orange. Thermite (iron oxide + aluminum powder) burns at 2,500°C — hot enough to melt through the steel of a ship\'s hull.' },
+      human:    { fact: 'Iron in hemoglobin carries oxygen from your lungs to every cell in your body. A 70 kg adult has about 4 grams of iron — most of it in 25 trillion red blood cells. Iron deficiency (anemia) is the world\'s most common nutritional disorder, affecting ~2 billion people.' },
+      rocket:  { fact: 'Starship is built from stainless steel — primarily 304L grade, which is ~70% iron. Elon chose stainless steel over carbon fiber for its strength at both cryogenic temperatures (−183°C LOX) and the 1,500°C+ of reentry heating.' },
+      food:  { fact: 'Fortified cereal contains actual iron particles small enough to extract with a magnet. Spinach has iron, but oxalates reduce absorption. Red meat provides heme iron, which absorbs 2–3× better than the non-heme iron in plants. Vitamin C dramatically boosts iron absorption.' },
+      fire: { fact: 'Steel wool burns spectacularly in oxygen — thin iron strands have enough surface area to ignite easily and glow red-orange. Thermite (iron oxide + aluminum powder) burns at 2,500°C — hot enough to melt through the steel of a ship\'s hull.' },
+      earth:   { fact: 'Iron is the fourth most abundant element in Earth\'s crust and makes up ~85% of Earth\'s core. The entire planet is essentially an iron ball. Mars is red because of iron oxide (rust) on its surface — the same rust that forms on iron tools left in rain.' },
+      weapon:  { fact: 'Iron defined the Iron Age (1200 BCE onward) — iron weapons were harder and cheaper than bronze, overthrowing civilizations that couldn\'t access it. Steel (iron + carbon) has been the primary weapon material for 2,000 years: swords, cannons, rifle barrels, tank armor, warship hulls.' },
+      plant:  { fact: 'Iron is essential for making chlorophyll and for the electron transport chain that converts sunlight to chemical energy. Iron-deficient plants turn pale yellow between the leaf veins — the leaves lose their green while the veins stay dark. It\'s one of the most common deficiencies in garden plants.' },
+      moon:   { fact: 'Iron-titanium mineral ilmenite (FeTiO₃) is abundant in the dark basaltic maria. Future lunar industry could reduce ilmenite to extract both iron (for construction) and oxygen (for air and propellant). Apollo lunar samples contain 10–17% iron by weight — a practical ore deposit in the middle of nowhere.' },
+      mars:   { fact: 'Mars is red because of iron oxide — rust — in the fine dust covering its surface and suspended in its atmosphere. Opportunity rover found hematite "blueberries" (spherical Fe₂O₃ concretions) in ancient lake sediments, proof Mars once had liquid water for long enough for them to form. Iron painted Mars dead; iron suggests it was once alive.' },
+    
+      sun:   { fact: 'Iron is the end of the stellar fusion road — it is the most stable nucleus, and fusing iron consumes energy rather than releasing it. When a massive star\'s core becomes iron, fusion stops, gravity wins instantly, and the star collapses in a supernova. All the iron in Earth\'s core, your blood, and every skyscraper originated in a stellar catastrophe.' },
     }
   },
   {
@@ -789,9 +957,12 @@ const ELEMENTS = [
     category: 'transition-metal', period: 4, group: 9,
     defaultFact: 'The brilliant blue in medieval stained glass, ancient Egyptian glass, and Delft pottery is cobalt. Artists have used cobalt blue for over 2,000 years.',
     themes: {
-      body:    { fact: 'Cobalt is the metal at the center of vitamin B12 (cobalamin) — the only vitamin that contains a metal ion. B12 is essential for making DNA, forming red blood cells, and protecting nerve sheaths. Deficiency causes neurological damage and megaloblastic anemia.' },
-      edible:  { fact: 'Meat, fish, dairy, and eggs contain vitamin B12 — the cobalt-containing vitamin that\'s almost entirely absent from plant foods. Strict vegans must supplement; without B12, nerve damage develops silently over years.' },
-      spacex:  { fact: 'Cobalt-based superalloys (like Mar-M-509) are used in turbine blades of rocket engines. SpaceX\'s Merlin and Raptor engines experience temperatures and pressures that would melt ordinary steel — cobalt superalloys hold their strength above 1,000°C.' },
+      human:    { fact: 'Cobalt is the metal at the center of vitamin B12 (cobalamin) — the only vitamin that contains a metal ion. B12 is essential for making DNA, forming red blood cells, and protecting nerve sheaths. Deficiency causes neurological damage and megaloblastic anemia.' },
+      food:  { fact: 'Meat, fish, dairy, and eggs contain vitamin B12 — the cobalt-containing vitamin that\'s almost entirely absent from plant foods. Strict vegans must supplement; without B12, nerve damage develops silently over years.' },
+      rocket:  { fact: 'Cobalt-based superalloys (like Mar-M-509) are used in turbine blades of rocket engines. SpaceX\'s Merlin and Raptor engines experience temperatures and pressures that would melt ordinary steel — cobalt superalloys hold their strength above 1,000°C.' },
+      plant:  { fact: 'Cobalt is required by nitrogen-fixing bacteria that live in root nodules of legumes — beans, peas, and clover. These bacteria convert atmospheric nitrogen into ammonia that plants can use. Without cobalt, the bacteria can\'t make cobalamin (vitamin B12 equivalent) and nitrogen fixation stops.' },
+    
+      fuel:   { fact: 'Cobalt is in the cathode of most lithium-ion batteries — NMC (nickel-manganese-cobalt) and NCA (nickel-cobalt-aluminum) chemistries dominate EVs and consumer electronics. Over 70% of cobalt comes from the DRC, raising supply chain and ethical concerns. Battery makers are racing to develop cobalt-free chemistries to reduce dependence.' },
     }
   },
   {
@@ -799,7 +970,12 @@ const ELEMENTS = [
     category: 'transition-metal', period: 4, group: 10,
     defaultFact: 'Nickel is named after "Kupfernickel" (devil\'s copper) — miners found a red ore that looked like copper but yielded no copper, frustrating them. The "devil" had stolen it.',
     themes: {
-      spacex: { fact: 'Inconel — a nickel superalloy — is used in SpaceX\'s Merlin engine nozzle extensions and Raptor combustion chambers. It retains strength at temperatures exceeding 1,000°C, making it irreplaceable in rocket propulsion where other metals would melt or fail.' },
+      rocket: { fact: 'Inconel — a nickel superalloy — is used in SpaceX\'s Merlin engine nozzle extensions and Raptor combustion chambers. It retains strength at temperatures exceeding 1,000°C, making it irreplaceable in rocket propulsion where other metals would melt or fail.' },
+      earth:  { fact: 'Nickel makes up about 5% of Earth\'s total mass — most of it in the molten iron-nickel core. The Earth\'s magnetic field is generated by the movement of this iron-nickel liquid. Nickel-rich meteorites (pallasites) are pieces of other planets\' cores.' },
+      weapon: { fact: 'Nickel is the key element in armor steel — nickel-steel alloys resisted cannon fire and helped usher in the dreadnought era. Modern Kevlar vests are backed by nickel-steel plates. Nickel-plated gun barrels resist corrosion and wear, extending service life in the field.' },
+      plant: { fact: 'Nickel is required by the enzyme urease, which breaks down urea into ammonia that plant roots can absorb. Without nickel, nitrogen metabolism in plants breaks down and leaves accumulate toxic levels of urea. It\'s needed only in trace amounts but is completely indispensable.' },
+    
+      fuel:   { fact: 'Nickel is the backbone of high-energy EV batteries — nickel-rich NMC cathodes store more energy per kg than older chemistries. A Tesla Model 3 Long Range battery is ~80% nickel by cathode weight. Nickel is also the catalyst in steam methane reforming — the process that makes most of the world\'s hydrogen today (grey hydrogen from natural gas).' },
     }
   },
   {
@@ -807,9 +983,12 @@ const ELEMENTS = [
     category: 'transition-metal', period: 4, group: 11,
     defaultFact: 'Copper was humanity\'s first metal tool, 10,000 years ago. It\'s still the best electrical conductor after silver, which is why every wall in your home is wired with it.',
     themes: {
-      body:    { fact: 'Copper is essential for forming collagen (the structural protein of skin and tendons), absorbing iron, and operating cytochrome c oxidase — the enzyme that makes 90% of your energy. You have about 100 mg in your body, mostly in your liver and muscles.' },
-      spacex:  { fact: 'SpaceX\'s Merlin engine regenerative cooling system uses channels etched into a copper alloy combustion chamber shell. Liquid RP-1 fuel flows through these channels, absorbing heat before combustion. Copper\'s thermal conductivity is what makes this possible.' },
-      edible:  { fact: 'Oysters contain more copper per serving than any other food — one medium oyster can provide a full day\'s supply. Liver, dark chocolate, cashews, and shiitake mushrooms are also copper-rich. Copper deficiency causes anemia that doesn\'t respond to iron supplements.' },
+      human:    { fact: 'Copper is essential for forming collagen (the structural protein of skin and tendons), absorbing iron, and operating cytochrome c oxidase — the enzyme that makes 90% of your energy. You have about 100 mg in your body, mostly in your liver and muscles.' },
+      rocket:  { fact: 'SpaceX\'s Merlin engine regenerative cooling system uses channels etched into a copper alloy combustion chamber shell. Liquid RP-1 fuel flows through these channels, absorbing heat before combustion. Copper\'s thermal conductivity is what makes this possible.' },
+      food:  { fact: 'Oysters contain more copper per serving than any other food — one medium oyster can provide a full day\'s supply. Liver, dark chocolate, cashews, and shiitake mushrooms are also copper-rich. Copper deficiency causes anemia that doesn\'t respond to iron supplements.' },
+      earth:   { fact: 'Copper ore deposits form where volcanic activity brought metal-rich fluids to the surface. Chile (Atacama Desert) holds the world\'s largest reserves. The Copper Age preceded the Bronze Age — humans first smelted copper from ore ~7,000 years ago in the Balkans.' },
+      weapon:  { fact: 'Copper transformed warfare in the Bronze Age (copper + tin = bronze). Today, copper is the standard metal for bullet jackets and shell casings — it\'s soft enough to engrave rifling grooves, hard enough to survive the explosion, and doesn\'t corrode. Every rifle bullet is wrapped in copper.' },
+      plant:  { fact: 'Copper is essential for the enzyme that transfers electrons in photosynthesis (plastocyanin) and for producing lignin — the tough polymer that makes wood hard. Copper-deficient plants have limp, wilting stems and fail to produce seeds. Vineyard soils are often rich in copper from decades of antifungal sprays.' },
     }
   },
   {
@@ -817,8 +996,10 @@ const ELEMENTS = [
     category: 'transition-metal', period: 4, group: 12,
     defaultFact: 'Zinc is in over 300 enzymes in your body and is required by every cell to read DNA. It\'s also what makes pennies cheap — post-1982 US pennies are 97.5% zinc with a copper coating.',
     themes: {
-      body:    { fact: 'Zinc is essential for immune function, wound healing, taste and smell, and fertility. You lose zinc in sweat — athletes need more than sedentary people. Your prostate has the highest concentration of zinc of any organ in the body.' },
-      edible:  { fact: 'Oysters have more zinc per serving than any food on Earth — six raw oysters deliver 33 mg, over 3× the daily recommended amount. Beef, pumpkin seeds, and chickpeas are also excellent sources. Zinc lozenges may slightly shorten cold duration.' },
+      human:    { fact: 'Zinc is essential for immune function, wound healing, taste and smell, and fertility. You lose zinc in sweat — athletes need more than sedentary people. Your prostate has the highest concentration of zinc of any organ in the body.' },
+      food:  { fact: 'Oysters have more zinc per serving than any food on Earth — six raw oysters deliver 33 mg, over 3× the daily recommended amount. Beef, pumpkin seeds, and chickpeas are also excellent sources. Zinc lozenges may slightly shorten cold duration.' },
+      earth:   { fact: 'Zinc sulfide (sphalerite) is the main zinc ore and is often found alongside lead and silver deposits. Australia, China, and Peru are the world\'s largest producers. Zinc coats steel (galvanizing) to prevent rust — most corrugated iron roofs are zinc-coated steel.' },
+      plant:  { fact: 'Zinc activates over 300 enzymes in plants and is essential for producing auxins — the hormones that control plant growth and direction. Zinc-deficient plants produce small, distorted leaves and stunted growth. Wheat and rice crops on zinc-poor soils produce much lower yields.' },
     }
   },
   {
@@ -833,7 +1014,7 @@ const ELEMENTS = [
     category: 'metalloid', period: 4, group: 14,
     defaultFact: 'Germanium was the first transistor material — the 1947 Bell Labs transistor that started the electronics revolution was made of germanium. Silicon later replaced it for most uses.',
     themes: {
-      spacex: { fact: 'Germanium solar cells achieve ~30% efficiency vs. silicon\'s ~22% in space applications, justifying their higher cost for satellite power generation. Multi-junction germanium-based solar cells power most deep space probes and high-power commercial satellites.' },
+      rocket: { fact: 'Germanium solar cells achieve ~30% efficiency vs. silicon\'s ~22% in space applications, justifying their higher cost for satellite power generation. Multi-junction germanium-based solar cells power most deep space probes and high-power commercial satellites.' },
     }
   },
   {
@@ -841,6 +1022,7 @@ const ELEMENTS = [
     category: 'metalloid', period: 4, group: 15,
     defaultFact: 'Arsenic was the "inheritance powder" — the preferred poison of Renaissance poisoners because it\'s odorless, tasteless, and mimics natural illness. Napoleon may have been slowly poisoned by arsenic in his wallpaper.',
     themes: {
+      weapon: { fact: 'Arsenic was the assassin\'s element of choice for centuries — odorless, tasteless, and producing symptoms that looked like cholera. Arsenic trioxide (white arsenic) was nicknamed "inheritance powder" because family members used it to claim fortunes. During WWI, lewisite was an arsenic-based chemical weapon. It remains a weapon of covert assassination today.' },
     }
   },
   {
@@ -848,8 +1030,8 @@ const ELEMENTS = [
     category: 'nonmetal', period: 4, group: 16,
     defaultFact: 'Selenium was named after the moon (Selene). It converts sunlight to electricity in photocopiers and solar cells, and it\'s essential for life at trace amounts but toxic at higher doses.',
     themes: {
-      body:    { fact: 'Selenium is the active component of glutathione peroxidase, your body\'s primary antioxidant enzyme system. It also regulates thyroid hormone production. Selenium deficiency causes Keshan disease — a potentially fatal heart condition endemic in regions with selenium-poor soil.' },
-      edible:  { fact: 'A single Brazil nut contains 68–91 micrograms of selenium — the entire recommended daily intake. Eating 2–3 Brazil nuts per day is an easy way to hit your selenium target. Tuna, sardines, eggs, and sunflower seeds are also excellent sources.' },
+      human:    { fact: 'Selenium is the active component of glutathione peroxidase, your body\'s primary antioxidant enzyme system. It also regulates thyroid hormone production. Selenium deficiency causes Keshan disease — a potentially fatal heart condition endemic in regions with selenium-poor soil.' },
+      food:  { fact: 'A single Brazil nut contains 68–91 micrograms of selenium — the entire recommended daily intake. Eating 2–3 Brazil nuts per day is an easy way to hit your selenium target. Tuna, sardines, eggs, and sunflower seeds are also excellent sources.' },
     }
   },
   {
@@ -857,7 +1039,8 @@ const ELEMENTS = [
     category: 'nonmetal', period: 4, group: 17,
     defaultFact: 'Bromine is one of only two elements that are liquid at room temperature (the other is mercury). It\'s a fuming reddish-brown liquid with a smell so foul it\'s named from the Greek "bromos" meaning stench.',
     themes: {
-      burning: { fact: 'Bromine is toxic, corrosive, and highly reactive. Bromine vapor at 10 ppm causes serious lung damage. Organic bromine compounds are used as flame retardants in furniture and electronics, though many are now banned due to environmental persistence.' },
+      fire: { fact: 'Bromine is toxic, corrosive, and highly reactive. Bromine vapor at 10 ppm causes serious lung damage. Organic bromine compounds are used as flame retardants in furniture and electronics, though many are now banned due to environmental persistence.' },
+      water:   { fact: 'Bromine is most concentrated in seawater — about 65 mg per litre — making the ocean the world\'s primary source of bromine. The Dead Sea, which is extremely saline, contains some of the highest bromine concentrations of any body of water on Earth.' },
     }
   },
   {
@@ -865,7 +1048,8 @@ const ELEMENTS = [
     category: 'noble-gas', period: 4, group: 18,
     defaultFact: 'Krypton\'s name inspired Superman\'s home planet Krypton. The meter was officially defined from 1960–1983 by the wavelength of krypton-86 light — the most precise measurement standard of its era.',
     themes: {
-      spacex: { fact: 'SpaceX Starlink V2 satellites use krypton Hall-effect ion thrusters instead of xenon, cutting propellant costs dramatically. Krypton ionizes well and is far cheaper than xenon, making it the propellant of choice for large satellite constellations.' },
+      rocket: { fact: 'SpaceX Starlink V2 satellites use krypton Hall-effect ion thrusters instead of xenon, cutting propellant costs dramatically. Krypton ionizes well and is far cheaper than xenon, making it the propellant of choice for large satellite constellations.' },
+      air:    { fact: 'Krypton makes up about 1 part per million of the atmosphere — a tiny but permanent presence in every breath of air. It does absolutely nothing chemically. Krypton is separated from air industrially by liquefying the atmosphere and distilling the gases apart.' },
     }
   },
 
@@ -875,7 +1059,7 @@ const ELEMENTS = [
     category: 'alkali-metal', period: 5, group: 1,
     defaultFact: 'Rubidium\'s name comes from "rubidus" (deepest red) — it burns with a striking red-violet flame. Rubidium atomic clocks are in GPS satellites, keeping time accurate to nanoseconds.',
     themes: {
-      burning: { fact: 'Rubidium ignites spontaneously in air and reacts explosively with water, more violently than potassium. It must be stored under inert gas or mineral oil. A piece of rubidium dropped in water creates a spectacular explosion with a purple-tinged flame.' },
+      fire: { fact: 'Rubidium ignites spontaneously in air and reacts explosively with water, more violently than potassium. It must be stored under inert gas or mineral oil. A piece of rubidium dropped in water creates a spectacular explosion with a purple-tinged flame.' },
     }
   },
   {
@@ -883,7 +1067,8 @@ const ELEMENTS = [
     category: 'alkaline-earth', period: 5, group: 2,
     defaultFact: 'Strontium gives fireworks their brilliant crimson red. It\'s also the element that "misbehaves" in bones — radioactive strontium-90 from nuclear fallout can accumulate in children\'s bones instead of calcium.',
     themes: {
-      burning: { fact: 'Strontium burns with a brilliant crimson-red flame — the same color as emergency flares on highways and the red component of fireworks. Strontium salts are chosen specifically for their vivid, unmistakable red color in pyrotechnics.' },
+      fire: { fact: 'Strontium burns with a brilliant crimson-red flame — the same color as emergency flares on highways and the red component of fireworks. Strontium salts are chosen specifically for their vivid, unmistakable red color in pyrotechnics.' },
+      water:   { fact: 'Strontium is naturally dissolved in seawater at about 8 mg per litre — enough to be commercially extracted from the ocean. Marine creatures incorporate strontium into their shells, and geologists read past ocean temperatures from strontium ratios in ancient coral and fossil shells.' },
     }
   },
   {
@@ -898,8 +1083,9 @@ const ELEMENTS = [
     category: 'transition-metal', period: 5, group: 4,
     defaultFact: 'Zirconium is the reason nuclear reactors have containment problems. Zirconium cladding on fuel rods, when overheated, reacts with water to produce explosive hydrogen — what happened at Fukushima.',
     themes: {
-      spacex:  { fact: 'SpaceX uses zirconium in pyrotechnic ignition systems for Merlin and Raptor engines. Zirconium ignites easily and burns extremely hot — ideal for reliable ignition in a vacuum where conventional sparks fail.' },
-      burning: { fact: 'Fine zirconium powder is pyrophoric — it ignites spontaneously in air. Zirconium burns at over 4,000°C, one of the highest combustion temperatures of any metal. Zirconium-based compositions produce brilliant white sparks in pyrotechnics.' },
+      rocket:  { fact: 'SpaceX uses zirconium in pyrotechnic ignition systems for Merlin and Raptor engines. Zirconium ignites easily and burns extremely hot — ideal for reliable ignition in a vacuum where conventional sparks fail.' },
+      fire: { fact: 'Fine zirconium powder is pyrophoric — it ignites spontaneously in air. Zirconium burns at over 4,000°C, one of the highest combustion temperatures of any metal. Zirconium-based compositions produce brilliant white sparks in pyrotechnics.' },
+      earth:   { fact: 'Zirconium crystals (zircons) are the oldest known material on Earth — some crystals found in Western Australia are 4.4 billion years old, older than the Moon. Zircon is so tough it survives geological processes that destroy everything else, making it a time capsule from early Earth.' },
     }
   },
   {
@@ -907,7 +1093,7 @@ const ELEMENTS = [
     category: 'transition-metal', period: 5, group: 5,
     defaultFact: 'Brazil holds 98% of the world\'s niobium reserves — making it a geopolitical chokepoint for high-strength steel production. Most high-strength steel structures in the world contain niobium.',
     themes: {
-      spacex: { fact: 'Niobium superalloys are used in rocket nozzles and turbine components that must withstand extreme temperatures. Niobium-C103 alloy was used in Apollo\'s lunar module descent engine nozzle and continues to be used in cryogenic and high-temperature aerospace applications.' },
+      rocket: { fact: 'Niobium superalloys are used in rocket nozzles and turbine components that must withstand extreme temperatures. Niobium-C103 alloy was used in Apollo\'s lunar module descent engine nozzle and continues to be used in cryogenic and high-temperature aerospace applications.' },
     }
   },
   {
@@ -915,9 +1101,10 @@ const ELEMENTS = [
     category: 'transition-metal', period: 5, group: 6,
     defaultFact: 'Molybdenum has the sixth-highest melting point of all elements (2,623°C). It\'s added to steel to make it hard at high temperatures — essential for jet engines, drill bits, and gun barrels.',
     themes: {
-      body:    { fact: 'Molybdenum is required by the enzyme that breaks down sulfite (sulfite oxidase) — critical for detoxifying preservatives in wine and dried fruit. It also processes xanthine to uric acid. People with molybdenum deficiency develop sulfite toxicity.' },
-      edible:  { fact: 'Legumes — lentils, beans, chickpeas — are by far the richest dietary source of molybdenum. Grains and nuts also contribute. Most people get adequate molybdenum from everyday plant foods without any special effort.' },
-      spacex:  { fact: 'Molybdenum disulfide (MoS₂) is a space-grade dry lubricant used in mechanisms that must operate in the vacuum of space, where oil-based lubricants evaporate and conventional lubricants fail. It\'s used in satellite actuators, solar panel deployment mechanisms, and more.' },
+      human:    { fact: 'Molybdenum is required by the enzyme that breaks down sulfite (sulfite oxidase) — critical for detoxifying preservatives in wine and dried fruit. It also processes xanthine to uric acid. People with molybdenum deficiency develop sulfite toxicity.' },
+      food:  { fact: 'Legumes — lentils, beans, chickpeas — are by far the richest dietary source of molybdenum. Grains and nuts also contribute. Most people get adequate molybdenum from everyday plant foods without any special effort.' },
+      rocket:  { fact: 'Molybdenum disulfide (MoS₂) is a space-grade dry lubricant used in mechanisms that must operate in the vacuum of space, where oil-based lubricants evaporate and conventional lubricants fail. It\'s used in satellite actuators, solar panel deployment mechanisms, and more.' },
+      plant:  { fact: 'Molybdenum is essential for nitrogenase — the enzyme that nitrogen-fixing bacteria use to convert atmospheric N₂ into ammonia. Without molybdenum, legumes can\'t partner with Rhizobium bacteria for nitrogen fixation. Plant also need it to reduce nitrate into usable nitrogen compounds.' },
     }
   },
   {
@@ -939,7 +1126,7 @@ const ELEMENTS = [
     category: 'transition-metal', period: 5, group: 9,
     defaultFact: 'Rhodium is the rarest and most expensive precious metal — often trading at $10,000+ per troy ounce, far above gold or platinum. Every catalytic converter in a car contains about 1–3 grams of rhodium.',
     themes: {
-      spacex: { fact: 'Rhodium is used as a catalyst in rocket propellant decomposition systems and in the platinum-rhodium thermocouples that measure extreme temperatures in rocket engine testing, where accuracy at 3,000°C+ is critical.' },
+      rocket: { fact: 'Rhodium is used as a catalyst in rocket propellant decomposition systems and in the platinum-rhodium thermocouples that measure extreme temperatures in rocket engine testing, where accuracy at 3,000°C+ is critical.' },
     }
   },
   {
@@ -954,8 +1141,8 @@ const ELEMENTS = [
     category: 'transition-metal', period: 5, group: 11,
     defaultFact: 'Silver is the best electrical conductor of all metals (better than copper) and the best thermal conductor. Before germ theory, people stored water in silver vessels because silver ions kill bacteria.',
     themes: {
-      edible:  { fact: 'Pure silver leaf (vark) is genuinely edible and used to decorate Indian sweets, biryanis, and desserts. 24-karat silver has no taste and passes through the body harmlessly. Silver is food-safe at any amount you\'d realistically eat.' },
-      spacex:  { fact: 'Silver electrical contacts and silver-coated wiring are used throughout spacecraft for their unmatched conductivity. Silver is also used in brazing alloys that join components in Raptor engine plumbing and fuel systems.' },
+      food:  { fact: 'Pure silver leaf (vark) is genuinely edible and used to decorate Indian sweets, biryanis, and desserts. 24-karat silver has no taste and passes through the body harmlessly. Silver is food-safe at any amount you\'d realistically eat.' },
+      rocket:  { fact: 'Silver electrical contacts and silver-coated wiring are used throughout spacecraft for their unmatched conductivity. Silver is also used in brazing alloys that join components in Raptor engine plumbing and fuel systems.' },
     }
   },
   {
@@ -984,6 +1171,7 @@ const ELEMENTS = [
     category: 'metalloid', period: 5, group: 15,
     defaultFact: 'Ancient Egyptians used antimony sulfide (kohl) as mascara — it\'s the eye makeup that gives pharaohs their iconic look in paintings. Antimony was also used in early medicine as a "purging" agent.',
     themes: {
+      weapon: { fact: 'Antimony is used in percussion primer compounds for ammunition — when the firing pin strikes, antimony sulfide and potassium chlorate react explosively to ignite the propellant. Antimony also hardens lead in bullets, making them hold their shape better on impact and travel farther with greater accuracy.' },
     }
   },
   {
@@ -998,8 +1186,9 @@ const ELEMENTS = [
     category: 'nonmetal', period: 5, group: 17,
     defaultFact: 'Iodine deficiency is the leading preventable cause of intellectual disability worldwide. Adding iodine to table salt — one of history\'s simplest public health interventions — has dramatically raised average IQ in iodine-deficient regions.',
     themes: {
-      body:    { fact: 'Iodine is needed to make thyroid hormones (T3 and T4), which regulate your metabolic rate, body temperature, and growth. Without enough iodine, the thyroid gland enlarges into a goiter. The RDA is just 150 micrograms — about the size of a single grain of salt.' },
-      edible:  { fact: 'Seaweed is the richest dietary source of iodine — some varieties contain over 1,000× the daily requirement per serving. Iodized salt, dairy, eggs, and seafood also provide it. Landlocked regions historically had severe iodine deficiency before salt iodization.' },
+      human:    { fact: 'Iodine is needed to make thyroid hormones (T3 and T4), which regulate your metabolic rate, body temperature, and growth. Without enough iodine, the thyroid gland enlarges into a goiter. The RDA is just 150 micrograms — about the size of a single grain of salt.' },
+      food:  { fact: 'Seaweed is the richest dietary source of iodine — some varieties contain over 1,000× the daily requirement per serving. Iodized salt, dairy, eggs, and seafood also provide it. Landlocked regions historically had severe iodine deficiency before salt iodization.' },
+      water:   { fact: 'Seawater contains about 0.06 mg of iodine per litre — low by mineral standards but the ocean is its primary natural reservoir. Deep ocean water is enriched in iodine from decomposing marine organisms. Coastal plants and kelp forests concentrate iodine from seawater by thousands of times.' },
     }
   },
   {
@@ -1007,7 +1196,8 @@ const ELEMENTS = [
     category: 'noble-gas', period: 5, group: 18,
     defaultFact: 'Xenon makes the brightest and most realistic artificial light — xenon headlights and IMAX projectors use it. At high pressure, xenon acts as an anesthetic, and it\'s been banned from the Olympics as a performance-enhancing gas.',
     themes: {
-      spacex: { fact: 'Xenon Hall-effect ion thrusters power many commercial satellites. Xenon ionizes easily, accelerates to 40 km/s in an electric field, and produces thrust for years using tiny amounts of propellant. The Dawn mission to Ceres used xenon ion propulsion. SpaceX early Starlink versions used xenon.' },
+      rocket: { fact: 'Xenon Hall-effect ion thrusters power many commercial satellites. Xenon ionizes easily, accelerates to 40 km/s in an electric field, and produces thrust for years using tiny amounts of propellant. The Dawn mission to Ceres used xenon ion propulsion. SpaceX early Starlink versions used xenon.' },
+      air:    { fact: 'Xenon is the heaviest naturally occurring gas in the atmosphere at about 90 parts per billion. It\'s so rare that extracting it requires liquefying huge volumes of air. Despite being trace-level, xenon in the atmosphere is the reason anesthesiologists have a remarkably safe gas that works by dissolving into nerve cell membranes.' },
     }
   },
 
@@ -1017,7 +1207,7 @@ const ELEMENTS = [
     category: 'alkali-metal', period: 6, group: 1,
     defaultFact: 'The official definition of one second is based on cesium: 9,192,631,770 oscillations of cesium-133 atoms. Every GPS timestamp, internet synchronization, and financial transaction depends on cesium atomic clocks.',
     themes: {
-      burning: { fact: 'Cesium is the most reactive stable alkali metal. Dropped into water, it explodes immediately — far more violently than potassium. It ignites spontaneously in air and must be stored in sealed ampoules under inert gas. Even a few grams of cesium in water produces an explosion visible from a safe distance.' },
+      fire: { fact: 'Cesium is the most reactive stable alkali metal. Dropped into water, it explodes immediately — far more violently than potassium. It ignites spontaneously in air and must be stored in sealed ampoules under inert gas. Even a few grams of cesium in water produces an explosion visible from a safe distance.' },
     }
   },
   {
@@ -1025,7 +1215,9 @@ const ELEMENTS = [
     category: 'alkaline-earth', period: 6, group: 2,
     defaultFact: 'A "barium meal" — drinking barium sulfate before an X-ray — lets doctors see your digestive tract because barium blocks X-rays. It looks like thick white chalk and tastes like chalk too.',
     themes: {
-      burning: { fact: 'Barium compounds produce a vivid apple-green flame — the green in fireworks is almost always barium-based. Barium chlorate and barium nitrate are key components in green pyrotechnics. The color is unmistakably bright green, unlike the duller greens from other metals.' },
+      fire: { fact: 'Barium compounds produce a vivid apple-green flame — the green in fireworks is almost always barium-based. Barium chlorate and barium nitrate are key components in green pyrotechnics. The color is unmistakably bright green, unlike the duller greens from other metals.' },
+      earth:   { fact: 'Barium is the 14th most abundant element in Earth\'s crust, found mainly as the mineral barite (barium sulfate). Barite is heavy — drillers use it as a weighting agent in drilling mud for oil and gas wells, because its density keeps pressurized gases from blowing out the well.' },
+      weapon:  { fact: 'Barium compounds are used in primer mixtures for ammunition — the small explosive charge that ignites gunpowder when the firing pin strikes. Barium nitrate also provides the oxidizer in green signal flares and tracer ammunition, making them visible over long distances.' },
     }
   },
   {
@@ -1056,6 +1248,8 @@ const ELEMENTS = [
     category: 'lanthanide', period: 6, group: 3, fBlock: true,
     defaultFact: 'Neodymium magnets (Nd₂Fe₁₄B) are the strongest permanent magnets in the world. The small magnet in your earbuds, electric car motor, and hard drive is almost certainly neodymium. They\'re so strong they can shatter bones if handled carelessly.',
     themes: {
+    
+      fuel:   { fact: 'Neodymium is the magnet element of the clean energy transition. Neodymium-iron-boron (NdFeB) magnets are the strongest permanent magnets known and are used in direct-drive wind turbine generators and EV motors. A single offshore wind turbine can contain 600 kg of rare earth magnets. Demand is expected to triple by 2030 as the energy transition accelerates.' },
     }
   },
   {
@@ -1142,7 +1336,7 @@ const ELEMENTS = [
     category: 'transition-metal', period: 6, group: 4,
     defaultFact: 'Hafnium is chemically almost identical to zirconium — making them the hardest pair of elements to separate. Hafnium was famously used in Intel\'s 2007 CPU transistors, solving the "leaky transistor" problem that had been slowing Moore\'s Law.',
     themes: {
-      spacex: { fact: 'SpaceX\'s Raptor engines use hafnium igniter cartridges — a small charge of hafnium that ignites when exposed to liquid oxygen, reliably starting the main propellant combustion. Hafnium\'s spontaneous reaction with pure oxygen at cryogenic temperatures makes it perfect for this safety-critical function.' },
+      rocket: { fact: 'SpaceX\'s Raptor engines use hafnium igniter cartridges — a small charge of hafnium that ignites when exposed to liquid oxygen, reliably starting the main propellant combustion. Hafnium\'s spontaneous reaction with pure oxygen at cryogenic temperatures makes it perfect for this safety-critical function.' },
     }
   },
   {
@@ -1157,8 +1351,9 @@ const ELEMENTS = [
     category: 'transition-metal', period: 6, group: 6,
     defaultFact: 'Tungsten has the highest melting point of all metals (3,422°C) and was the filament in incandescent light bulbs for over a century. "W" comes from its German name Wolfram, meaning "wolf cream" — it consumed tin like a wolf.',
     themes: {
-      spacex:  { fact: 'Tungsten is used in nozzle throat inserts for rocket engines that experience the most extreme heat. It\'s also used in counterweights, radiation shielding, and high-temperature fasteners throughout spacecraft systems. Its density (19.3 g/cm³) makes it ideal for compact heavy ballast.' },
-      burning: { fact: 'Tungsten glows white-hot in incandescent bulbs at ~2,500°C without melting (it melts at 3,422°C). Tungsten can sustain combustion in an extreme oxygen environment — in a pure-oxygen fire, tungsten burns as a white-hot solid.' },
+      rocket:  { fact: 'Tungsten is used in nozzle throat inserts for rocket engines that experience the most extreme heat. It\'s also used in counterweights, radiation shielding, and high-temperature fasteners throughout spacecraft systems. Its density (19.3 g/cm³) makes it ideal for compact heavy ballast.' },
+      fire: { fact: 'Tungsten glows white-hot in incandescent bulbs at ~2,500°C without melting (it melts at 3,422°C). Tungsten can sustain combustion in an extreme oxygen environment — in a pure-oxygen fire, tungsten burns as a white-hot solid.' },
+      weapon:  { fact: 'Tungsten carbide armor-piercing rounds punch through tank armor — tungsten\'s extreme density (almost twice lead) and hardness let it penetrate steel that lead bullets cannot. Modern kinetic energy penetrators are tungsten or depleted uranium rods that convert their speed into devastating punching power.' },
     }
   },
   {
@@ -1166,7 +1361,7 @@ const ELEMENTS = [
     category: 'transition-metal', period: 6, group: 7,
     defaultFact: 'Rhenium was the last stable element to be discovered (1925). It has the second-highest melting point of all elements and is used in jet and rocket turbine blades because it maintains creep resistance at 1,600°C+.',
     themes: {
-      spacex: { fact: 'SpaceX\'s Raptor engine uses rhenium-containing single-crystal turbine blades in its turbopumps. Rhenium additions to nickel superalloys improve high-temperature strength by up to 50%, enabling turbines to run hotter and more efficiently — directly improving rocket performance.' },
+      rocket: { fact: 'SpaceX\'s Raptor engine uses rhenium-containing single-crystal turbine blades in its turbopumps. Rhenium additions to nickel superalloys improve high-temperature strength by up to 50%, enabling turbines to run hotter and more efficiently — directly improving rocket performance.' },
     }
   },
   {
@@ -1188,8 +1383,8 @@ const ELEMENTS = [
     category: 'transition-metal', period: 6, group: 10,
     defaultFact: 'Platinum is so unreactive that the international prototype kilogram was made of platinum-iridium alloy. Platinum catalytic converters convert ~90% of toxic car exhaust into less harmful gases. Your car produces this reaction millions of times per mile.',
     themes: {
-      spacex:  { fact: 'Platinum is used in spacecraft thermocouple sensors, catalysts for fuel cell systems, and electrical contacts. The high-precision measurements needed for engine testing rely on platinum resistance thermometers, which are accurate to ±0.01°C even at extreme temperatures.' },
-      edible:  { fact: 'Some high-end chocolatiers and restaurants sell platinum-leaf-coated chocolates and desserts — platinum is biologically inert and passes through the body harmlessly, just like gold and silver leaf.' },
+      rocket:  { fact: 'Platinum is used in spacecraft thermocouple sensors, catalysts for fuel cell systems, and electrical contacts. The high-precision measurements needed for engine testing rely on platinum resistance thermometers, which are accurate to ±0.01°C even at extreme temperatures.' },
+      food:  { fact: 'Some high-end chocolatiers and restaurants sell platinum-leaf-coated chocolates and desserts — platinum is biologically inert and passes through the body harmlessly, just like gold and silver leaf.' },
     }
   },
   {
@@ -1197,8 +1392,8 @@ const ELEMENTS = [
     category: 'transition-metal', period: 6, group: 11,
     defaultFact: 'All the gold ever mined by humanity — 190,000 tonnes — would fit in a cube about 21 meters on each side. All of it came from asteroid impacts after Earth formed; gold that existed at Earth\'s formation sank to the core.',
     themes: {
-      edible:  { fact: '24-karat gold leaf is genuinely edible and food-safe. It\'s used in luxury foods, Indian desserts (Waraq), Japanese sake, and fancy cocktails. Gold has no taste, provides zero nutrition, and passes through your body unchanged. It costs ~$0.05 per decorative leaf.' },
-      spacex:  { fact: 'Gold-plated electrical connectors and circuit boards are standard in spacecraft — gold\'s corrosion resistance and conductivity ensure reliable connections in the vacuum of space for decades. The James Webb Space Telescope\'s mirrors are coated with ultra-thin gold to reflect infrared light.' },
+      food:  { fact: '24-karat gold leaf is genuinely edible and food-safe. It\'s used in luxury foods, Indian desserts (Waraq), Japanese sake, and fancy cocktails. Gold has no taste, provides zero nutrition, and passes through your body unchanged. It costs ~$0.05 per decorative leaf.' },
+      rocket:  { fact: 'Gold-plated electrical connectors and circuit boards are standard in spacecraft — gold\'s corrosion resistance and conductivity ensure reliable connections in the vacuum of space for decades. The James Webb Space Telescope\'s mirrors are coated with ultra-thin gold to reflect infrared light.' },
     }
   },
   {
@@ -1206,6 +1401,7 @@ const ELEMENTS = [
     category: 'transition-metal', period: 6, group: 12,
     defaultFact: 'Mercury is the only metal liquid at room temperature. Alchemists called it "quicksilver" and thought it was the primordial substance of all metals. It was used in thermometers, vaccines, and dental fillings for centuries before its toxicity was understood.',
     themes: {
+      weapon: { fact: 'Mercury fulminate was the detonator that made modern explosives reliable — a mercury compound so shock-sensitive that a tiny amount explodes when struck, igniting the main charge. It was the standard primer in percussion caps from the 1820s through WWI. Mercury was also used in Cold War assassinations: injected as tiny metal spheres, it causes slow, untraceable death.' },
     }
   },
   {
@@ -1220,6 +1416,7 @@ const ELEMENTS = [
     category: 'post-transition', period: 6, group: 14,
     defaultFact: 'Lead pipes in ancient Rome may have contributed to cognitive decline and even the fall of the empire — Romans used lead vessels for cooking wine and as a sweetener (lead acetate tastes sweet). The word "plumber" comes from "plumbum" — the Latin for lead.',
     themes: {
+      weapon: { fact: 'Lead has been the bullet metal for 500 years — heavy, cheap, soft enough to deform on impact, and easy to cast in any shape. Lead shot, lead musket balls, lead rifle bullets — its density packs kinetic energy into a small projectile. Even today, most handgun bullets and shotgun pellets are lead, sometimes jacketed in copper.' },
     }
   },
   {
@@ -1248,6 +1445,7 @@ const ELEMENTS = [
     category: 'noble-gas', period: 6, group: 18,
     defaultFact: 'Radon seeps from rock and soil into basements and is the second leading cause of lung cancer in the US (after smoking). It\'s radioactive, colorless, and odorless — you can\'t detect it without a special test kit.',
     themes: {
+      air: { fact: 'Radon is a naturally occurring radioactive gas in the atmosphere — the heaviest noble gas and the only one produced by radioactive decay (from uranium in granite rock). It seeps out of soil and rock into the air. Outdoors it\'s harmless at trace levels; indoors it concentrates in basements to dangerous amounts.' },
     }
   },
 
@@ -1257,7 +1455,7 @@ const ELEMENTS = [
     category: 'alkali-metal', period: 7, group: 1,
     defaultFact: 'Francium is so unstable that the entire Earth contains less than 30 grams at any moment. It has never been weighed or seen. Theoretically the most reactive metal — but its radioactivity prevents any direct experiment.',
     themes: {
-      burning: { fact: 'Francium would be the most explosive alkali metal if you could ever collect enough of it. Theoretical predictions suggest it would react even more violently with water than cesium. Its half-life of 22 minutes means any sample vanishes before you can study it.' },
+      fire: { fact: 'Francium would be the most explosive alkali metal if you could ever collect enough of it. Theoretical predictions suggest it would react even more violently with water than cesium. Its half-life of 22 minutes means any sample vanishes before you can study it.' },
     }
   },
   {
@@ -1295,6 +1493,9 @@ const ELEMENTS = [
     category: 'actinide', period: 7, group: 3, fBlock: true,
     defaultFact: 'Uranium was discovered in 1789, named after the planet Uranus, and used as yellow glass dye for 150 years before its radioactivity was discovered. One kilogram of U-235 releases as much energy as 3,000 tons of coal.',
     themes: {
+      weapon: { fact: 'Uranium is the fuel of nuclear weapons — the bomb dropped on Hiroshima (Little Boy) used 64 kg of enriched uranium-235, killing 70,000–80,000 instantly. Depleted uranium (non-fissile U-238) is used in armor-piercing shells: denser than lead, it self-sharpens as it penetrates steel and ignites on impact, burning through armor from inside.' },
+    
+      fuel:   { fact: 'Uranium is the fuel of nuclear power plants. Natural uranium is enriched to 3–5% U-235 for reactor fuel pellets; a single pellet the size of a fingertip contains as much energy as 17,000 cubic feet of natural gas. Nuclear provides ~10% of world electricity with near-zero carbon emissions. One kilogram of uranium releases 2 million times the energy of one kilogram of coal.' },
     }
   },
   {
@@ -1309,6 +1510,7 @@ const ELEMENTS = [
     category: 'actinide', period: 7, group: 3, fBlock: true,
     defaultFact: 'Plutonium-238 powers the Voyager 1 probe — still transmitting from 23 billion km away — via a radioisotope thermoelectric generator (RTG) that converts its heat to electricity without any moving parts.',
     themes: {
+      weapon: { fact: 'Plutonium-239 is the weapon element. The bomb dropped on Nagasaki (Fat Man) contained just 6.4 kg of plutonium — less than the weight of a bag of apples — yet it killed 40,000 people instantly. The entire nuclear arsenal of every country on Earth is built primarily from plutonium or uranium. Plutonium is so toxic a microgram inhaled can cause lung cancer.' },
     }
   },
   {
@@ -1706,14 +1908,11 @@ document.querySelectorAll('.theme-btn').forEach(btn => {
   btn.addEventListener('click', () => toggleTheme(btn.dataset.key));
 });
 document.getElementById('clear-btn').addEventListener('click', clearAll);
-document.getElementById('close-panel-btn').addEventListener('click', closePanel);
-
-// Close panel when clicking outside the grid and panel
+// Close panel when clicking anywhere except the panel itself or an element cell
 document.addEventListener('click', (e) => {
   if (!selectedElement) return;
   const panel = document.getElementById('panel');
-  const grid = document.getElementById('grid');
-  if (!panel.contains(e.target) && !grid.contains(e.target)) {
+  if (!panel.contains(e.target) && !e.target.closest('.cell')) {
     closePanel();
   }
 });
