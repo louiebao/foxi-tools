@@ -129,6 +129,7 @@ header h1 {
   flex: 1;
   display: flex;
   overflow: hidden;
+  position: relative;
 }
 
 /* ── Grid wrapper ── */
@@ -229,10 +230,13 @@ header h1 {
 .cat-lanthanide      { background: var(--cat-lanthanide); }
 .cat-actinide        { background: var(--cat-actinide); }
 
-/* ── Detail panel ── */
+/* ── Detail panel (overlays grid, not in flex flow) ── */
 #panel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
   width: 280px;
-  min-width: 280px;
   border-left: 1px solid var(--border);
   background: var(--bg-panel);
   padding: 0;
@@ -241,7 +245,7 @@ header h1 {
   transform: translateX(100%);
   transition: transform 200ms ease;
   overflow-y: auto;
-  flex-shrink: 0;
+  z-index: 10;
 }
 #panel.open {
   transform: translateX(0);
@@ -350,6 +354,7 @@ header h1 {
   flex-wrap: wrap;
   gap: 10px;
   flex-shrink: 0;
+  justify-content: center;
 }
 .legend-item {
   display: flex;
@@ -379,6 +384,19 @@ header h1 {
   pointer-events: none;
   z-index: 200;
   letter-spacing: 0.02em;
+}
+/* First two items: open tooltip rightward to avoid left-edge clip */
+.legend-item:nth-child(1)[data-tooltip]:hover::after,
+.legend-item:nth-child(2)[data-tooltip]:hover::after {
+  left: 0;
+  transform: none;
+}
+/* Last two items: open tooltip leftward to avoid right-edge clip */
+.legend-item:nth-last-child(1)[data-tooltip]:hover::after,
+.legend-item:nth-last-child(2)[data-tooltip]:hover::after {
+  left: auto;
+  right: 0;
+  transform: none;
 }
 .legend-swatch {
   width: 12px;
@@ -428,14 +446,18 @@ footer {
   }
 
   #panel {
+    position: fixed;
+    right: auto;
+    top: auto;
+    left: 0;
+    bottom: 0;
     width: 100%;
-    min-width: unset;
+    max-height: 50vh;
+    min-height: 200px;
     border-left: none;
     border-top: 1px solid var(--border);
     transform: translateY(100%);
     transition: transform 200ms ease;
-    max-height: 50vh;
-    min-height: 200px;
   }
   #panel.open {
     transform: translateY(0);
