@@ -3204,10 +3204,10 @@
       var plist1 = [];
       var plist2 = [];
       var fun1 = function(x) {
-        return Math.pow(Math.sin(x * Math.PI), 0.5) * 7 * sca;
+        return Math.pow(Math.max(0, Math.sin(x * Math.PI)), 0.5) * 7 * sca;
       };
       var fun2 = function(x) {
-        return Math.pow(Math.sin(x * Math.PI), 0.5) * 10 * sca;
+        return Math.pow(Math.max(0, Math.sin(x * Math.PI)), 0.5) * 10 * sca;
       };
       for (var i = 0; i < len * sca; i += 5 * sca) {
         plist1.push([i * dir, fun1(i / len)]);
@@ -3534,7 +3534,7 @@
         return (
           sca *
           8 *
-          (Math.sin(0.5 * x * Math.PI) * Math.pow(Math.sin(x * Math.PI), 0.1) +
+          (Math.sin(0.5 * x * Math.PI) * Math.pow(Math.max(0, Math.sin(x * Math.PI)), 0.1) +
             (1 - x) * 0.4)
         );
       };
@@ -3542,12 +3542,12 @@
         return (
           sca *
           11 *
-          (Math.sin(0.5 * x * Math.PI) * Math.pow(Math.sin(x * Math.PI), 0.1) +
+          (Math.sin(0.5 * x * Math.PI) * Math.pow(Math.max(0, Math.sin(x * Math.PI)), 0.1) +
             (1 - x) * 0.5)
         );
       };
       var fhead = function(x) {
-        return sca * 7 * Math.pow(0.25 - Math.pow(x - 0.5, 2), 0.3);
+        return sca * 7 * Math.pow(Math.max(0, 0.25 - Math.pow(x - 0.5, 2)), 0.3);
       };
 
       canv += ite(toGlobal(pts[8]), toGlobal(pts[6]), { fli: fli });
