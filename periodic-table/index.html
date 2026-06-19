@@ -338,6 +338,25 @@ header h1 {
   color: var(--text-2);
   margin-top: 6px;
   letter-spacing: 0.02em;
+  position: relative;
+  cursor: default;
+  display: inline-block;
+}
+#panel-isotopes[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.65rem;
+  line-height: 1.45;
+  padding: 6px 10px;
+  white-space: normal;
+  width: 220px;
+  pointer-events: none;
+  z-index: 200;
+  letter-spacing: 0.02em;
 }
 
 #panel-body {
@@ -1962,14 +1981,17 @@ function openPanel(el, cellEl) {
 
   const iso = ISOTOPES[el.number];
   const isoEl = document.getElementById('panel-isotopes');
+  const isoTooltip = 'Isotopes are variants of the same element with different numbers of neutrons in the nucleus — same element, different atomic mass.';
   if (iso) {
+    isoEl.setAttribute('data-tooltip', isoTooltip);
     if (iso.stable.length > 0) {
       const list = iso.stable.map(m => `${el.symbol}-${m}`).join(' ');
-      isoEl.textContent = `Stable Isotopes: ${list}`;
+      isoEl.textContent = `ISOTOPES: ${list}`;
     } else {
-      isoEl.textContent = 'Stable Isotopes: none stable';
+      isoEl.textContent = 'ISOTOPES: none stable';
     }
   } else {
+    isoEl.removeAttribute('data-tooltip');
     isoEl.textContent = '';
   }
 
