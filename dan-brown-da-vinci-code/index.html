@@ -270,6 +270,18 @@
   }
   .back-link:hover { color: var(--text); }
 
+  /* ── Mobile: single-column, panels below map ── */
+  @media (max-width: 600px) {
+    .main {
+      grid-template-columns: 1fr;
+      grid-template-rows: 40vh auto auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .panel { border-right: none; border-top: 1px solid var(--border); max-height: none; }
+    .panel:last-child { border-left: none; }
+  }
+
   /* ── Easter egg modal ── */
   .egg-overlay {
     display: none;
