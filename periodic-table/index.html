@@ -549,6 +549,7 @@ footer {
       <div class="panel-name" id="panel-name"></div>
       <div class="panel-meta">
         <span><span class="meta-label">Atomic Number</span><span id="panel-number"></span></span>
+        <span><span class="meta-label">Isotopes</span><span id="panel-isotopes"></span></span>
       </div>
       <span class="panel-cat-tag" id="panel-cat"></span>
     </div>
@@ -1686,6 +1687,130 @@ const ELEMENTS = [
 ];
 
 // ─────────────────────────────────────────────
+// ISOTOPE DATA  { stable, total, note? }
+// ─────────────────────────────────────────────
+const ISOTOPES = {
+  1:  { stable: 2,  total: 7,  note: "Deuterium (H-2) fuels experimental fusion reactors. Tritium (H-3) is radioactive and was used in hydrogen bombs." },
+  2:  { stable: 2,  total: 9  },
+  3:  { stable: 2,  total: 9  },
+  4:  { stable: 1,  total: 12 },
+  5:  { stable: 2,  total: 13 },
+  6:  { stable: 2,  total: 15, note: "Carbon-14, made by cosmic rays, is used to date ancient artifacts up to 50,000 years old." },
+  7:  { stable: 2,  total: 16 },
+  8:  { stable: 3,  total: 17 },
+  9:  { stable: 1,  total: 18 },
+  10: { stable: 3,  total: 20 },
+  11: { stable: 1,  total: 22 },
+  12: { stable: 3,  total: 23 },
+  13: { stable: 1,  total: 22 },
+  14: { stable: 3,  total: 24 },
+  15: { stable: 1,  total: 23 },
+  16: { stable: 4,  total: 25 },
+  17: { stable: 2,  total: 24 },
+  18: { stable: 3,  total: 24 },
+  19: { stable: 2,  total: 25, note: "Potassium-40 is naturally radioactive and present in every cell of your body — you emit radiation right now." },
+  20: { stable: 5,  total: 24 },
+  21: { stable: 1,  total: 25 },
+  22: { stable: 5,  total: 26 },
+  23: { stable: 1,  total: 24 },
+  24: { stable: 4,  total: 26 },
+  25: { stable: 1,  total: 25 },
+  26: { stable: 4,  total: 26 },
+  27: { stable: 1,  total: 26, note: "Cobalt-60 emits powerful gamma rays and is used in cancer radiotherapy machines worldwide." },
+  28: { stable: 5,  total: 26 },
+  29: { stable: 2,  total: 27 },
+  30: { stable: 5,  total: 28 },
+  31: { stable: 2,  total: 29 },
+  32: { stable: 5,  total: 29 },
+  33: { stable: 1,  total: 33 },
+  34: { stable: 6,  total: 29 },
+  35: { stable: 2,  total: 30 },
+  36: { stable: 6,  total: 33 },
+  37: { stable: 1,  total: 32 },
+  38: { stable: 4,  total: 31, note: "Strontium-90 is a dangerous fallout product that mimics calcium and deposits in bone." },
+  39: { stable: 1,  total: 32 },
+  40: { stable: 5,  total: 36 },
+  41: { stable: 1,  total: 36 },
+  42: { stable: 7,  total: 33 },
+  43: { stable: 0,  total: 26, note: "Technetium has zero stable isotopes — yet Tc-99m is the most-used medical imaging isotope in the world, with millions of scans every day." },
+  44: { stable: 7,  total: 34 },
+  45: { stable: 1,  total: 31 },
+  46: { stable: 6,  total: 33 },
+  47: { stable: 2,  total: 35 },
+  48: { stable: 8,  total: 36 },
+  49: { stable: 1,  total: 37 },
+  50: { stable: 10, total: 40, note: "Tin has 10 stable isotopes — more than any other element." },
+  51: { stable: 2,  total: 38 },
+  52: { stable: 8,  total: 36 },
+  53: { stable: 1,  total: 37, note: "Iodine-131 is given to thyroid cancer patients — it concentrates in the thyroid and destroys the tissue from within." },
+  54: { stable: 9,  total: 36, note: "Xenon-135 is a powerful 'reactor poison' that builds up during operation and can spontaneously shut down a nuclear reactor." },
+  55: { stable: 1,  total: 40, note: "Cesium-137, with its 30-year half-life, was the primary long-lived radioactive contaminant from Chernobyl and Fukushima." },
+  56: { stable: 7,  total: 40 },
+  57: { stable: 1,  total: 38 },
+  58: { stable: 4,  total: 36 },
+  59: { stable: 1,  total: 38 },
+  60: { stable: 5,  total: 33 },
+  61: { stable: 0,  total: 35, note: "Promethium is the only lanthanide with no stable isotopes — it exists on Earth only in trace amounts from uranium decay." },
+  62: { stable: 5,  total: 35 },
+  63: { stable: 2,  total: 37 },
+  64: { stable: 6,  total: 33 },
+  65: { stable: 1,  total: 36 },
+  66: { stable: 7,  total: 33 },
+  67: { stable: 1,  total: 35 },
+  68: { stable: 6,  total: 31 },
+  69: { stable: 1,  total: 31 },
+  70: { stable: 7,  total: 33 },
+  71: { stable: 1,  total: 34 },
+  72: { stable: 6,  total: 33 },
+  73: { stable: 1,  total: 41 },
+  74: { stable: 5,  total: 35 },
+  75: { stable: 1,  total: 38 },
+  76: { stable: 7,  total: 35 },
+  77: { stable: 2,  total: 35 },
+  78: { stable: 5,  total: 35 },
+  79: { stable: 1,  total: 36 },
+  80: { stable: 7,  total: 34 },
+  81: { stable: 2,  total: 39 },
+  82: { stable: 4,  total: 37 },
+  83: { stable: 0,  total: 35, note: "Bismuth-209 was considered stable until 2003. It is radioactive — but its half-life is 20 million billion years, longer than the age of the universe." },
+  84: { stable: 0,  total: 42, note: "Polonium-210 delivers a fatal radiation dose in amounts invisible to the naked eye. It was used to poison Alexander Litvinenko in 2006." },
+  85: { stable: 0,  total: 41 },
+  86: { stable: 0,  total: 37, note: "Radon-222 seeps from granite bedrock into basements and is the second leading cause of lung cancer, after smoking." },
+  87: { stable: 0,  total: 34 },
+  88: { stable: 0,  total: 33, note: "Radium-226 was painted on watch dials to make them glow. Factory workers who licked their brushes developed fatal cancers — the 'Radium Girls' case changed US labor law." },
+  89: { stable: 0,  total: 31 },
+  90: { stable: 0,  total: 30, note: "Thorium-232 has a half-life of 14 billion years — roughly the age of the universe — making it effectively primordial." },
+  91: { stable: 0,  total: 29 },
+  92: { stable: 0,  total: 25, note: "Natural uranium is 99.3% U-238. Only 0.7% is U-235, the fissile isotope that powers nuclear reactors and early atomic bombs." },
+  93: { stable: 0,  total: 25 },
+  94: { stable: 0,  total: 22, note: "Plutonium-239 has a 24,100-year half-life and is the primary fissile material in nuclear weapons." },
+  95: { stable: 0,  total: 21, note: "Americium-241 is found in virtually every ionization smoke detector. There is almost certainly one a few metres from you right now." },
+  96: { stable: 0,  total: 21 },
+  97: { stable: 0,  total: 20 },
+  98: { stable: 0,  total: 21 },
+  99: { stable: 0,  total: 19 },
+  100: { stable: 0, total: 18 },
+  101: { stable: 0, total: 16 },
+  102: { stable: 0, total: 13 },
+  103: { stable: 0, total: 11 },
+  104: { stable: 0, total: 12 },
+  105: { stable: 0, total: 13 },
+  106: { stable: 0, total: 12 },
+  107: { stable: 0, total: 11 },
+  108: { stable: 0, total: 12 },
+  109: { stable: 0, total: 9  },
+  110: { stable: 0, total: 7  },
+  111: { stable: 0, total: 7  },
+  112: { stable: 0, total: 6  },
+  113: { stable: 0, total: 4  },
+  114: { stable: 0, total: 5  },
+  115: { stable: 0, total: 4  },
+  116: { stable: 0, total: 4  },
+  117: { stable: 0, total: 2  },
+  118: { stable: 0, total: 1,  note: "Oganesson-294 is the only known isotope. Only 5 atoms have ever been observed, each lasting about 0.7 milliseconds before decaying." },
+};
+
+// ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
 let activeThemes = new Set();
@@ -1829,6 +1954,14 @@ function openPanel(el, cellEl) {
   catEl.textContent = CAT_LABELS[el.category] || el.category;
   catEl.className = `panel-cat-tag cat-${el.category}`;
 
+  const iso = ISOTOPES[el.number];
+  if (iso) {
+    const isoEl = document.getElementById('panel-isotopes');
+    isoEl.textContent = iso.stable > 0
+      ? `${iso.stable} stable · ${iso.total} known`
+      : `${iso.total} known · none stable`;
+  }
+
   const body = document.getElementById('panel-body');
   body.innerHTML = '';
 
@@ -1855,6 +1988,17 @@ function openPanel(el, cellEl) {
       `;
       body.appendChild(block);
     }
+  }
+
+  // Isotope note (always shown at bottom when present)
+  if (iso && iso.note) {
+    const isoBlock = document.createElement('div');
+    isoBlock.className = 'fact-block';
+    isoBlock.innerHTML = `
+      <div class="fact-theme-label">Isotopes</div>
+      <p class="fact-text">${iso.note}</p>
+    `;
+    body.appendChild(isoBlock);
   }
 
   document.getElementById('panel').classList.add('open');
