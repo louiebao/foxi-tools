@@ -3723,6 +3723,7 @@
     windx: window.innerWidth,
     windy: window.innerHeight,
     planmtx: [],
+    boatHighlight: false,
   };
 
   function chunkloader(xmin, xmax) {
@@ -3848,6 +3849,13 @@
     var by = MEM.windy * (0.80 + Math.random() * 0.10);
     var boatSVG = Arch.boat01(bx, by, Math.random(), { sca: by / 800, fli: Math.random() < 0.5 });
     if (boatSVG.includes("NaN")) boatSVG = boatSVG.replace(/NaN/g, "0");
+    if (MEM.boatHighlight) {
+      boatSVG = boatSVG
+        .replace(/fill:white/g, "fill:#FFD700")
+        .replace(/stroke:white/g, "stroke:#FFD700")
+        .replace(/fill:rgba\(100,100,100,[^)]+\)/g, "fill:#DAA520")
+        .replace(/stroke:rgba\(100,100,100,[^)]+\)/g, "stroke:#DAA520");
+    }
     var boatChunk = { tag: "boat", x: bx, y: by, canv: boatSVG };
     var boatIdx = MEM.chunks.length;
     for (var j = 0; j < MEM.chunks.length; j++) {
@@ -4019,6 +4027,13 @@
   MEM.windx = document.getElementById("BG").clientWidth;
   MEM.windy = document.getElementById("BG").clientHeight;
   update();
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "b" || e.key === "B") {
+      MEM.boatHighlight = !MEM.boatHighlight;
+      update();
+    }
+  });
 
   function positionSeal() {
     var svg = document.getElementById('SVG');
