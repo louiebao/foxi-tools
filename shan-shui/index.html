@@ -3724,6 +3724,7 @@
     windy: window.innerHeight,
     planmtx: [],
     boatHighlight: false,
+    boatCache: null,
   };
 
   function chunkloader(xmin, xmax) {
@@ -3845,10 +3846,16 @@
     // Inject boat at the correct y-sorted position so trees at the same depth
     // render in front of the fisherman (painter's algorithm). Temporarily push
     // into MEM.chunks, render, then remove so it doesn't accumulate on scroll.
-    var bx = totalW * (0.2 + Math.random() * 0.6);
-    var by = MEM.windy * (0.80 + Math.random() * 0.10);
-    var boatSVG = Arch.boat01(bx, by, Math.random(), { sca: by / 800, fli: Math.random() < 0.5 });
-    if (boatSVG.includes("NaN")) boatSVG = boatSVG.replace(/NaN/g, "0");
+    if (!MEM.boatCache) {
+      var bx = totalW * (0.2 + Math.random() * 0.6);
+      var by = MEM.windy * (0.80 + Math.random() * 0.10);
+      var rawBoatSVG = Arch.boat01(bx, by, Math.random(), { sca: by / 800, fli: Math.random() < 0.5 });
+      if (rawBoatSVG.includes("NaN")) rawBoatSVG = rawBoatSVG.replace(/NaN/g, "0");
+      MEM.boatCache = { bx: bx, by: by, svg: rawBoatSVG };
+    }
+    var bx = MEM.boatCache.bx;
+    var by = MEM.boatCache.by;
+    var boatSVG = MEM.boatCache.svg;
     if (MEM.boatHighlight) {
       boatSVG = boatSVG
         .replace(/fill:white/g, "fill:#FFD700")
