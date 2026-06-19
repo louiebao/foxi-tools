@@ -257,6 +257,23 @@
   .dot.multi      { background: #c8a830; border-color: #b89020; }
   .dot.current    { background: #444;    border-color: #333; }
 
+  /* ── Mobile: single-column, scrollable grid ── */
+  @media (max-width: 600px) {
+    body {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto auto;
+    }
+    .grid-section { overflow-x: auto; }
+    #panel {
+      grid-row: 3;
+      grid-column: 1;
+      border-left: none;
+      border-top: 1px solid var(--border);
+      max-height: 40vh;
+    }
+    .legend { display: none; }
+  }
+
   #tooltip {
     position: fixed;
     display: none;
