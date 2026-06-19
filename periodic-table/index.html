@@ -1989,9 +1989,9 @@ function openPanel(el, cellEl) {
       isoEl.textContent = `ISOTOPES: ${list}`;
     } else if (iso.notable && iso.notable.length > 0) {
       const list = iso.notable.map(m => `${el.symbol}-${m}`).join(' ');
-      isoEl.textContent = `ISOTOPES: none stable · ${list}`;
+      isoEl.textContent = `ISOTOPES: ${list}`;
     } else {
-      isoEl.textContent = 'ISOTOPES: none stable';
+      isoEl.textContent = '';
     }
   } else {
     isoEl.removeAttribute('data-tooltip');
