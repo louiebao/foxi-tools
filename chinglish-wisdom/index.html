@@ -169,6 +169,15 @@
     opacity: 1;
   }
 
+  /* ── Mobile: hide decorative Chinese column, split remaining 50/50 ── */
+  @media (max-width: 600px) {
+    col.col-chinese   { display: none; }
+    col.col-chinglish { width: 50%; }
+    col.col-english   { width: 50%; }
+    thead th:first-child { display: none; }
+    tbody td:first-child { display: none; }
+  }
+
   /* ── Footer ── */
   footer {
     padding: 10px 24px;
