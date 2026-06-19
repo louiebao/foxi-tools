@@ -1757,7 +1757,7 @@ const ISOTOPES = {
   40:  { stable: [90,91,92,94,96] },
   41:  { stable: [93] },
   42:  { stable: [92,94,95,96,97,98,100] },
-  43:  { stable: [],                                       note: "Technetium has zero stable isotopes — yet Tc-99m is the most-used medical imaging isotope in the world, with millions of scans every day." },
+  43:  { stable: [], notable: [99],                        note: "Technetium has zero stable isotopes — yet Tc-99m is the most-used medical imaging isotope in the world, with millions of scans every day." },
   44:  { stable: [96,98,99,100,101,102,104] },
   45:  { stable: [103] },
   46:  { stable: [102,104,105,106,108,110] },
@@ -1797,19 +1797,19 @@ const ISOTOPES = {
   80:  { stable: [196,198,199,200,201,202,204] },
   81:  { stable: [203,205] },
   82:  { stable: [204,206,207,208] },
-  83:  { stable: [],                                       note: "Bismuth-209 was considered stable until 2003. It is radioactive — but its half-life is 20 million billion years, longer than the age of the universe." },
-  84:  { stable: [],                                       note: "Polonium-210 delivers a fatal radiation dose in amounts invisible to the naked eye. It was used to poison Alexander Litvinenko in 2006." },
+  83:  { stable: [], notable: [209],                       note: "Bismuth-209 was considered stable until 2003. It is radioactive — but its half-life is 20 million billion years, longer than the age of the universe." },
+  84:  { stable: [], notable: [210],                       note: "Polonium-210 delivers a fatal radiation dose in amounts invisible to the naked eye. It was used to poison Alexander Litvinenko in 2006." },
   85:  { stable: [] },
-  86:  { stable: [],                                       note: "Radon-222 seeps from granite bedrock into basements and is the second leading cause of lung cancer, after smoking." },
+  86:  { stable: [], notable: [222],                       note: "Radon-222 seeps from granite bedrock into basements and is the second leading cause of lung cancer, after smoking." },
   87:  { stable: [] },
-  88:  { stable: [],                                       note: "Radium-226 was painted on watch dials to make them glow. Factory workers who licked their brushes developed fatal cancers — the 'Radium Girls' case changed US labor law." },
+  88:  { stable: [], notable: [226],                       note: "Radium-226 was painted on watch dials to make them glow. Factory workers who licked their brushes developed fatal cancers — the 'Radium Girls' case changed US labor law." },
   89:  { stable: [] },
-  90:  { stable: [],                                       note: "Thorium-232 has a half-life of 14 billion years — roughly the age of the universe — making it effectively primordial." },
+  90:  { stable: [], notable: [232],                       note: "Thorium-232 has a half-life of 14 billion years — roughly the age of the universe — making it effectively primordial." },
   91:  { stable: [] },
-  92:  { stable: [],                                       note: "Natural uranium is 99.3% U-238. Only 0.7% is U-235, the fissile isotope that powers nuclear reactors and early atomic bombs." },
+  92:  { stable: [], notable: [235,238],                   note: "Natural uranium is 99.3% U-238. Only 0.7% is U-235, the fissile isotope that powers nuclear reactors and early atomic bombs." },
   93:  { stable: [] },
-  94:  { stable: [],                                       note: "Plutonium-239 has a 24,100-year half-life and is the primary fissile material in nuclear weapons." },
-  95:  { stable: [],                                       note: "Americium-241 is found in virtually every ionization smoke detector. There is almost certainly one a few metres from you right now." },
+  94:  { stable: [], notable: [238,239],                   note: "Plutonium-239 has a 24,100-year half-life and is the primary fissile material in nuclear weapons." },
+  95:  { stable: [], notable: [241],                       note: "Americium-241 is found in virtually every ionization smoke detector. There is almost certainly one a few metres from you right now." },
   96:  { stable: [] },
   97:  { stable: [] },
   98:  { stable: [] },
@@ -1987,6 +1987,9 @@ function openPanel(el, cellEl) {
     if (iso.stable.length > 0) {
       const list = iso.stable.map(m => `${el.symbol}-${m}`).join(' ');
       isoEl.textContent = `ISOTOPES: ${list}`;
+    } else if (iso.notable && iso.notable.length > 0) {
+      const list = iso.notable.map(m => `${el.symbol}-${m}`).join(' ');
+      isoEl.textContent = `ISOTOPES: none stable · ${list}`;
     } else {
       isoEl.textContent = 'ISOTOPES: none stable';
     }
