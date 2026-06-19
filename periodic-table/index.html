@@ -333,6 +333,12 @@ header h1 {
   margin-top: 8px;
   display: inline-block;
 }
+#panel-isotopes {
+  font-size: 0.68rem;
+  color: var(--text-2);
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+}
 
 #panel-body {
   padding: 16px 20px;
@@ -549,8 +555,8 @@ footer {
       <div class="panel-name" id="panel-name"></div>
       <div class="panel-meta">
         <span><span class="meta-label">Atomic Number</span><span id="panel-number"></span></span>
-        <span><span class="meta-label">Stable</span><span id="panel-isotopes"></span></span>
       </div>
+      <div id="panel-isotopes"></div>
       <span class="panel-cat-tag" id="panel-cat"></span>
     </div>
     <div id="panel-body"></div>
@@ -1955,15 +1961,16 @@ function openPanel(el, cellEl) {
   catEl.className = `panel-cat-tag cat-${el.category}`;
 
   const iso = ISOTOPES[el.number];
+  const isoEl = document.getElementById('panel-isotopes');
   if (iso) {
-    const isoEl = document.getElementById('panel-isotopes');
     if (iso.stable.length > 0) {
-      const first = `${el.symbol}-${iso.stable[0]}`;
-      const rest = iso.stable.slice(1).join(' · ');
-      isoEl.textContent = rest ? `${first} · ${rest}` : first;
+      const list = iso.stable.map(m => `${el.symbol}-${m}`).join(' ');
+      isoEl.textContent = `Stable Isotopes: ${list}`;
     } else {
-      isoEl.textContent = 'none stable';
+      isoEl.textContent = 'Stable Isotopes: none stable';
     }
+  } else {
+    isoEl.textContent = '';
   }
 
   const body = document.getElementById('panel-body');
