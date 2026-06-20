@@ -3959,6 +3959,11 @@
     align-items: center;
     justify-content: space-between;
   }
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 1.4em;
+  }
   .footer-right {
     display: flex;
     align-items: center;
@@ -4023,10 +4028,12 @@
   </div>
 
 <footer>
-  <a class="back-link" href="../">< Home</a>
+  <div class="footer-left">
+    <a class="back-link" href="../">< Home</a>
+    <button id="footer-save-btn" title="Download as SVG" onclick="var n=new Date(),p=n=>String(n).padStart(2,'0'),f=n.getFullYear()+''+p(n.getMonth()+1)+p(n.getDate())+'_'+p(n.getHours())+p(n.getMinutes())+p(n.getSeconds());download(f+'.svg', document.getElementById('BG').innerHTML);">SAVE</button>
+  </div>
   <div class="footer-right">
     <span>Based on <a href="https://github.com/lingdong-/shan-shui-inf" target="_blank" rel="noopener">{Shan, Shui}*</a> by Lingdong Huang</span>
-    <button id="footer-save-btn" title="Download as SVG" onclick="var n=new Date(),p=n=>String(n).padStart(2,'0'),f=n.getFullYear()+''+p(n.getMonth()+1)+p(n.getDate())+'_'+p(n.getHours())+p(n.getMinutes())+p(n.getSeconds());download(f+'.svg', document.getElementById('BG').innerHTML);">SAVE</button>
     <span>v1.0.0</span>
   </div>
 </footer>
