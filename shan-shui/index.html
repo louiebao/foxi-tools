@@ -3848,8 +3848,14 @@
     // render in front of the fisherman (painter's algorithm). Temporarily push
     // into MEM.chunks, render, then remove so it doesn't accumulate on scroll.
     if (!MEM.boatCache) {
+      // Place boat just below the lowest landscape element so it's always in
+      // open water and never occluded by mountains or trees.
+      var maxChunkY = 0;
+      for (var j = 0; j < MEM.chunks.length; j++) {
+        if (MEM.chunks[j].y > maxChunkY) maxChunkY = MEM.chunks[j].y;
+      }
       var bx = totalW * (0.2 + Math.random() * 0.6);
-      var by = MEM.windy * (0.80 + Math.random() * 0.10);
+      var by = Math.min(maxChunkY + MEM.windy * 0.06, MEM.windy * 0.95);
       var rawBoatSVG = Arch.boat01(bx, by, Math.random(), { sca: by / 800, fli: Math.random() < 0.5 });
       if (rawBoatSVG.includes("NaN")) rawBoatSVG = rawBoatSVG.replace(/NaN/g, "0");
       MEM.boatCache = { bx: bx, by: by, svg: rawBoatSVG };
