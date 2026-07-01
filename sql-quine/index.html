@@ -214,7 +214,7 @@
 <header>
   <div class="header-left">
     <h1>SQL Quine</h1>
-    <p>A query that produces itself &mdash; step through how it works</p>
+    <p>A query that replicates itself</p>
   </div>
 </header>
 
@@ -263,6 +263,10 @@ const T     = "space(1)+char(39)+space(1)+char(39)+char(41)";
 const PRE   = "select replace(" + T + ",space(1),";
 const QUINE = PRE + "'" + PRE + "')";
 
+const IND = "\n              ";  // indent to align under opening paren
+const DISP4 = "select replace(" + T4 + IND + ",space(1)" + IND + ",'" + PRE4 + "')";
+const DISP5 = "select replace(" + T  + IND + ",space(1)" + IND + ",'" + PRE  + "')";
+
 const STEPS = [
   {
     sql:     "select 'select'",
@@ -284,12 +288,14 @@ const STEPS = [
   },
   {
     sql:     PRE4 + "'" + PRE4 + "')",
+    display: DISP4,
     hl:      "space(1)",
     result:  PRE4 + "'" + PRE4 + "'",
     explain: "Step 4 / 5 — Breakthrough: use space(1) as a placeholder inside the template. A space needs no escaping inside a string. REPLACE() substitutes every space with the query prefix at runtime. Almost there — but the closing ) is missing from the result. It belongs to the REPLACE() call itself, outside the template.",
   },
   {
     sql:     QUINE,
+    display: DISP5,
     hl:      "replace(",
     result:  QUINE,
     explain: "Step 5 / 5 — Add char(41) to the template. The closing ) now lives inside the template and gets carried into the result. REPLACE is single-pass: it substitutes each space once and stops — the spaces introduced by the replacement are never re-scanned. Result equals query exactly.",
@@ -327,7 +333,7 @@ function updateCounter() {
 
 // ── Query panel rendering with bold highlight ─────────────────────
 function renderQuery(step) {
-  const sql = step.sql;
+  const sql = step.display ?? step.sql;
   const hl  = step.hl;
   const idx = sql.indexOf(hl);
   if (idx === -1) { queryPre.textContent = sql; return; }
@@ -379,7 +385,8 @@ function renderState() {
   const step = STEPS[stepIdx - 1];
   renderQuery(step);
   stepExplanation.textContent = step.explain;
-  showResult(step.result);
+  const displayResult = step.display && step.result === step.sql ? step.display : step.result;
+  showResult(displayResult);
   updateConvergence(step, step.result);
 }
 
