@@ -119,13 +119,6 @@
     width: auto;
     padding: 5px 12px;
   }
-  .step-counter {
-    font-size: 0.6rem;
-    color: var(--text-3);
-    letter-spacing: 0.06em;
-    min-width: 3em;
-    text-align: right;
-  }
 
   pre {
     flex: 1;
@@ -230,7 +223,6 @@
           <button class="btn-secondary" id="prev-btn"    aria-label="Previous step" disabled>Prev</button>
           <button class="btn-primary"   id="next-btn"    aria-label="Next step"     disabled>Next</button>
           <button class="btn-secondary" id="restart-btn" aria-label="Restart"       disabled>Restart</button>
-          <div class="step-counter" id="step-counter" aria-label="Step 0 of 5" role="status">—</div>
         </div>
       </div>
       <pre class="query-pre" id="query-pre" aria-label="Current SQL query" aria-live="polite"></pre>
@@ -309,7 +301,6 @@ const resultEmpty     = document.getElementById('result-empty');
 const nextBtn         = document.getElementById('next-btn');
 const prevBtn         = document.getElementById('prev-btn');
 const restartBtn      = document.getElementById('restart-btn');
-const stepCounter     = document.getElementById('step-counter');
 const stepExplanation = document.getElementById('step-explanation');
 
 let stepIdx = 0;  // 0 = nothing stepped yet; n = steps 1..n have been shown
@@ -319,14 +310,6 @@ function updateButtons() {
   nextBtn.disabled    = stepIdx >= STEPS.length;
   prevBtn.disabled    = stepIdx === 0;
   restartBtn.disabled = stepIdx === 0;
-}
-
-function updateCounter() {
-  const n    = stepIdx;
-  const tot  = STEPS.length;
-  const done = n === tot;
-  stepCounter.textContent = n === 0 ? '—' : `${n} / ${tot}${done ? ' ✓' : ''}`;
-  stepCounter.setAttribute('aria-label', `Step ${n} of ${tot}`);
 }
 
 // ── Query panel rendering with bold highlight ─────────────────────
@@ -359,7 +342,6 @@ function clearConvergence() {
 
 // ── Render current stepIdx ────────────────────────────────────────
 function renderState() {
-  updateCounter();
   updateButtons();
 
   if (stepIdx === 0) {
