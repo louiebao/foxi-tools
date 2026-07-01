@@ -274,7 +274,7 @@
         <button class="btn-primary"   id="next-btn"    aria-label="Next step"    disabled>Next</button>
         <button class="btn-secondary" id="prev-btn"    aria-label="Previous step" disabled>Prev</button>
         <button class="btn-secondary" id="restart-btn" aria-label="Restart"       disabled>Restart</button>
-        <div class="step-counter" id="step-counter" aria-label="Step 0 of 6">—</div>
+        <div class="step-counter" id="step-counter" aria-label="Step 0 of 4">—</div>
       </div>
     </div>
 
@@ -298,39 +298,29 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js"></script>
 <script>
-const BODY  = "WITH q(s) AS (SELECT $) SELECT REPLACE(s,CHAR(36),CHAR(39)||s||CHAR(39)) FROM q";
-const QUINE = "WITH q(s) AS (SELECT '" + BODY + "') SELECT REPLACE(s,CHAR(36),CHAR(39)||s||CHAR(39)) FROM q";
+const BODY  = "SELECT REPLACE($,CHAR(36),CHAR(39)||$||CHAR(39))";
+const QUINE = "SELECT REPLACE('" + BODY + "',CHAR(36),CHAR(39)||'" + BODY + "'||CHAR(39))";
 
 const STEPS = [
   {
     sql:     "SELECT '" + BODY + "'",
     hl:      BODY,
-    explain: "Step 1 / 6 — The template. The quine's body stored as a string. The $ is a placeholder that will be replaced in step 5 with a quoted copy of itself.",
+    explain: "Step 1 / 4 — The template stored as a string. $ is a placeholder that will be swapped out in step 4 with a quoted copy of itself.",
   },
   {
     sql:     "SELECT CHAR(36)",
     hl:      "CHAR(36)",
-    explain: "Step 2 / 6 — CHAR(36) returns $, the placeholder character. Encoding it via CHAR() stops SQLite from treating $ as a parameter binding inside the string.",
-  },
-  {
-    sql:     "SELECT CHAR(39)",
-    hl:      "CHAR(39)",
-    explain: "Step 3 / 6 — CHAR(39) returns a single-quote '. We need it to wrap the template in quotes, but can't write ' directly inside a quoted SQL string.",
+    explain: "Step 2 / 4 — CHAR(36) is $, the placeholder. CHAR(39) is ' (single-quote). Both are encoded via CHAR() because you can't write them literally inside a SQL string.",
   },
   {
     sql:     "SELECT CHAR(39)||'" + BODY + "'||CHAR(39)",
     hl:      "CHAR(39)||",
-    explain: "Step 4 / 6 — Wrap the template in single-quotes: CHAR(39) || template || CHAR(39). This produces the replacement value 'template' used in the next step.",
-  },
-  {
-    sql:     "SELECT REPLACE('" + BODY + "',CHAR(36),CHAR(39)||'" + BODY + "'||CHAR(39))",
-    hl:      "REPLACE(",
-    explain: "Step 5 / 6 — Replace $ in the template with the quoted template. REPLACE is single-pass: the substitution value is never re-scanned. Output: the full quine string.",
+    explain: "Step 3 / 4 — Wrap the template in single-quotes: ' || template || '. This produces the substitution value used in the final step.",
   },
   {
     sql:     QUINE,
-    hl:      "REPLACE(s,CHAR(36)",
-    explain: "Step 6 / 6 — The quine. The CTE stores the template as s; REPLACE substitutes $ with 'template'. The output is identical to the query itself — self-replication confirmed.",
+    hl:      "REPLACE(",
+    explain: "Step 4 / 4 — The quine. REPLACE substitutes both $ placeholders in the template with the quoted template. REPLACE is single-pass — the output is never re-scanned. Output matches the query exactly.",
   },
 ];
 
@@ -414,7 +404,7 @@ function renderState() {
     // Preview: show what the first query will be; result is empty
     renderQuery(STEPS[0]);
     showResultEmpty('Press Next to run this query');
-    stepExplanation.textContent = 'Six queries build the quine — each one revealing a piece of the mechanism. Press Next to execute step 1.';
+    stepExplanation.textContent = 'Four queries build the quine — each one revealing a piece of the mechanism. Press Next to execute step 1.';
     clearConvergence();
     return;
   }
