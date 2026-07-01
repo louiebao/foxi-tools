@@ -242,7 +242,7 @@
         <button class="btn-primary"   id="next-btn"    aria-label="Next step"    disabled>Next</button>
         <button class="btn-secondary" id="prev-btn"    aria-label="Previous step" disabled>Prev</button>
         <button class="btn-secondary" id="restart-btn" aria-label="Restart"       disabled>Restart</button>
-        <div class="step-counter" id="step-counter" aria-label="Step 0 of 3" role="status">—</div>
+        <div class="step-counter" id="step-counter" aria-label="Step 0 of 5" role="status">—</div>
       </div>
     </div>
 
@@ -265,31 +265,44 @@
 </footer>
 
 <script>
-// T-SQL quine using space as placeholder
-// space(1) = ' '   char(39) = '   char(41) = )
+// T-SQL quine — simulated step by step
+// char(39) = '   char(41) = )   space(1) = [space]
+const T4    = "space(1)+char(39)+space(1)+char(39)";
+const PRE4  = "select replace(" + T4 + ",space(1),";
 const T     = "space(1)+char(39)+space(1)+char(39)+char(41)";
 const PRE   = "select replace(" + T + ",space(1),";
 const QUINE = PRE + "'" + PRE + "')";
 
-// Simulated results — what T-SQL would return for each query
 const STEPS = [
   {
-    sql:     "select " + T,
-    hl:      T,
-    result:  " ' ' )",
-    explain: "Step 1 / 3 — The template. space(1) is a space, char(39) is a single-quote, char(41) is ). The result is five characters: [space] ' [space] ' ) — the two spaces are the placeholders.",
+    sql:     "select 'select'",
+    hl:      "'select'",
+    result:  "select",
+    explain: "Step 1 / 5 — To replicate the query, the result must contain the full query text. Wrapping it in quotes makes it a string — but SELECT only returns the text inside the quotes. The quotes and SELECT keyword are stripped from the result. Already stuck.",
   },
   {
-    sql:     "select space(1)",
+    sql:     "select char(39)+'select'+char(39)",
+    hl:      "char(39)",
+    result:  "'select'",
+    explain: "Step 2 / 5 — char(39) returns a single-quote without writing one inside a string literal. Wrapping the output with char(39) gets quotes into the result. But now the query says char(39) while the result shows ' — they look completely different.",
+  },
+  {
+    sql:     "select char(39)+'select char(39)'+char(39)",
+    hl:      "'select char(39)'",
+    result:  "'select char(39)'",
+    explain: "Step 3 / 5 — Update the template string to contain the full query text. The result now includes char(39). Getting closer — but the outer quotes wrapping the template are still not in the result. Every character added to close the gap creates another gap.",
+  },
+  {
+    sql:     PRE4 + "'" + PRE4 + "')",
     hl:      "space(1)",
-    result:  " ",
-    explain: "Step 2 / 3 — space(1) returns a single space. That space is the placeholder — every space in the template value will be replaced with the query prefix.",
+    result:  PRE4 + "'" + PRE4 + "'",
+    explain: "Step 4 / 5 — Breakthrough: use space(1) as a placeholder inside the template. A space needs no escaping inside a string. REPLACE() substitutes every space with the query prefix at runtime. Almost there — but the closing ) is missing from the result. It belongs to the REPLACE() call itself, outside the template.",
   },
   {
     sql:     QUINE,
     hl:      "replace(",
     result:  QUINE,
-    explain: "Step 3 / 3 — The quine. REPLACE swaps both spaces in  ' ' )  with the query prefix. The closing ' and ) are already in the template via char(39) and char(41) — no extra quoting needed. Output matches the query exactly.",
+    explain: "Step 5 / 5 — Add char(41) to the template. The closing ) now lives inside the template and gets carried into the result. REPLACE is single-pass: it substitutes each space once and stops — the spaces introduced by the replacement are never re-scanned. Result equals query exactly.",
   },
 ];
 
@@ -368,7 +381,7 @@ function renderState() {
   if (stepIdx === 0) {
     renderQuery(STEPS[0]);
     showResultEmpty('Press Next to step through the query');
-    stepExplanation.textContent = 'Three queries build the quine — each one revealing a piece of the mechanism. Press Next to see step 1.';
+    stepExplanation.textContent = 'Five steps show how the quine is built — starting from the naive attempt and arriving at the working solution. Press Next to begin.';
     clearConvergence();
     return;
   }
