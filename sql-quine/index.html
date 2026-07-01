@@ -274,7 +274,7 @@
         <button class="btn-primary"   id="next-btn"    aria-label="Next step"    disabled>Next</button>
         <button class="btn-secondary" id="prev-btn"    aria-label="Previous step" disabled>Prev</button>
         <button class="btn-secondary" id="restart-btn" aria-label="Restart"       disabled>Restart</button>
-        <div class="step-counter" id="step-counter" aria-label="Step 0 of 4">—</div>
+        <div class="step-counter" id="step-counter" aria-label="Step 0 of 3">—</div>
       </div>
     </div>
 
@@ -298,29 +298,25 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js"></script>
 <script>
-const BODY  = "SELECT REPLACE($,CHAR(36),CHAR(39)||$||CHAR(39))";
-const QUINE = "SELECT REPLACE('" + BODY + "',CHAR(36),CHAR(39)||'" + BODY + "'||CHAR(39))";
+const T    = "char(32)||char(39)||char(32)||char(39)||char(41)";
+const PRE  = "select replace(" + T + ",char(32),";
+const QUINE = PRE + "'" + PRE + "')";
 
 const STEPS = [
   {
-    sql:     "SELECT '" + BODY + "'",
-    hl:      BODY,
-    explain: "Step 1 / 4 — The template stored as a string. $ is a placeholder that will be swapped out in step 4 with a quoted copy of itself.",
+    sql:     "select " + T,
+    hl:      T,
+    explain: "Step 1 / 3 — The template. char(32) is a space, char(39) is a single-quote, char(41) is ). It evaluates to five characters: [space] ' [space] ' ) — the two spaces are the placeholders.",
   },
   {
-    sql:     "SELECT CHAR(36)",
-    hl:      "CHAR(36)",
-    explain: "Step 2 / 4 — CHAR(36) is $, the placeholder. CHAR(39) is ' (single-quote). Both are encoded via CHAR() because you can't write them literally inside a SQL string.",
-  },
-  {
-    sql:     "SELECT CHAR(39)||'" + BODY + "'||CHAR(39)",
-    hl:      "CHAR(39)||",
-    explain: "Step 3 / 4 — Wrap the template in single-quotes: ' || template || '. This produces the substitution value used in the final step.",
+    sql:     "select char(32)",
+    hl:      "char(32)",
+    explain: "Step 2 / 3 — The placeholder is a space. Every space in the template will be replaced with the query prefix in the final step.",
   },
   {
     sql:     QUINE,
-    hl:      "REPLACE(",
-    explain: "Step 4 / 4 — The quine. REPLACE substitutes both $ placeholders in the template with the quoted template. REPLACE is single-pass — the output is never re-scanned. Output matches the query exactly.",
+    hl:      "replace(",
+    explain: "Step 3 / 3 — The quine. REPLACE swaps both spaces in the template with the query prefix. The closing ' and ) come from char(39) and char(41) already in the template — no extra quoting step needed. Output matches the query exactly.",
   },
 ];
 
@@ -404,7 +400,7 @@ function renderState() {
     // Preview: show what the first query will be; result is empty
     renderQuery(STEPS[0]);
     showResultEmpty('Press Next to run this query');
-    stepExplanation.textContent = 'Four queries build the quine — each one revealing a piece of the mechanism. Press Next to execute step 1.';
+    stepExplanation.textContent = 'Three queries build the quine — each one revealing a piece of the mechanism. Press Next to execute step 1.';
     clearConvergence();
     return;
   }
