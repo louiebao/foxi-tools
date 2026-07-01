@@ -78,9 +78,6 @@
     color: var(--text-2);
     line-height: 1.6;
     flex-shrink: 0;
-    min-height: 2.6em;
-    display: flex;
-    align-items: center;
   }
 
   .pane {
@@ -375,7 +372,7 @@ function renderState() {
 
   const step = STEPS[stepIdx - 1];
   renderQuery(step);
-  stepExplanation.innerHTML = step.explain.replace(/^(Step \d+ \/ \d+)/, '<strong>$1</strong>');
+  stepExplanation.innerHTML = step.explain.replace(/^(Step \d+ \/ \d+) — /, '<strong>$1</strong><br>');
   const displayResult = step.display && step.result === step.sql ? step.display : step.result;
   showResult(displayResult);
   updateConvergence(step, step.result);
