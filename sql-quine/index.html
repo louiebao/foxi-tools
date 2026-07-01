@@ -274,7 +274,7 @@
         <button class="btn-primary"   id="next-btn"    aria-label="Next step"    disabled>Next</button>
         <button class="btn-secondary" id="prev-btn"    aria-label="Previous step" disabled>Prev</button>
         <button class="btn-secondary" id="restart-btn" aria-label="Restart"       disabled>Restart</button>
-        <div class="step-counter" id="step-counter" aria-label="Step 0 of 3">—</div>
+        <div class="step-counter" id="step-counter" aria-label="Step 0 of 3" role="status">—</div>
       </div>
     </div>
 
@@ -282,13 +282,13 @@
       <div class="pane-header">
         <span class="pane-label">Result</span>
       </div>
-      <div class="empty-state" id="result-empty">Loading SQL engine&hellip;</div>
+      <div class="empty-state" id="result-empty">Press Next to step through the query</div>
       <pre class="result-pre" id="result-pre" aria-label="SQL query result" aria-live="polite" style="display:none"></pre>
     </div>
 
   </div>
 
-  <div class="step-explanation" id="step-explanation" aria-live="polite">Loading SQL engine&hellip;</div>
+  <div class="step-explanation" id="step-explanation" aria-live="polite"></div>
 
 </main>
 
@@ -296,27 +296,32 @@
   <a class="back-link" href="../">&lt; Home</a>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js"></script>
 <script>
-const T    = "char(32)||char(39)||char(32)||char(39)||char(41)";
-const PRE  = "select replace(" + T + ",char(32),";
+// T-SQL quine using space as placeholder
+// space(1) = ' '   char(39) = '   char(41) = )
+const T     = "space(1)+char(39)+space(1)+char(39)+char(41)";
+const PRE   = "select replace(" + T + ",space(1),";
 const QUINE = PRE + "'" + PRE + "')";
 
+// Simulated results — what T-SQL would return for each query
 const STEPS = [
   {
     sql:     "select " + T,
     hl:      T,
-    explain: "Step 1 / 3 — The template. char(32) is a space, char(39) is a single-quote, char(41) is ). It evaluates to five characters: [space] ' [space] ' ) — the two spaces are the placeholders.",
+    result:  " ' ' )",
+    explain: "Step 1 / 3 — The template. space(1) is a space, char(39) is a single-quote, char(41) is ). The result is five characters: [space] ' [space] ' ) — the two spaces are the placeholders.",
   },
   {
-    sql:     "select char(32)",
-    hl:      "char(32)",
-    explain: "Step 2 / 3 — The placeholder is a space. Every space in the template will be replaced with the query prefix in the final step.",
+    sql:     "select space(1)",
+    hl:      "space(1)",
+    result:  " ",
+    explain: "Step 2 / 3 — space(1) returns a single space. That space is the placeholder — every space in the template value will be replaced with the query prefix.",
   },
   {
     sql:     QUINE,
     hl:      "replace(",
-    explain: "Step 3 / 3 — The quine. REPLACE swaps both spaces in the template with the query prefix. The closing ' and ) come from char(39) and char(41) already in the template — no extra quoting step needed. Output matches the query exactly.",
+    result:  QUINE,
+    explain: "Step 3 / 3 — The quine. REPLACE swaps both spaces in  ' ' )  with the query prefix. The closing ' and ) are already in the template via char(39) and char(41) — no extra quoting needed. Output matches the query exactly.",
   },
 ];
 
@@ -332,17 +337,13 @@ const restartBtn      = document.getElementById('restart-btn');
 const stepCounter     = document.getElementById('step-counter');
 const stepExplanation = document.getElementById('step-explanation');
 
-let stepIdx = 0;  // 0 = nothing run yet; n = steps 1..n have been executed
-let db      = null;
-const cache = new Array(STEPS.length).fill(null);  // cached sql.js results
+let stepIdx = 0;  // 0 = nothing stepped yet; n = steps 1..n have been shown
 
 // ── Controls ──────────────────────────────────────────────────────
 function updateButtons() {
-  const loaded  = db !== null;
-  const errored = stepIdx > 0 && cache[stepIdx - 1] && !cache[stepIdx - 1].ok;
-  nextBtn.disabled    = !loaded || stepIdx >= STEPS.length || errored;
-  prevBtn.disabled    = !loaded || stepIdx === 0;
-  restartBtn.disabled = !loaded || stepIdx === 0;
+  nextBtn.disabled    = stepIdx >= STEPS.length;
+  prevBtn.disabled    = stepIdx === 0;
+  restartBtn.disabled = stepIdx === 0;
 }
 
 function updateCounter() {
@@ -382,7 +383,7 @@ function showResultEmpty(msg) {
 
 // ── Convergence highlight ─────────────────────────────────────────
 function updateConvergence(step, result) {
-  const conv = typeof result === 'string' && result === step.sql;
+  const conv = result === step.sql;
   queryPane.classList.toggle('converged',  conv);
   resultPane.classList.toggle('converged', conv);
 }
@@ -397,42 +398,23 @@ function renderState() {
   updateButtons();
 
   if (stepIdx === 0) {
-    // Preview: show what the first query will be; result is empty
     renderQuery(STEPS[0]);
-    showResultEmpty('Press Next to run this query');
-    stepExplanation.textContent = 'Three queries build the quine — each one revealing a piece of the mechanism. Press Next to execute step 1.';
+    showResultEmpty('Press Next to step through the query');
+    stepExplanation.textContent = 'Three queries build the quine — each one revealing a piece of the mechanism. Press Next to see step 1.';
     clearConvergence();
     return;
   }
 
-  const step   = STEPS[stepIdx - 1];
-  const result = cache[stepIdx - 1];
+  const step = STEPS[stepIdx - 1];
   renderQuery(step);
   stepExplanation.textContent = step.explain;
-
-  if (!result.ok) {
-    showResult('ERROR (step ' + stepIdx + '): ' + result.error);
-    clearConvergence();
-  } else {
-    showResult(result.value);
-    updateConvergence(step, result.value);
-  }
-}
-
-// ── sql.js execution ──────────────────────────────────────────────
-function runStep(step) {
-  try {
-    const res = db.exec(step.sql);
-    return { ok: true, value: String(res[0]?.values[0]?.[0] ?? '') };
-  } catch (e) {
-    return { ok: false, error: e.message };
-  }
+  showResult(step.result);
+  updateConvergence(step, step.result);
 }
 
 // ── Button handlers ───────────────────────────────────────────────
 nextBtn.addEventListener('click', () => {
   if (stepIdx >= STEPS.length) return;
-  if (cache[stepIdx] === null) cache[stepIdx] = runStep(STEPS[stepIdx]);
   stepIdx++;
   renderState();
 });
@@ -448,27 +430,7 @@ restartBtn.addEventListener('click', () => {
   renderState();
 });
 
-// ── Init: load sql.js ─────────────────────────────────────────────
-const loadingDiv = document.createElement('div');
-loadingDiv.className   = 'empty-state';
-loadingDiv.textContent = 'Loading SQL engine…';
-queryPre.replaceWith(loadingDiv);
-showResultEmpty('Loading SQL engine…');
-stepExplanation.textContent = 'Loading SQL engine…';
-
-initSqlJs({ locateFile: file => 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/' + file })
-  .then(SQL => {
-    db = new SQL.Database();
-    loadingDiv.replaceWith(queryPre);
-    renderState();
-  })
-  .catch(() => {
-    loadingDiv.replaceWith(queryPre);
-    const msg = 'sql.js failed to load — check your connection';
-    queryPre.textContent         = msg;
-    stepExplanation.textContent  = msg;
-    showResultEmpty(msg);
-  });
+renderState();
 </script>
 
 </body>
