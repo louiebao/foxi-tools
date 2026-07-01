@@ -28,7 +28,8 @@
     color: var(--text);
     display: flex;
     flex-direction: column;
-    min-height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
   }
 
   header {
@@ -56,15 +57,13 @@
   main {
     display: flex;
     flex-direction: column;
-    height: 65vh;
-    min-height: 380px;
-    flex-shrink: 0;
-    border-top: 2px solid var(--border);
+    flex: 1;
+    min-height: 0;
   }
 
   .pane-row {
-    display: grid;
-    grid-template-columns: 1fr 110px 1fr;
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-height: 0;
   }
@@ -86,13 +85,12 @@
   .pane {
     display: flex;
     flex-direction: column;
-    border-right: 1px solid var(--border);
+    flex: 1;
     min-height: 0;
-    transition: border-right 0.2s, border-left 0.2s;
+    transition: border-left 0.2s;
   }
-  .pane:last-child { border-right: none; }
-  #query-pane.converged  { border-right: 3px solid var(--accent); }
-  #result-pane.converged { border-left:  3px solid var(--accent); }
+  #query-pane.converged  { border-left: 3px solid var(--accent); }
+  #result-pane.converged { border-left: 3px solid var(--accent); }
 
   .pane-header {
     display: flex;
@@ -114,30 +112,25 @@
     display: flex;
     flex-direction: column;
     background: var(--bg-panel);
-    border-right: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .center-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 42px;
+    border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
+  .center-header { display: none; }
   .center-body {
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-    padding: 12px 8px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
   }
+  .center-body .btn-primary,
+  .center-body .btn-secondary { width: auto; }
   .step-counter {
     font-size: 0.6rem;
     color: var(--text-3);
     letter-spacing: 0.06em;
-    text-align: center;
-    margin-top: 2px;
+    margin-left: auto;
   }
 
   pre {
@@ -210,88 +203,13 @@
     flex-shrink: 0;
   }
 
-  /* ── Explainer ───────────────────────────────────────────────── */
-  .explainer {
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-    padding: 28px 40px 32px;
-    border-bottom: 1px solid var(--border);
-  }
-  .ex-block {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 74ch;
-  }
-  .ex-h {
-    font-size: 0.67rem;
-    font-weight: normal;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-3);
-  }
-  .explainer p {
-    font-size: 0.78rem;
-    color: var(--text-2);
-    line-height: 1.8;
-  }
-  .explainer p strong {
-    color: var(--text);
-    font-weight: normal;
-    letter-spacing: 0.02em;
-  }
-  .explainer code {
-    font-family: 'Courier New', monospace;
-    font-size: 0.76rem;
-    background: var(--bg-panel);
-    padding: 1px 5px;
-    color: var(--text);
-  }
-  .ex-code {
-    font-family: 'Courier New', monospace;
-    font-size: 0.73rem;
-    background: var(--bg-panel);
-    padding: 10px 14px;
-    border-left: 3px solid var(--border);
-    color: var(--text);
-    white-space: pre-wrap;
-    word-break: break-all;
-    line-height: 1.6;
-  }
-
   /* ── Mobile ≤768px ──────────────────────────────────────────── */
   @media (max-width: 768px) {
-    .explainer { padding: 20px 20px 24px; gap: 22px; }
-    .pane-row { display: flex; flex-direction: column; flex: unset; }
-
-    .center-pane {
-      order: 1;
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-    }
-    .center-body {
-      flex-direction: row;
-      flex-wrap: wrap;
-      padding: 10px 12px;
-      gap: 8px;
-    }
+    body { height: auto; overflow: auto; min-height: 100dvh; }
+    main { flex: none; }
     .center-body .btn-primary,
-    .center-body .btn-secondary {
-      width: auto;
-      flex: 1;
-      min-height: 44px;
-    }
-    .step-counter { width: 100%; text-align: center; margin-top: 0; }
-    .center-header { display: none; }
-
-    .pane { order: 2; border-right: none; border-bottom: 1px solid var(--border); }
-    .pane:last-child { order: 3; border-bottom: none; }
-    #query-pane.converged, #result-pane.converged { border-left: 3px solid var(--accent); }
-
-    .step-explanation { order: 4; }
-
-    pre { min-height: 60vh; }
+    .center-body .btn-secondary { min-height: 44px; }
+    pre { min-height: 40vh; }
   }
 </style>
 </head>
@@ -300,31 +218,10 @@
 <header>
   <div class="header-left">
     <h1>SQL Quine</h1>
-    <p>A query that produces itself &mdash; why it works and how to read it</p>
+    <p>A query that produces itself &mdash; step through how it works</p>
   </div>
 </header>
 
-<section class="explainer">
-
-  <div class="ex-block">
-    <h2 class="ex-h">The problem</h2>
-    <p>A SQL quine is a SELECT whose output is identical to the query itself — character for character. The naive attempt is to put the query text inside a string literal:</p>
-    <pre class="ex-code">SELECT 'SELECT ...'</pre>
-    <p>The output of <code>SELECT 'text'</code> is just <code>text</code> — the outer SELECT and the quotes are stripped. To include them you would need the string to contain them, which requires another SELECT and another pair of quotes, which also don't appear in the output. There is no way out by adding more text around the string.</p>
-  </div>
-
-  <div class="ex-block">
-    <h2 class="ex-h">The quote is the problem</h2>
-    <p>The core obstacle is the single-quote. SQL string literals are delimited by single-quotes. If the body of the query contains a single-quote — and it must, because the string literal holding the body is itself wrapped in single-quotes — you cannot write it directly inside the string. SQL requires you to escape it as <code>''</code>. But escaping changes the text. Which changes what needs to be embedded. Which changes the escaping. Every attempted fix creates a new mismatch. <strong>The quote is the problem.</strong></p>
-  </div>
-
-  <div class="ex-block">
-    <h2 class="ex-h">The placeholder is the solution</h2>
-    <p>The way out: use a character that needs no escaping as a stand-in wherever a quote should appear. A space works — it sits inside a string literal without any issues. Write the body of the query with spaces as placeholders. Then use <code>REPLACE</code> to swap every space in the template with the query prefix at runtime, producing the quotes in the output without ever having written them literally in the source.</p>
-    <p><strong>The quote is the problem. The placeholder is the workaround.</strong> <code>REPLACE</code> is the mechanism that resolves the stand-in into the real character. It works in a single pass, so the substituted text is never re-scanned — once a space has been replaced, the resulting quotes are final and cannot trigger another round of replacements. Step through the demo below to see each substitution happen.</p>
-  </div>
-
-</section>
 
 <main>
 
