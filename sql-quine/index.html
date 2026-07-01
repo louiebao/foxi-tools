@@ -54,22 +54,32 @@
     letter-spacing: 0.06em;
   }
 
-  .explainer {
-    padding: 10px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-    font-size: 0.73rem;
-    color: var(--text-2);
-    letter-spacing: 0.01em;
-    line-height: 1.6;
-    flex-shrink: 0;
+  main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
   }
 
-  main {
+  .pane-row {
     display: grid;
     grid-template-columns: 1fr 110px 1fr;
     flex: 1;
     min-height: 0;
+  }
+
+  /* Per-step explanation strip */
+  .step-explanation {
+    padding: 10px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-panel);
+    font-size: 0.73rem;
+    color: var(--text-2);
+    line-height: 1.6;
+    flex-shrink: 0;
+    min-height: 2.6em;
+    display: flex;
+    align-items: center;
   }
 
   .pane {
@@ -80,12 +90,11 @@
     transition: border-right 0.2s, border-left 0.2s;
   }
   .pane:last-child { border-right: none; }
-  #query-pane.converged { border-right: 3px solid var(--accent); }
-  #result-pane.converged { border-left: 3px solid var(--accent); }
+  #query-pane.converged  { border-right: 3px solid var(--accent); }
+  #result-pane.converged { border-left:  3px solid var(--accent); }
 
   .pane-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 0 16px;
     height: 42px;
@@ -121,7 +130,6 @@
     align-items: stretch;
     gap: 6px;
     padding: 12px 8px;
-    flex: 1;
   }
   .step-counter {
     font-size: 0.6rem;
@@ -141,7 +149,7 @@
     white-space: pre-wrap;
     word-break: break-all;
   }
-  .query-pre { background: var(--bg); color: var(--text); }
+  .query-pre  { background: var(--bg);        color: var(--text); }
   .result-pre { background: var(--bg-output); color: var(--text); }
 
   .empty-state {
@@ -204,11 +212,9 @@
   /* ── Mobile ≤768px ──────────────────────────────────────────── */
   @media (max-width: 768px) {
     body { overflow: auto; height: auto; min-height: 100dvh; }
+    main { display: flex; flex-direction: column; }
 
-    main {
-      display: flex;
-      flex-direction: column;
-    }
+    .pane-row { display: flex; flex-direction: column; flex: unset; }
 
     .center-pane {
       order: 1;
@@ -227,16 +233,14 @@
       flex: 1;
       min-height: 44px;
     }
-    .step-counter {
-      width: 100%;
-      text-align: center;
-      margin-top: 0;
-    }
+    .step-counter { width: 100%; text-align: center; margin-top: 0; }
     .center-header { display: none; }
 
     .pane { order: 2; border-right: none; border-bottom: 1px solid var(--border); }
     .pane:last-child { order: 3; border-bottom: none; }
     #query-pane.converged, #result-pane.converged { border-left: 3px solid var(--accent); }
+
+    .step-explanation { order: 4; }
 
     pre { min-height: 60vh; }
   }
@@ -247,42 +251,44 @@
 <header>
   <div class="header-left">
     <h1>SQL Quine</h1>
-    <p>A query that produces itself &mdash; watch it construct in real time</p>
+    <p>A query that produces itself &mdash; step through how it works</p>
   </div>
 </header>
 
-<div class="explainer">
-  A quine is a program whose output is its own source code. This SELECT query is self-replicating: when you run it, SQLite returns the query text itself, character for character. The animation shows how a REPLACE() chain builds that property step by step, substituting a placeholder with the template until the output converges with the query.
-</div>
-
 <main>
 
-  <div class="pane" id="query-pane">
-    <div class="pane-header">
-      <span class="pane-label">Query</span>
+  <div class="pane-row">
+
+    <div class="pane" id="query-pane">
+      <div class="pane-header">
+        <span class="pane-label">Query</span>
+      </div>
+      <pre class="query-pre" id="query-pre" aria-label="Current SQL query" aria-live="polite"></pre>
     </div>
-    <pre class="query-pre" id="query-pre" aria-label="Current SQL query step" aria-live="polite"></pre>
+
+    <div class="center-pane">
+      <div class="center-header">
+        <span class="pane-label" style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);">Steps</span>
+      </div>
+      <div class="center-body">
+        <button class="btn-primary"   id="next-btn"    aria-label="Next step"    disabled>Next</button>
+        <button class="btn-secondary" id="prev-btn"    aria-label="Previous step" disabled>Prev</button>
+        <button class="btn-secondary" id="restart-btn" aria-label="Restart"       disabled>Restart</button>
+        <div class="step-counter" id="step-counter" aria-label="Step 0 of 6">—</div>
+      </div>
+    </div>
+
+    <div class="pane" id="result-pane">
+      <div class="pane-header">
+        <span class="pane-label">Result</span>
+      </div>
+      <div class="empty-state" id="result-empty">Loading SQL engine&hellip;</div>
+      <pre class="result-pre" id="result-pre" aria-label="SQL query result" aria-live="polite" style="display:none"></pre>
+    </div>
+
   </div>
 
-  <div class="center-pane">
-    <div class="center-header">
-      <span class="pane-label" style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);">Controls</span>
-    </div>
-    <div class="center-body">
-      <button class="btn-primary"   id="play-btn"    aria-label="Play animation" disabled>Play</button>
-      <button class="btn-secondary" id="pause-btn"   aria-label="Pause animation" disabled>Pause</button>
-      <button class="btn-secondary" id="restart-btn" aria-label="Restart animation" disabled>Restart</button>
-      <div class="step-counter" id="step-counter" aria-label="Animation step 0 of 6">—</div>
-    </div>
-  </div>
-
-  <div class="pane" id="result-pane">
-    <div class="pane-header">
-      <span class="pane-label">Result</span>
-    </div>
-    <div class="empty-state" id="result-empty">Loading SQL engine&hellip;</div>
-    <pre class="result-pre" id="result-pre" aria-label="SQL query result" aria-live="polite" style="display:none"></pre>
-  </div>
+  <div class="step-explanation" id="step-explanation" aria-live="polite">Loading SQL engine&hellip;</div>
 
 </main>
 
@@ -292,225 +298,190 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js"></script>
 <script>
-// ── Quine construction ────────────────────────────────────────────
-// BODY is the quine template; CHAR(36) = $ is the placeholder.
-// REPLACE(s, CHAR(36), CHAR(39)||s||CHAR(39)) substitutes $ with 'BODY',
-// producing the full quine whose output matches itself.
 const BODY  = "WITH q(s) AS (SELECT $) SELECT REPLACE(s,CHAR(36),CHAR(39)||s||CHAR(39)) FROM q";
 const QUINE = "WITH q(s) AS (SELECT '" + BODY + "') SELECT REPLACE(s,CHAR(36),CHAR(39)||s||CHAR(39)) FROM q";
 
 const STEPS = [
   {
-    label: "Step 1 / 6 — the template",
-    sql:   "SELECT '" + BODY + "'",
-    hl:    BODY,
+    sql:     "SELECT '" + BODY + "'",
+    hl:      BODY,
+    explain: "Step 1 / 6 — The template. The quine's body stored as a string. The $ is a placeholder that will be replaced in step 5 with a quoted copy of itself.",
   },
   {
-    label: "Step 2 / 6 — the placeholder",
-    sql:   "SELECT CHAR(36)",
-    hl:    "CHAR(36)",
+    sql:     "SELECT CHAR(36)",
+    hl:      "CHAR(36)",
+    explain: "Step 2 / 6 — CHAR(36) returns $, the placeholder character. Encoding it via CHAR() stops SQLite from treating $ as a parameter binding inside the string.",
   },
   {
-    label: "Step 3 / 6 — the quote character",
-    sql:   "SELECT CHAR(39)",
-    hl:    "CHAR(39)",
+    sql:     "SELECT CHAR(39)",
+    hl:      "CHAR(39)",
+    explain: "Step 3 / 6 — CHAR(39) returns a single-quote '. We need it to wrap the template in quotes, but can't write ' directly inside a quoted SQL string.",
   },
   {
-    label: "Step 4 / 6 — wrapping the template in quotes",
-    sql:   "SELECT CHAR(39)||'" + BODY + "'||CHAR(39)",
-    hl:    "CHAR(39)||",
+    sql:     "SELECT CHAR(39)||'" + BODY + "'||CHAR(39)",
+    hl:      "CHAR(39)||",
+    explain: "Step 4 / 6 — Wrap the template in single-quotes: CHAR(39) || template || CHAR(39). This produces the replacement value 'template' used in the next step.",
   },
   {
-    label: "Step 5 / 6 — the REPLACE operation",
-    sql:   "SELECT REPLACE('" + BODY + "',CHAR(36),CHAR(39)||'" + BODY + "'||CHAR(39))",
-    hl:    "REPLACE(",
+    sql:     "SELECT REPLACE('" + BODY + "',CHAR(36),CHAR(39)||'" + BODY + "'||CHAR(39))",
+    hl:      "REPLACE(",
+    explain: "Step 5 / 6 — Replace $ in the template with the quoted template. REPLACE is single-pass: the substitution value is never re-scanned. Output: the full quine string.",
   },
   {
-    label: "Step 6 / 6 — the quine",
-    sql:   QUINE,
-    hl:    "REPLACE(s,CHAR(36)",
+    sql:     QUINE,
+    hl:      "REPLACE(s,CHAR(36)",
+    explain: "Step 6 / 6 — The quine. The CTE stores the template as s; REPLACE substitutes $ with 'template'. The output is identical to the query itself — self-replication confirmed.",
   },
 ];
 
 // ── DOM refs ──────────────────────────────────────────────────────
-const queryPane   = document.getElementById('query-pane');
-const resultPane  = document.getElementById('result-pane');
-const queryPre    = document.getElementById('query-pre');
-const resultPre   = document.getElementById('result-pre');
-const resultEmpty = document.getElementById('result-empty');
-const playBtn     = document.getElementById('play-btn');
-const pauseBtn    = document.getElementById('pause-btn');
-const restartBtn  = document.getElementById('restart-btn');
-const stepCounter = document.getElementById('step-counter');
+const queryPane       = document.getElementById('query-pane');
+const resultPane      = document.getElementById('result-pane');
+const queryPre        = document.getElementById('query-pre');
+const resultPre       = document.getElementById('result-pre');
+const resultEmpty     = document.getElementById('result-empty');
+const nextBtn         = document.getElementById('next-btn');
+const prevBtn         = document.getElementById('prev-btn');
+const restartBtn      = document.getElementById('restart-btn');
+const stepCounter     = document.getElementById('step-counter');
+const stepExplanation = document.getElementById('step-explanation');
 
-// ── State machine ─────────────────────────────────────────────────
-// States: idle | loading | ready | playing | paused | complete | error
-let state    = 'idle';
-let stepIdx  = 0;
-let timer    = null;
-let db       = null;
+let stepIdx = 0;  // 0 = nothing run yet; n = steps 1..n have been executed
+let db      = null;
+const cache = new Array(STEPS.length).fill(null);  // cached sql.js results
 
-function setState(s) {
-  state = s;
-  playBtn.disabled    = !(s === 'ready' || s === 'paused');
-  pauseBtn.disabled   = !(s === 'playing');
-  restartBtn.disabled = !(s === 'ready' || s === 'playing' || s === 'paused' || s === 'complete' || s === 'error');
+// ── Controls ──────────────────────────────────────────────────────
+function updateButtons() {
+  const loaded  = db !== null;
+  const errored = stepIdx > 0 && cache[stepIdx - 1] && !cache[stepIdx - 1].ok;
+  nextBtn.disabled    = !loaded || stepIdx >= STEPS.length || errored;
+  prevBtn.disabled    = !loaded || stepIdx === 0;
+  restartBtn.disabled = !loaded || stepIdx === 0;
 }
 
 function updateCounter() {
-  const n     = stepIdx;
-  const total = STEPS.length;
-  const done  = state === 'complete';
-  const label = n === 0 ? '—' : `${n} / ${total}${done ? ' ✓' : ''}`;
-  stepCounter.textContent  = label;
-  stepCounter.setAttribute('aria-label', `Animation step ${n} of ${total}`);
+  const n    = stepIdx;
+  const tot  = STEPS.length;
+  const done = n === tot;
+  stepCounter.textContent = n === 0 ? '—' : `${n} / ${tot}${done ? ' ✓' : ''}`;
+  stepCounter.setAttribute('aria-label', `Step ${n} of ${tot}`);
 }
 
-// ── Query rendering with highlight ───────────────────────────────
+// ── Query panel rendering with bold highlight ─────────────────────
 function renderQuery(step) {
   const sql = step.sql;
   const hl  = step.hl;
   const idx = sql.indexOf(hl);
-  if (idx === -1) {
-    queryPre.textContent = sql;
-    return;
-  }
+  if (idx === -1) { queryPre.textContent = sql; return; }
   queryPre.innerHTML = '';
-  const before = document.createTextNode(sql.slice(0, idx));
-  const bold   = document.createElement('span');
-  bold.style.fontWeight = 'bold';
-  bold.textContent      = hl;
-  const after  = document.createTextNode(sql.slice(idx + hl.length));
-  queryPre.appendChild(before);
-  queryPre.appendChild(bold);
-  queryPre.appendChild(after);
+  queryPre.appendChild(document.createTextNode(sql.slice(0, idx)));
+  const span = document.createElement('span');
+  span.style.fontWeight = 'bold';
+  span.textContent = hl;
+  queryPre.appendChild(span);
+  queryPre.appendChild(document.createTextNode(sql.slice(idx + hl.length)));
 }
 
-// ── Result rendering ──────────────────────────────────────────────
+// ── Result panel ──────────────────────────────────────────────────
 function showResult(text) {
   resultEmpty.style.display = 'none';
   resultPre.style.display   = '';
   resultPre.textContent     = text;
 }
-
 function showResultEmpty(msg) {
   resultEmpty.style.display = '';
   resultEmpty.textContent   = msg;
   resultPre.style.display   = 'none';
 }
 
-function checkConvergence(step, result) {
-  const converged = result === step.sql;
-  queryPane.classList.toggle('converged',  converged);
-  resultPane.classList.toggle('converged', converged);
+// ── Convergence highlight ─────────────────────────────────────────
+function updateConvergence(step, result) {
+  const conv = typeof result === 'string' && result === step.sql;
+  queryPane.classList.toggle('converged',  conv);
+  resultPane.classList.toggle('converged', conv);
+}
+function clearConvergence() {
+  queryPane.classList.remove('converged');
+  resultPane.classList.remove('converged');
+}
+
+// ── Render current stepIdx ────────────────────────────────────────
+function renderState() {
+  updateCounter();
+  updateButtons();
+
+  if (stepIdx === 0) {
+    // Preview: show what the first query will be; result is empty
+    renderQuery(STEPS[0]);
+    showResultEmpty('Press Next to run this query');
+    stepExplanation.textContent = 'Six queries build the quine — each one revealing a piece of the mechanism. Press Next to execute step 1.';
+    clearConvergence();
+    return;
+  }
+
+  const step   = STEPS[stepIdx - 1];
+  const result = cache[stepIdx - 1];
+  renderQuery(step);
+  stepExplanation.textContent = step.explain;
+
+  if (!result.ok) {
+    showResult('ERROR (step ' + stepIdx + '): ' + result.error);
+    clearConvergence();
+  } else {
+    showResult(result.value);
+    updateConvergence(step, result.value);
+  }
 }
 
 // ── sql.js execution ──────────────────────────────────────────────
 function runStep(step) {
   try {
-    const results = db.exec(step.sql);
-    const val     = results[0]?.values[0]?.[0] ?? '';
-    return { ok: true, value: String(val) };
+    const res = db.exec(step.sql);
+    return { ok: true, value: String(res[0]?.values[0]?.[0] ?? '') };
   } catch (e) {
     return { ok: false, error: e.message };
   }
 }
 
-// ── Animation tick ────────────────────────────────────────────────
-function tick() {
-  if (stepIdx >= STEPS.length) {
-    clearInterval(timer);
-    timer = null;
-    setState('complete');
-    updateCounter();
-    return;
-  }
-
-  const step   = STEPS[stepIdx];
-  const result = runStep(step);
-  stepIdx++;
-
-  renderQuery(step);
-  updateCounter();
-
-  if (!result.ok) {
-    clearInterval(timer);
-    timer = null;
-    showResult('ERROR (step ' + stepIdx + '): ' + result.error);
-    queryPane.classList.remove('converged');
-    resultPane.classList.remove('converged');
-    setState('error');
-    return;
-  }
-
-  showResult(result.value);
-  checkConvergence(step, result.value);
-
-  if (stepIdx >= STEPS.length) {
-    clearInterval(timer);
-    timer = null;
-    setState('complete');
-    updateCounter();
-  }
-}
-
 // ── Button handlers ───────────────────────────────────────────────
-playBtn.addEventListener('click', () => {
-  if (state === 'ready' || state === 'paused') {
-    setState('playing');
-    clearInterval(timer);
-    timer = setInterval(tick, 800);
-  }
+nextBtn.addEventListener('click', () => {
+  if (stepIdx >= STEPS.length) return;
+  if (cache[stepIdx] === null) cache[stepIdx] = runStep(STEPS[stepIdx]);
+  stepIdx++;
+  renderState();
 });
 
-pauseBtn.addEventListener('click', () => {
-  if (state === 'playing') {
-    clearInterval(timer);
-    timer = null;
-    setState('paused');
-  }
+prevBtn.addEventListener('click', () => {
+  if (stepIdx === 0) return;
+  stepIdx--;
+  renderState();
 });
 
 restartBtn.addEventListener('click', () => {
-  clearInterval(timer);
-  timer   = null;
   stepIdx = 0;
-  queryPane.classList.remove('converged');
-  resultPane.classList.remove('converged');
-  renderQuery(STEPS[0]);
-  showResultEmpty('Run the animation to see output');
-  updateCounter();
-  setState('ready');
+  renderState();
 });
 
 // ── Init: load sql.js ─────────────────────────────────────────────
-setState('loading');
-queryPre.textContent = '';
-
-const queryLoadingDiv = document.createElement('div');
-queryLoadingDiv.className = 'empty-state';
-queryLoadingDiv.textContent = 'Loading SQL engine…';
-queryPre.replaceWith(queryLoadingDiv);
-
+const loadingDiv = document.createElement('div');
+loadingDiv.className   = 'empty-state';
+loadingDiv.textContent = 'Loading SQL engine…';
+queryPre.replaceWith(loadingDiv);
 showResultEmpty('Loading SQL engine…');
+stepExplanation.textContent = 'Loading SQL engine…';
 
 initSqlJs({ locateFile: file => 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/' + file })
   .then(SQL => {
     db = new SQL.Database();
-
-    // Restore query pre and show idle state
-    queryLoadingDiv.replaceWith(queryPre);
-    renderQuery(STEPS[0]);
-    showResultEmpty('Run the animation to see output');
-    stepIdx = 0;
-    updateCounter();
-    setState('ready');
+    loadingDiv.replaceWith(queryPre);
+    renderState();
   })
-  .catch(err => {
-    queryLoadingDiv.replaceWith(queryPre);
-    queryPre.textContent = 'sql.js failed to load — check your connection';
-    showResultEmpty('sql.js failed to load — check your connection');
-    setState('error');
+  .catch(() => {
+    loadingDiv.replaceWith(queryPre);
+    const msg = 'sql.js failed to load — check your connection';
+    queryPre.textContent         = msg;
+    stepExplanation.textContent  = msg;
+    showResultEmpty(msg);
   });
 </script>
 
