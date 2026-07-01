@@ -71,7 +71,7 @@
   /* Per-step explanation strip */
   .step-explanation {
     padding: 10px 20px;
-    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     background: var(--bg-panel);
     font-size: 0.73rem;
     color: var(--text-2);
@@ -221,6 +221,8 @@
 
 <main>
 
+  <div class="step-explanation" id="step-explanation" aria-live="polite"></div>
+
   <div class="pane-row">
 
     <div class="pane" id="query-pane">
@@ -246,8 +248,6 @@
 
   </div>
 
-  <div class="step-explanation" id="step-explanation" aria-live="polite"></div>
-
 </main>
 
 <footer>
@@ -257,15 +257,15 @@
 <script>
 // T-SQL quine — simulated step by step
 // char(39) = '   char(41) = )   space(1) = [space]
-const T4    = "space(1)+char(39)+space(1)+char(39)";
-const PRE4  = "select replace(" + T4 + ",space(1),";
-const T     = "space(1)+char(39)+space(1)+char(39)+char(41)";
-const PRE   = "select replace(" + T + ",space(1),";
+const T4    = "space(1) + char(39) + space(1) + char(39)";
+const PRE4  = "select replace(" + T4 + ", space(1), ";
+const T     = "space(1) + char(39) + space(1) + char(39) + char(41)";
+const PRE   = "select replace(" + T + ", space(1), ";
 const QUINE = PRE + "'" + PRE + "')";
 
 const IND = "\n              ";  // indent to align under opening paren
-const DISP4 = "select replace(" + T4 + IND + ",space(1)" + IND + ",'" + PRE4 + "')";
-const DISP5 = "select replace(" + T  + IND + ",space(1)" + IND + ",'" + PRE  + "')";
+const DISP4 = "select replace(" + T4 + IND + ", space(1)" + IND + ", '" + PRE4 + "')";
+const DISP5 = "select replace(" + T  + IND + ", space(1)" + IND + ", '" + PRE  + "')";
 
 const STEPS = [
   {
@@ -275,13 +275,13 @@ const STEPS = [
     explain: "Step 1 / 5 — To replicate the query, the result must contain the full query text. Wrapping it in quotes makes it a string — but SELECT only returns the text inside the quotes. The quotes and SELECT keyword are stripped from the result. Already stuck.",
   },
   {
-    sql:     "select char(39)+'select'+char(39)",
+    sql:     "select char(39) + 'select' + char(39)",
     hl:      "char(39)",
     result:  "'select'",
     explain: "Step 2 / 5 — char(39) returns a single-quote without writing one inside a string literal. Wrapping the output with char(39) gets quotes into the result. But now the query says char(39) while the result shows ' — they look completely different.",
   },
   {
-    sql:     "select char(39)+'select char(39)'+char(39)",
+    sql:     "select char(39) + 'select char(39)' + char(39)",
     hl:      "'select char(39)'",
     result:  "'select char(39)'",
     explain: "Step 3 / 5 — Update the template string to contain the full query text. The result now includes char(39). Getting closer — but the outer quotes wrapping the template are still not in the result. Every character added to close the gap creates another gap.",
