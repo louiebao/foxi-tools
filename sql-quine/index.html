@@ -384,7 +384,7 @@ function renderState() {
 
   const step = STEPS[stepIdx - 1];
   renderQuery(step);
-  stepExplanation.textContent = step.explain;
+  stepExplanation.innerHTML = step.explain.replace(/^(Step \d+ \/ \d+)/, '<strong>$1</strong>');
   const displayResult = step.display && step.result === step.sql ? step.display : step.result;
   showResult(displayResult);
   updateConvergence(step, step.result);
