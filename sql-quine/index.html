@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL Quine</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: clamp(17px, 1.3vw, 26px); }
+
+  :root {
+    --bg:           #f8f8f5;
+    --bg-panel:     #edeae3;
+    --bg-output:    #f3f1eb;
+    --text:         #222;
+    --text-2:       #666;
+    --text-3:       #777;
+    --border:       #d0d0cc;
+    --border-ui:    #ccc;
+    --border-hover: #888;
+    --accent:       #4a7ab4;
+  }
+
+  body {
+    font-family: 'Courier New', monospace;
+    font-size: 0.93rem;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 4px; }
+  header h1 {
+    font-size: 1rem;
+    font-weight: normal;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  header p {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+  }
+
+  .explainer {
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 0.73rem;
+    color: var(--text-2);
+    letter-spacing: 0.01em;
+    line-height: 1.6;
+    flex-shrink: 0;
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: 1fr 110px 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .pane {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    min-height: 0;
+    transition: border-left 0.2s;
+  }
+  .pane:last-child { border-right: none; }
+  .pane.converged { border-left: 3px solid var(--accent); }
+
+  .pane-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    height: 42px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .pane-label {
+    font-size: 0.67rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .center-pane {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .center-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .center-body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 12px 8px;
+    flex: 1;
+  }
+  .step-counter {
+    font-size: 0.6rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  pre {
+    flex: 1;
+    padding: 16px 18px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    line-height: 1.75;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .query-pre { background: var(--bg); color: var(--text); }
+  .result-pre { background: var(--bg-output); color: var(--text); }
+
+  .empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    font-size: 0.73rem;
+    letter-spacing: 0.06em;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    padding: 9px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .btn-primary:hover:not(:disabled) { opacity: 0.75; }
+  .btn-primary:disabled { opacity: 0.35; cursor: default; }
+
+  .btn-secondary {
+    width: 100%;
+    background: transparent;
+    color: var(--text-2);
+    border: 1px solid var(--border-ui);
+    padding: 7px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--border-hover); color: var(--text); }
+  .btn-secondary:disabled { opacity: 0.35; cursor: default; }
+
+  .back-link {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .back-link:hover { color: var(--text); }
+
+  footer {
+    padding: 10px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.73rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Mobile ≤768px ──────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    body { overflow: auto; height: auto; min-height: 100dvh; }
+
+    main {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .center-pane {
+      order: 1;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .center-body {
+      flex-direction: row;
+      flex-wrap: wrap;
+      padding: 10px 12px;
+      gap: 8px;
+    }
+    .center-body .btn-primary,
+    .center-body .btn-secondary {
+      width: auto;
+      flex: 1;
+      min-height: 44px;
+    }
+    .step-counter {
+      width: 100%;
+      text-align: center;
+      margin-top: 0;
+    }
+    .center-header { display: none; }
+
+    .pane { order: 2; border-right: none; border-bottom: 1px solid var(--border); }
+    .pane:last-child { order: 3; border-bottom: none; }
+    .pane.converged { border-left: 3px solid var(--accent); }
+
+    pre { min-height: 60vh; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>SQL Quine</h1>
+    <p>A query that produces itself &mdash; watch it construct in real time</p>
+  </div>
+</header>
+
+<div class="explainer">
+  A quine is a program whose output is its own source code. This SELECT query is self-replicating: when you run it, SQLite returns the query text itself, character for character. The animation shows how a REPLACE() chain builds that property step by step, substituting a placeholder with the template until the output converges with the query.
+</div>
+
+<main>
+
+  <div class="pane" id="query-pane">
+    <div class="pane-header">
+      <span class="pane-label">Query</span>
+    </div>
+    <pre class="query-pre" id="query-pre" aria-label="Current SQL query step" aria-live="polite"></pre>
+  </div>
+
+  <div class="center-pane">
+    <div class="center-header">
+      <span class="pane-label" style="font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);">Controls</span>
+    </div>
+    <div class="center-body">
+      <button class="btn-primary"   id="play-btn"    aria-label="Play animation" disabled>Play</button>
+      <button class="btn-secondary" id="pause-btn"   aria-label="Pause animation" disabled>Pause</button>
+      <button class="btn-secondary" id="restart-btn" aria-label="Restart animation" disabled>Restart</button>
+      <div class="step-counter" id="step-counter" aria-label="Animation step 0 of 6">—</div>
+    </div>
+  </div>
+
+  <div class="pane" id="result-pane">
+    <div class="pane-header">
+      <span class="pane-label">Result</span>
+    </div>
+    <div class="empty-state" id="result-empty">Loading SQL engine&hellip;</div>
+    <pre class="result-pre" id="result-pre" aria-label="SQL query result" aria-live="polite" style="display:none"></pre>
+  </div>
+
+</main>
+
+<footer>
+  <a class="back-link" href="../">&lt; Home</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js"></script>
+<script>
+// ── Quine construction ────────────────────────────────────────────
+// BODY is the quine template; CHAR(36) = $ is the placeholder.
+// REPLACE(s, CHAR(36), CHAR(39)||s||CHAR(39)) substitutes $ with 'BODY',
+// producing the full quine whose output matches itself.
+const BODY  = "WITH q(s) AS (SELECT $) SELECT REPLACE(s,CHAR(36),CHAR(39)||s||CHAR(39)) FROM q";
+const QUINE = "WITH q(s) AS (SELECT '" + BODY + "') SELECT REPLACE(s,CHAR(36),CHAR(39)||s||CHAR(39)) FROM q";
+
+const STEPS = [
+  {
+    label: "Step 1 / 6 — the template",
+    sql:   "SELECT '" + BODY + "'",
+    hl:    BODY,
+  },
+  {
+    label: "Step 2 / 6 — the placeholder",
+    sql:   "SELECT CHAR(36)",
+    hl:    "CHAR(36)",
+  },
+  {
+    label: "Step 3 / 6 — the quote character",
+    sql:   "SELECT CHAR(39)",
+    hl:    "CHAR(39)",
+  },
+  {
+    label: "Step 4 / 6 — wrapping the template in quotes",
+    sql:   "SELECT CHAR(39)||'" + BODY + "'||CHAR(39)",
+    hl:    "CHAR(39)||",
+  },
+  {
+    label: "Step 5 / 6 — the REPLACE operation",
+    sql:   "SELECT REPLACE('" + BODY + "',CHAR(36),CHAR(39)||'" + BODY + "'||CHAR(39))",
+    hl:    "REPLACE(",
+  },
+  {
+    label: "Step 6 / 6 — the quine",
+    sql:   QUINE,
+    hl:    "REPLACE(s,CHAR(36)",
+  },
+];
+
+// ── DOM refs ──────────────────────────────────────────────────────
+const queryPane   = document.getElementById('query-pane');
+const resultPane  = document.getElementById('result-pane');
+const queryPre    = document.getElementById('query-pre');
+const resultPre   = document.getElementById('result-pre');
+const resultEmpty = document.getElementById('result-empty');
+const playBtn     = document.getElementById('play-btn');
+const pauseBtn    = document.getElementById('pause-btn');
+const restartBtn  = document.getElementById('restart-btn');
+const stepCounter = document.getElementById('step-counter');
+
+// ── State machine ─────────────────────────────────────────────────
+// States: idle | loading | ready | playing | paused | complete | error
+let state    = 'idle';
+let stepIdx  = 0;
+let timer    = null;
+let db       = null;
+
+function setState(s) {
+  state = s;
+  playBtn.disabled    = !(s === 'ready' || s === 'paused');
+  pauseBtn.disabled   = !(s === 'playing');
+  restartBtn.disabled = !(s === 'ready' || s === 'playing' || s === 'paused' || s === 'complete' || s === 'error');
+}
+
+function updateCounter() {
+  const n     = stepIdx;
+  const total = STEPS.length;
+  const done  = state === 'complete';
+  const label = n === 0 ? '—' : `${n} / ${total}${done ? ' ✓' : ''}`;
+  stepCounter.textContent  = label;
+  stepCounter.setAttribute('aria-label', `Animation step ${n} of ${total}`);
+}
+
+// ── Query rendering with highlight ───────────────────────────────
+function renderQuery(step) {
+  const sql = step.sql;
+  const hl  = step.hl;
+  const idx = sql.indexOf(hl);
+  if (idx === -1) {
+    queryPre.textContent = sql;
+    return;
+  }
+  queryPre.innerHTML = '';
+  const before = document.createTextNode(sql.slice(0, idx));
+  const bold   = document.createElement('span');
+  bold.style.fontWeight = 'bold';
+  bold.textContent      = hl;
+  const after  = document.createTextNode(sql.slice(idx + hl.length));
+  queryPre.appendChild(before);
+  queryPre.appendChild(bold);
+  queryPre.appendChild(after);
+}
+
+// ── Result rendering ──────────────────────────────────────────────
+function showResult(text) {
+  resultEmpty.style.display = 'none';
+  resultPre.style.display   = '';
+  resultPre.textContent     = text;
+}
+
+function showResultEmpty(msg) {
+  resultEmpty.style.display = '';
+  resultEmpty.textContent   = msg;
+  resultPre.style.display   = 'none';
+}
+
+function checkConvergence(step, result) {
+  const converged = result === step.sql;
+  queryPane.classList.toggle('converged',  converged);
+  resultPane.classList.toggle('converged', converged);
+}
+
+// ── sql.js execution ──────────────────────────────────────────────
+function runStep(step) {
+  try {
+    const results = db.exec(step.sql);
+    const val     = results[0]?.values[0]?.[0] ?? '';
+    return { ok: true, value: String(val) };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+// ── Animation tick ────────────────────────────────────────────────
+function tick() {
+  if (stepIdx >= STEPS.length) {
+    clearInterval(timer);
+    timer = null;
+    setState('complete');
+    updateCounter();
+    return;
+  }
+
+  const step   = STEPS[stepIdx];
+  const result = runStep(step);
+  stepIdx++;
+
+  renderQuery(step);
+  updateCounter();
+
+  if (!result.ok) {
+    clearInterval(timer);
+    timer = null;
+    showResult('ERROR (step ' + stepIdx + '): ' + result.error);
+    queryPane.classList.remove('converged');
+    resultPane.classList.remove('converged');
+    setState('error');
+    return;
+  }
+
+  showResult(result.value);
+  checkConvergence(step, result.value);
+
+  if (stepIdx >= STEPS.length) {
+    clearInterval(timer);
+    timer = null;
+    setState('complete');
+    updateCounter();
+  }
+}
+
+// ── Button handlers ───────────────────────────────────────────────
+playBtn.addEventListener('click', () => {
+  if (state === 'ready' || state === 'paused') {
+    setState('playing');
+    clearInterval(timer);
+    timer = setInterval(tick, 800);
+  }
+});
+
+pauseBtn.addEventListener('click', () => {
+  if (state === 'playing') {
+    clearInterval(timer);
+    timer = null;
+    setState('paused');
+  }
+});
+
+restartBtn.addEventListener('click', () => {
+  clearInterval(timer);
+  timer   = null;
+  stepIdx = 0;
+  queryPane.classList.remove('converged');
+  resultPane.classList.remove('converged');
+  renderQuery(STEPS[0]);
+  showResultEmpty('Run the animation to see output');
+  updateCounter();
+  setState('ready');
+});
+
+// ── Init: load sql.js ─────────────────────────────────────────────
+setState('loading');
+queryPre.textContent = '';
+
+const queryLoadingDiv = document.createElement('div');
+queryLoadingDiv.className = 'empty-state';
+queryLoadingDiv.textContent = 'Loading SQL engine…';
+queryPre.replaceWith(queryLoadingDiv);
+
+showResultEmpty('Loading SQL engine…');
+
+initSqlJs({ locateFile: file => 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/' + file })
+  .then(SQL => {
+    db = new SQL.Database();
+
+    // Restore query pre and show idle state
+    queryLoadingDiv.replaceWith(queryPre);
+    renderQuery(STEPS[0]);
+    showResultEmpty('Run the animation to see output');
+    stepIdx = 0;
+    updateCounter();
+    setState('ready');
+  })
+  .catch(err => {
+    queryLoadingDiv.replaceWith(queryPre);
+    queryPre.textContent = 'sql.js failed to load — check your connection';
+    showResultEmpty('sql.js failed to load — check your connection');
+    setState('error');
+  });
+</script>
+
+</body>
+</html>

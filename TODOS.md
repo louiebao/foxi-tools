@@ -26,3 +26,14 @@ strong lenses. Each adds discovery value at near-zero implementation cost.
 v1 ships and you've validated the overall experience. Surfaced by `/plan-eng-review` (2026-06-13).
 
 **Depends on:** periodic-table v1 shipped and stable.
+
+---
+
+## sql-quine: v2 quine builder
+**What:** Let the user assemble the REPLACE layers piece by piece. The tool shows the quine "snap" into self-replication the moment the final layer is complete.
+
+**Why:** Once v1 teaches the mechanism (animation), v2 lets the user build one themselves. That transition from comprehension to construction is where the tool becomes memorable rather than just informative.
+
+**Context:** Scoped out of v1 because users need to understand the concept before they can enjoy building one — v1 teaches it, v2 builds on that. Approach C from the original design doc (`/office-hours` 2026-06-29). Architecture from v1 (sql.js already loaded, REPLACE chain structure already displayed) is the right starting point. Surfaced by `/plan-eng-review` (2026-06-30).
+
+**Depends on:** sql-quine v1 shipped and validated.
