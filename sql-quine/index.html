@@ -334,17 +334,7 @@ function updateCounter() {
 
 // ── Query panel rendering with bold highlight ─────────────────────
 function renderQuery(step) {
-  const sql = step.display ?? step.sql;
-  const hl  = step.hl;
-  const idx = sql.indexOf(hl);
-  if (idx === -1) { queryPre.textContent = sql; return; }
-  queryPre.innerHTML = '';
-  queryPre.appendChild(document.createTextNode(sql.slice(0, idx)));
-  const span = document.createElement('span');
-  span.style.fontWeight = 'bold';
-  span.textContent = hl;
-  queryPre.appendChild(span);
-  queryPre.appendChild(document.createTextNode(sql.slice(idx + hl.length)));
+  queryPre.textContent = step.display ?? step.sql;
 }
 
 // ── Result panel ──────────────────────────────────────────────────
