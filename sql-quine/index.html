@@ -70,6 +70,11 @@
 
   /* Per-step explanation strip */
   .step-explanation strong { white-space: nowrap; }
+  .step-explanation code {
+    background: #d4d0c8;
+    padding: 1px 5px;
+    font-size: 0.85em;
+  }
   .step-explanation {
     padding: 10px 20px;
     border-bottom: 1px solid var(--border);
@@ -107,7 +112,39 @@
     text-transform: uppercase;
     color: var(--text-3);
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
+  .pane-label .tip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: default;
+    color: var(--text-3);
+    font-size: 0.75rem;
+    letter-spacing: 0;
+    text-transform: none;
+    font-style: normal;
+  }
+  .pane-label .tip::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 22em;
+    background: var(--text);
+    color: var(--bg);
+    font-size: 0.65rem;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    padding: 7px 10px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .pane-label .tip:hover::after { opacity: 1; }
 
   .query-controls {
     display: flex;
@@ -175,6 +212,18 @@
   .btn-secondary:hover:not(:disabled) { border-color: var(--border-hover); color: var(--text); }
   .btn-secondary:disabled { opacity: 0.35; cursor: default; }
 
+  .hl-red    { color: #d92020; font-weight: bold; }
+  .hl-blue   { color: #2255cc; font-weight: bold; }
+  .hl-green  { color: #1a9a1a; font-weight: bold; }
+  @keyframes pulse    { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+  @keyframes seq-fade { 0%, 20%, 100% { opacity: 1; } 8% { opacity: 0.15; } }
+  .hl-match  { color: #b05c00; font-weight: bold; animation: pulse 1.4s ease-in-out infinite; }
+  .seq-pulse .hl-red    { animation: seq-fade 4s ease-in-out infinite 0s; }
+  .seq-pulse .hl-blue   { animation: seq-fade 4s ease-in-out infinite 2s; }
+  .seq-pulse-3 .hl-red  { animation: seq-fade 6s ease-in-out infinite 0s; }
+  .seq-pulse-3 .hl-blue { animation: seq-fade 6s ease-in-out infinite 2s; }
+  .seq-pulse-3 .hl-green { animation: seq-fade 6s ease-in-out infinite 4s; }
+
   .back-link {
     font-size: 0.73rem;
     color: var(--text-3);
@@ -218,11 +267,11 @@
 
     <div class="pane" id="query-pane">
       <div class="pane-header">
-        <span class="pane-label">Query</span>
+        <span class="pane-label">Query <span class="tip" data-tip="Multiline formatting is for readability only. The code can be and should be executed on a single line for precise mirroring.">ⓘ</span></span>
         <div class="query-controls">
           <button class="btn-secondary" id="prev-btn"    aria-label="Previous step" disabled>Prev</button>
           <button class="btn-primary"   id="next-btn"    aria-label="Next step"     disabled>Next</button>
-          <button class="btn-secondary" id="restart-btn" aria-label="Restart"       disabled>Restart</button>
+          <button class="btn-secondary" id="restart-btn" aria-label="Reset"         disabled>Reset</button>
         </div>
       </div>
       <pre class="query-pre" id="query-pre" aria-label="Current SQL query" aria-live="polite"></pre>
@@ -230,7 +279,7 @@
 
     <div class="pane" id="result-pane">
       <div class="pane-header">
-        <span class="pane-label">Result</span>
+        <span class="pane-label">Result <span class="tip" data-tip="Multiline formatting is for readability only. The code can be and should be executed on a single line for precise mirroring.">ⓘ</span></span>
       </div>
       <div class="empty-state" id="result-empty">Press Next to step through the query</div>
       <pre class="result-pre" id="result-pre" aria-label="SQL query result" aria-live="polite" style="display:none"></pre>
@@ -253,42 +302,75 @@ const T     = "space(1) + char(39) + space(1) + char(39) + char(41)";
 const PRE   = "select replace(" + T + ", space(1), ";
 const QUINE = PRE + "'" + PRE + "')";
 
-const IND = "\n              ";  // indent to align under opening paren
-const DISP4 = "select replace(" + T4 + IND + ", space(1)" + IND + ", '" + PRE4 + "')";
-const DISP5 = "select replace(" + T  + IND + ", space(1)" + IND + ", '" + PRE  + "')";
+const IND          = "\n             ";
+const DISP4        = "select replace(" + T4 + IND + ", space(1)" + IND + ", '" + PRE4 + "')";
+const DISP4_RESULT = "select replace(" + T4 + IND + ", space(1)" + IND + ", '" + PRE4 + "'";
+const DISP5        = "select replace(" + T  + IND + ", space(1)" + IND + ", '" + PRE  + "')";
+
+const R = s => '<span class="hl-red">'    + s + '</span>';
+const B = s => '<span class="hl-blue">'   + s + '</span>';
+const Y = s => '<span class="hl-green">'  + s + '</span>';
+const M = s => '<span class="hl-match">'  + s + '</span>';
+const DISP4_HTML =
+  "select replace(space(1) + " + R("char(39)") + " + " + B("space(1)") + " + " + R("char(39)") +
+  IND + ", space(1)" +
+  IND + ", " + R("'") + B("select replace(space(1) + char(39) + space(1) + char(39), space(1), ") + R("'") + ")";
+const DISP5_HTML =
+  "select replace(space(1) + " + R("char(39)") + " + " + B("space(1)") + " + " + R("char(39)") + " + " + Y("char(41)") +
+  IND + ", space(1)" +
+  IND + ", " + R("'") + B("select replace(space(1) + char(39) + space(1) + char(39) + char(41), space(1), ") + R("'") + Y(")");
 
 const STEPS = [
   {
     sql:     "select 'select'",
     hl:      "'select'",
     result:  "select",
-    explain: "Step 1 / 5 — To replicate the query, the result must contain the full query text. Wrapping it in quotes makes it a string — but SELECT only returns the text inside the quotes. The quotes and SELECT keyword are stripped from the result. Already stuck.",
+    explain: "Step 1 / 7 - Starting with a select — To replicate the query, the output must match the input character-for-character. Wrapping text in quotes turns it into a string, but <code>SELECT</code> only returns the text inside those quotes. This leaves the output incomplete, tempting us to manually patch it up, which is exactly where the trap begins.",
   },
   {
     sql:     "select char(39) + 'select' + char(39)",
     hl:      "char(39)",
     result:  "'select'",
-    explain: "Step 2 / 5 — char(39) returns a single-quote without writing one inside a string literal. Wrapping the output with char(39) gets quotes into the result. But now the query says char(39) while the result shows ' — they look completely different.",
+    explain: "Step 2 / 7 - Hardcoding the quotes — To get quotes into the output without breaking the SQL string, we can use <code>char(39)</code>, which evaluates to a single quote. By wrapping the text with <code>char(39)</code>, we successfully sneak quotes into the final result but notice how the <code>SELECT</code> keyword is still missing.",
   },
   {
-    sql:     "select char(39) + 'select char(39)' + char(39)",
-    hl:      "'select char(39)'",
-    result:  "'select char(39)'",
-    explain: "Step 3 / 5 — Update the template string to contain the full query text. The result now includes char(39). Getting closer — but the outer quotes wrapping the template are still not in the result. Every character added to close the gap creates another gap.",
+    sql:         "select char(39) + 'select char(39)' + char(39)",
+    displayHtml: M("select char(39)") + " + '" + M("select char(39)") + "' + char(39)",
+    hl:          "'select char(39)'",
+    result:      "'select char(39)'",
+    explain: "Step 3 / 7 - Chasing the tail — We've updated the string to include <code>char(39)</code>. We are getting closer but the outer quotes wrapping the template are still missing from the output. The trap: every single character we add to close the gap just creates a brand new gap. This is a dead end! We cannot solve a quine by simply adding more code to the query itself.",
   },
   {
-    sql:     PRE4 + "'" + PRE4 + "')",
-    display: DISP4,
-    hl:      "space(1)",
-    result:  PRE4 + "'" + PRE4 + "'",
-    explain: "Step 4 / 5 — Breakthrough: use space(1) as a placeholder inside the template. A space needs no escaping inside a string. REPLACE() substitutes every space with the query prefix at runtime. Almost there — but the closing ) is missing from the result. It belongs to the REPLACE() call itself, outside the template.",
+    sql:         "select replace(space(1) + char(39) + space(1) + char(39) + char(39), space(1), 'select char(39)')",
+    display:     "select replace(space(1) + char(39) + space(1) + char(39) + char(39)" + IND + ", space(1)" + IND + ", 'select char(39)')",
+    displayHtml: "select replace(" + M("space(1)") + " + char(39) + " + M("space(1)") + " + char(39) + char(39)" + IND + ", " + M("space(1)") + IND + ", 'select char(39)')",
+    result:  "select char(39)'select char(39)''",
+    explain: "Step 4 / 7 - Recognising replaceable patterns — Extracting the repeating <code>select char(39)</code> and substituting it with <code>space(1)</code> placeholders is the ultimate \"Aha!\" moment. This marks the first major breakthrough: the output now displays two <code>SELECT</code> keywords, mirroring the two <code>SELECT</code>s in the input.",
   },
   {
-    sql:     QUINE,
-    display: DISP5,
-    hl:      "replace(",
-    result:  QUINE,
-    explain: "Step 5 / 5 — Add char(41) to the template. The closing ) now lives inside the template and gets carried into the result. REPLACE is single-pass: it substitutes each space once and stops — the spaces introduced by the replacement are never re-scanned. Result equals query exactly.",
+    sql:         "select replace(space(1) + char(39) + space(1) + char(39) + char(39), space(1), 'select replace(space(1) + char(39) + space(1) + char(39) + char(39)')",
+    display:     "select replace(space(1) + char(39) + space(1) + char(39) + char(39)" + IND + ", space(1)" + IND + ", 'select replace(space(1) + char(39) + space(1) + char(39) + char(39)')",
+    displayHtml: M("select replace(") + "space(1) + char(39) + space(1) + char(39) + char(39)" + IND + ", space(1)" + IND + ", '" + M("select replace(") + "space(1) + char(39) + space(1) + char(39) + char(39)')",
+    result:  "select replace(space(1) + char(39) + space(1) + char(39) + char(39)" + IND + "'select replace(space(1) + char(39) + space(1) + char(39) + char(39)''",
+    explain: "Step 5 / 7 - Shaping the quine — We've upgraded the replacement string to contain the full <code>select replace</code> statement. By substituting each space in the template with this block of code, the query finally starts copying itself. The output is close to a complete quine. It mirrors the core code structure twice, split cleanly by the string's internal quotes. We are just a hair away from the finish line.",
+  },
+  {
+    sql:         PRE4 + "'" + PRE4 + "')",
+    display:     DISP4,
+    displayHtml: DISP4_HTML,
+    paneClass:   'seq-pulse',
+    hl:          "space(1)",
+    result:  DISP4_RESULT,
+    explain: "Step 6 / 7 - Mirroring the select — Now that we understand the mechanics and can pinpoint exactly what's missing, we can take the next step. By removing the extra <code>char(39)</code> and adding <code>, space(1)</code> to our replacement string, we make the mirrored structure much more complete.",
+  },
+  {
+    sql:         QUINE,
+    display:     DISP5,
+    displayHtml: DISP5_HTML,
+    paneClass:   'seq-pulse-3',
+    hl:          "replace(",
+    result:      QUINE,
+    explain: "Step 7 / 7 - Completing the quine — We introduce <code>char(41)</code> into our template to capture the final closing <code>)</code>. Since <code>REPLACE()</code> operates as a single-pass function, it substitutes each space once and stops. The loop is now fully closed and the output matches the execution code exactly. We've successfully built a quine!",
   },
 ];
 
@@ -303,18 +385,23 @@ const prevBtn         = document.getElementById('prev-btn');
 const restartBtn      = document.getElementById('restart-btn');
 const stepExplanation = document.getElementById('step-explanation');
 
-let stepIdx = 0;  // 0 = nothing stepped yet; n = steps 1..n have been shown
+let stepIdx = 1;
 
 // ── Controls ──────────────────────────────────────────────────────
 function updateButtons() {
   nextBtn.disabled    = stepIdx >= STEPS.length;
-  prevBtn.disabled    = stepIdx === 0;
-  restartBtn.disabled = stepIdx === 0;
+  prevBtn.disabled    = stepIdx <= 1;
+  restartBtn.disabled = stepIdx <= 1;
 }
 
 // ── Query panel rendering with bold highlight ─────────────────────
 function renderQuery(step) {
-  queryPre.textContent = step.display ?? step.sql;
+  queryPre.className = 'query-pre' + (step.paneClass ? ' ' + step.paneClass : '');
+  if (step.displayHtml) {
+    queryPre.innerHTML = step.displayHtml;
+  } else {
+    queryPre.textContent = step.display ?? step.sql;
+  }
 }
 
 // ── Result panel ──────────────────────────────────────────────────
@@ -344,17 +431,9 @@ function clearConvergence() {
 function renderState() {
   updateButtons();
 
-  if (stepIdx === 0) {
-    renderQuery(STEPS[0]);
-    showResultEmpty('Press Next to step through the query');
-    stepExplanation.textContent = 'Five steps show how the quine is built — starting from the naive attempt and arriving at the working solution. Press Next to begin.';
-    clearConvergence();
-    return;
-  }
-
   const step = STEPS[stepIdx - 1];
   renderQuery(step);
-  stepExplanation.innerHTML = step.explain.replace(/^(Step \d+ \/ \d+) — /, '<strong>$1</strong><br>');
+  stepExplanation.innerHTML = step.explain.replace(/^(.+?) — /, '<strong>$1</strong><br>');
   const displayResult = step.display && step.result === step.sql ? step.display : step.result;
   showResult(displayResult);
   updateConvergence(step, step.result);
@@ -368,13 +447,13 @@ nextBtn.addEventListener('click', () => {
 });
 
 prevBtn.addEventListener('click', () => {
-  if (stepIdx === 0) return;
+  if (stepIdx <= 1) return;
   stepIdx--;
   renderState();
 });
 
 restartBtn.addEventListener('click', () => {
-  stepIdx = 0;
+  stepIdx = 1;
   renderState();
 });
 
