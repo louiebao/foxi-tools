@@ -65,12 +65,22 @@ header {
   gap: 20px;
   flex-shrink: 0;
 }
+.header-title-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 header h1 {
   font-size: 0.88rem;
   font-weight: normal;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  flex: 1;
+}
+header p {
+  font-size: 0.7rem;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
 }
 .back-link {
   font-size: 0.72rem;
@@ -535,7 +545,10 @@ footer {
 <body>
 
 <header>
-  <h1>Periodic Table</h1>
+  <div class="header-title-group">
+    <h1>Periodic Table</h1>
+    <p>Explore all 118 elements in a fun way</p>
+  </div>
 </header>
 
 <div id="main">
@@ -658,6 +671,7 @@ const ELEMENTS = [
       sun:   { fact: 'The Sun is 74% hydrogen by mass — 1.5 × 10²⁷ kg of it. Every second, 600 million tonnes of hydrogen fuse into helium in the core, releasing energy that reaches Earth as sunlight 8 minutes later. This has been running for 4.6 billion years and has enough fuel for 5 billion more.' },
     
       fuel:   { fact: 'Hydrogen is the cleanest fuel: burn it and get only water. Green hydrogen is made by electrolyzing water with renewable electricity; blue hydrogen strips it from natural gas while capturing the CO₂. Hydrogen fuel cells power Toyota\'s Mirai and prototype cargo ships. SpaceX\'s Starship could burn liquid hydrogen if Elon hadn\'t switched to methane.' },
+      animal: { fact: 'Every animal is mostly hydrogen — locked in water molecules and organic compounds. A dolphin, a whale, an insect, and a hummingbird are all roughly 60–70% water by mass. Marine mammals diving to 2,000 m carry their hydrogen-rich oxygen supply in richly oxygenated blood and muscle tissue (myoglobin). Life as we know it is a hydrogen story.' },
     }
   },
   {
@@ -718,6 +732,7 @@ const ELEMENTS = [
       sun:   { fact: 'Massive stars — those more than 1.3× the Sun\'s mass — are powered by the CNO cycle, where carbon, nitrogen, and oxygen act as catalysts to fuse hydrogen into helium. Carbon is not consumed, just rearranged in a loop. In these hot stellar cores, carbon-12 acts as a nuclear assembly line for helium production.' },
     
       fuel:   { fact: 'Every fossil fuel is carbon chemistry. Coal is nearly pure carbon; oil is long carbon chains; natural gas is carbon bonded to hydrogen (CH₄). When you burn any of them, you\'re releasing carbon that was sequestered underground over millions of years. The entire fossil fuel economy is a giant carbon release experiment with no precedent in Earth\'s history.' },
+      animal: { fact: 'Every animal body is a carbon structure. Proteins, fats, hormones, and DNA are all carbon chains and rings. A shark\'s cartilage, a butterfly wing scale, a whale\'s blubber — all carbon scaffolds built from food. Animals don\'t fix carbon from air like plants do; they eat carbon already assembled by other living things, recycling it up the food chain.' },
     }
   },
   {
@@ -735,6 +750,7 @@ const ELEMENTS = [
       sun:   { fact: 'Nitrogen is a catalyst in the CNO cycle — the dominant fusion process in stars hotter and heavier than our Sun. A nitrogen nucleus captures a proton, decays, and eventually regenerates itself while helium-4 is ejected as the net product. Stars burn nitrogen the way an engine burns fuel — without consuming it.' },
     
       fuel:   { fact: 'Nitrogen oxides (NOₓ) are an unavoidable byproduct of burning fuels at high temperatures — the nitrogen and oxygen in air react together. Diesel engines and jet engines produce substantial NOₓ, which causes smog and acid rain. Catalytic converters use platinum and rhodium to convert NOₓ back into harmless N₂ and O₂.' },
+      animal: { fact: 'Every animal muscle, fur, feather, scale, and claw is built from nitrogen-containing proteins. Keratin — the material of bird feathers, reptile scales, rhino horns, and mammal hair — is held together by nitrogen-based amino acid chains. Animals can\'t fix nitrogen from air; they depend entirely on eating it, either from plants or from other animals.' },
     }
   },
   {
@@ -757,6 +773,7 @@ const ELEMENTS = [
       sun:   { fact: 'Oxygen is forged inside massive stars by fusing helium nuclei together (the triple-alpha process makes carbon; one more helium capture makes oxygen). When those stars explode as supernovae, they scatter oxygen across the galaxy. Every oxygen atom in your body — and in every breath of air — was made in a star that died before our Sun was born.' },
     
       fuel:   { fact: 'Combustion is fundamentally an oxygen reaction — every fuel, from wood to jet fuel to hydrogen, needs oxygen to burn. Liquid oxygen (LOX) is the oxidizer in rocket engines. Internal combustion engines breathe air; jet engines compress it. Without oxygen, all fire goes out. The entire energy system humans have built runs on oxidizing things.' },
+      animal: { fact: 'All animals need oxygen to release energy from food. Fish extract it from water through gills; insects breathe through spiracles along their body; birds have a one-way airflow lung far more efficient than mammalian lungs. Diving animals like sperm whales store oxygen in muscle myoglobin — their muscles turn almost black with it, letting them hold breath for over 90 minutes.' },
     }
   },
   {
@@ -765,6 +782,7 @@ const ELEMENTS = [
     defaultFact: 'The most reactive element on the periodic table. Fluorine attacks glass, reacts with noble gases, and was nearly impossible to isolate — it killed or blinded several 19th-century chemists who tried.',
     themes: {
       human:    { fact: 'Fluoride (F⁻) makes tooth enamel harder by replacing hydroxyl groups in hydroxyapatite — the mineral in your teeth — creating fluorapatite, which is more acid-resistant. That\'s why it\'s in toothpaste.' },
+      animal: { fact: 'Many animals have fluoride-hardened teeth and bones. Sharks continuously replace their teeth throughout their lives — each generation harder than the last — partly due to fluoride incorporation into the enameloid. Sea mammals, reptiles, and rodents all use fluorapatite to resist acid wear on their teeth. Some fish accumulate fluoride from seawater to levels that would be toxic to land animals, suggesting different fluoride tolerance across the animal kingdom.' },
       fire: { fact: 'Fluorine reacts with everything. It ignites sand, glass, water, and even some noble gases. It was used as a rocket oxidizer in experimental programs — more powerful than oxygen, but so corrosive it destroyed almost everything it touched.' },
     }
   },
@@ -791,6 +809,7 @@ const ELEMENTS = [
       moon:    { fact: 'The Moon has a trace sodium exosphere — a whisper of an atmosphere too thin to breathe. Sodium atoms are knocked off the lunar surface by solar UV and micrometeorites, then drift away to space. It can actually be detected spectroscopically from Earth, glowing faintly yellow against the moon\'s limb.' },
     
       sun:   { fact: 'The two bright yellow lines of sodium — the sodium D-lines — were among the first spectral features identified in sunlight by Joseph von Fraunhofer in 1814. These dark absorption lines in the solar spectrum revealed the chemical composition of a star from 150 million kilometers away, founding the field of stellar spectroscopy.' },
+      animal: { fact: 'Sodium is the engine of all animal nerve signaling. A squid fires nerve impulses at 25 m/s using sodium; a myelinated mammal nerve reaches 120 m/s — all through the same sodium-potassium pump mechanism. Electric eels generate 600-volt pulses by stacking thousands of specialized sodium-channel cells in sequence. Every animal that moves, senses, or thinks runs on sodium gradients.' },
     }
   },
   {
@@ -806,6 +825,7 @@ const ELEMENTS = [
       plant:  { fact: 'Magnesium sits at the exact center of every chlorophyll molecule — it\'s the atom that catches sunlight. Without magnesium, plants can\'t photosynthesize, leaves turn yellow from the outside in, and the plant slowly starves of energy despite standing in full sun.' },
       moon:   { fact: 'The dark maria (lunar "seas") are rich in magnesium silicate minerals — olivine and pyroxene — erupted from the Moon\'s interior 3–4 billion years ago. These basaltic plains make up the "face" of the Man in the Moon. Future lunar miners may extract magnesium from these volcanic deposits.' },
       mars:   { fact: 'Magnesium perchlorate (Mg(ClO₄)₂) was discovered in Martian soil by the Phoenix lander in 2008. Perchlorates are toxic to humans but are also rocket oxidizers. They lower water\'s freezing point, which may allow salty liquid brines to exist just below the Martian surface even in extreme cold.' },
+      animal: { fact: 'Magnesium is involved in over 300 enzyme reactions in every animal — from insects to blue whales. It\'s the cofactor for ATP: every time an animal uses energy, a magnesium ion is right there stabilising the ATP molecule. Migratory birds have been found to deplete magnesium reserves during long non-stop flights. Sea turtles accumulate magnesium from seagrass; deficiency weakens their immune response and shell integrity.' },
     }
   },
   {
@@ -844,6 +864,7 @@ const ELEMENTS = [
       fire: { fact: 'White phosphorus ignites spontaneously in air above 30°C and burns at 1,300°C, impossible to extinguish by smothering. It was used in WWII incendiary bombs and leaves chemical burns that reignite when wounds are exposed to oxygen.' },
       weapon:  { fact: 'White phosphorus (WP) is one of the most feared incendiary weapons — it burns at 1,300°C through flesh and bone and reignites when wounds are exposed to air. WP grenades and artillery shells are used for smoke screens and incendiary effect. It has been condemned by human rights groups.' },
       plant:  { fact: 'Phosphorus is the "P" in NPK fertilizer — the second most important plant nutrient after nitrogen. It powers every energy transaction in the plant via ATP and is the backbone of DNA. Without phosphorus, plants can\'t flower, set seed, or root properly.' },
+      animal: { fact: 'ATP — the universal energy currency of all animal life — is a phosphorus molecule. Every heartbeat, wing flap, and muscle twitch consumes ATP and regenerates it in milliseconds. Bones and antlers are mostly calcium phosphate. The exoskeleton of insects is partly built on phosphate chemistry. Animals cannot store fat or build muscle without phosphorus.' },
     }
   },
   {
@@ -859,6 +880,7 @@ const ELEMENTS = [
       mars:   { fact: 'Curiosity rover found calcium sulfate vein minerals cutting through ancient lake sediments at Gale Crater — gypsum (CaSO₄·2H₂O) deposited when water evaporated. Spirit rover found sulfur-rich soil near its landing site. Sulfate minerals on Mars are a rock record of ancient standing water.' },
     
       fuel:   { fact: 'Sulfur is the problem element in fossil fuels. Crude oil contains 0.1–5% sulfur; coal can reach 10%. When burned, sulfur becomes SO₂ — the main cause of acid rain. Every barrel of oil must be hydrodesulfurized before it becomes gasoline or diesel. Ultra-low-sulfur diesel (ULSD) regulations have saved millions of tonnes of SO₂ emissions.' },
+      animal: { fact: 'Sulfur gives animals their texture and toughness. Keratin — the protein of claws, hooves, horns, feathers, scales, and wool — is packed with disulfide bonds between sulfur atoms. These bonds are what make a rhino horn hard and a spider\'s dragline silk elastic. The distinctive smell of animal fur when wet is sulfur compounds releasing from keratin. Every hair follicle on every mammal is a sulfur chemistry factory.' },
     }
   },
   {
@@ -872,6 +894,7 @@ const ELEMENTS = [
       weapon: { fact: 'Chlorine gas was the first large-scale chemical weapon used in WWI — at Ypres in April 1915, German forces released 150 tonnes of chlorine gas, killing or injuring thousands. It attacks the lungs, causing soldiers to drown in their own fluid. The Geneva Protocol (1925) later banned chemical weapons.' },
       plant: { fact: 'Chlorine (as chloride ions) helps plants regulate water pressure in their cells and plays a role in the water-splitting step of photosynthesis. Plant need only tiny amounts — deficiency is rare — but without any chloride, leaves wilt and growth stops.' },
       mars:  { fact: 'Phoenix lander discovered perchlorates (ClO₄⁻) everywhere in Martian soil in 2008 — at 0.5–1% by weight, they\'re one of the most abundant Martian minerals. Perchlorates are toxic to human thyroids but are also powerful rocket oxidizers. Any Mars colony will need to detoxify soil before farming in it.' },
+      animal: { fact: 'Chloride is the stomach acid of the animal kingdom. Predators — from crocodiles to eagles to sharks — need hydrochloric acid (HCl) to digest bone and tough tissue. Saltwater fish drink seawater continuously and excrete chloride through gill chloride cells to stay in osmotic balance. Freshwater fish face the opposite challenge: their gills actively absorb chloride from water barely a fraction as salty as their blood.' },
     }
   },
   {
@@ -898,6 +921,7 @@ const ELEMENTS = [
       earth:   { fact: 'Potassium is the seventh most abundant element in Earth\'s crust. Feldspars and micas — the minerals in granite and much of the continental crust — are potassium silicates. When these minerals weather, potassium enters soil and becomes plant food.' },
       weapon:  { fact: 'Potassium nitrate (saltpeter) is the key ingredient in gunpowder — the oxidizer that lets charcoal and sulfur burn explosively without air. Gunpowder dominated warfare for 700 years. Every cannon, musket, and firework in history ran on potassium chemistry.' },
       plant:  { fact: 'Potassium is the "K" in NPK fertilizer — the third pillar of plant nutrition. Plant need enormous amounts of it to open and close leaf pores (stomata), activate dozens of enzymes, and build strong stems. Potassium deficiency causes brown leaf edges and weak, disease-prone plants.' },
+      animal: { fact: 'Potassium is inside every animal cell; sodium is outside. This gradient is what makes animal nerves and muscles work. A frog\'s heart muscle contracts on potassium; a bird\'s flight feather follicles pump potassium to grow. Sudden potassium loss (from diarrhea, for example) can kill large animals quickly — it directly stops heart rhythm. Lethal injection uses potassium chloride as the final cardiac-arrest agent.' },
     }
   },
   {
@@ -914,6 +938,7 @@ const ELEMENTS = [
       moon:   { fact: 'The lunar highlands are made of anorthosite — nearly pure calcium-aluminum silicate (plagioclase feldspar). Apollo astronauts brought back chunks of it; the "Genesis Rock" collected by Apollo 15 is 4.1 billion years old, a remnant of the global magma ocean that covered the Moon after its formation.' },
     
       sun:   { fact: 'The H and K absorption lines of calcium are the strongest features in the visible solar spectrum — an enormous imprint of the Sun\'s calcium-rich photosphere. Astronomers use these lines to track the solar magnetic cycle and measure activity levels on the Sun\'s surface. Stars are read like chemical fingerprints through their calcium lines.' },
+      animal: { fact: 'Calcium builds the hard parts of the animal kingdom. Vertebrate bones and teeth, mollusc shells, coral reefs, sea urchin spines, and crab exoskeletons are all calcium compounds. The largest structure ever built by living organisms — the Great Barrier Reef — is billions of tonnes of calcium carbonate secreted by coral polyps over millennia. Calcium also triggers every muscle contraction: without it, no animal heart beats.' },
     }
   },
   {
@@ -947,6 +972,7 @@ const ELEMENTS = [
     defaultFact: 'Chromium makes stainless steel "stainless" — add 10.5% chromium to steel and it self-repairs its protective oxide layer instantly. Rubies and emeralds get their color from chromium impurities.',
     themes: {
       human:   { fact: 'Chromium (as Cr³⁺) enhances insulin\'s effectiveness in moving glucose into cells. It\'s found in tiny amounts in meat, whole grains, and broccoli. Deficiency is associated with impaired glucose tolerance.' },
+      animal: { fact: 'Chromium is a trace essential mineral for all vertebrates, not just humans. Pigs, rats, and primates all show impaired glucose tolerance and insulin resistance on chromium-deficient diets. Chromium works identically across mammals — it sits at the intersection of metabolism and blood sugar regulation in every animal with an insulin system. Some researchers believe chromium deficiency may underlie type-2-diabetes-like conditions seen in captive animals on processed diets.' },
       food: { fact: 'Broccoli, grape juice, and whole grains contain small amounts of chromium. The recommended daily intake is just 25–35 micrograms — a speck too small to see. Chromium in stainless steel cookware can leach into food in trace amounts.' },
     }
   },
@@ -956,6 +982,7 @@ const ELEMENTS = [
     defaultFact: 'Manganese is in your phone\'s battery and in ancient cave paintings — prehistoric artists used manganese dioxide as black pigment over 30,000 years ago.',
     themes: {
       human:    { fact: 'Manganese activates dozens of enzymes, including those that neutralize free radicals in the mitochondria. You need it for bone formation, blood clotting, and metabolism. About 20 mg lives in your bones, liver, and kidneys at any given time.' },
+      animal: { fact: 'Manganese is essential across the animal kingdom for skeletal development and antioxidant defence. Livestock on manganese-deficient soils develop "perosis" — a crippling leg deformity in poultry where the tendons slip off the hock joint. Honeybees use manganese in the enzyme that neutralises reactive oxygen in their flight muscles. Sea urchins concentrate manganese in their calcified spines for structural reinforcement.' },
       food:  { fact: 'One cup of cooked oats delivers over 100% of the daily recommended manganese. Hazelnuts, pineapple, and brown rice are also rich sources. Tea is surprisingly high in manganese — a few cups covers your daily needs.' },
       rocket:  { fact: 'Manganese is an alloying element in high-strength steels used throughout aerospace structures. Starship\'s 304L stainless steel contains manganese, which improves weldability and prevents cracking at cryogenic temperatures.' },
       earth:   { fact: 'Manganese is the 12th most abundant element in Earth\'s crust. It concentrates on the seafloor in manganese nodules — mysterious black lumps that litter the deep ocean bed, containing trillions of tonnes of metal. These are now being eyed as a future mining frontier.' },
@@ -979,6 +1006,7 @@ const ELEMENTS = [
       mars:   { fact: 'Mars is red because of iron oxide — rust — in the fine dust covering its surface and suspended in its atmosphere. Opportunity rover found hematite "blueberries" (spherical Fe₂O₃ concretions) in ancient lake sediments, proof Mars once had liquid water for long enough for them to form. Iron painted Mars dead; iron suggests it was once alive.' },
     
       sun:   { fact: 'Iron is the end of the stellar fusion road — it is the most stable nucleus, and fusing iron consumes energy rather than releasing it. When a massive star\'s core becomes iron, fusion stops, gravity wins instantly, and the star collapses in a supernova. All the iron in Earth\'s core, your blood, and every skyscraper originated in a stellar catastrophe.' },
+      animal: { fact: 'Vertebrate blood is red because of iron. Hemoglobin — the oxygen carrier in red blood cells — works by binding O₂ to an iron atom. But not all animals use iron for blood. Octopuses, crabs, lobsters, and horseshoe crabs use copper-based hemocyanin instead, giving their blood a blue colour. Spiders and scorpions are also blue-blooded. Ice fish near Antarctica have no blood pigment at all — they rely on cold, oxygen-rich water and huge hearts.' },
     }
   },
   {
@@ -992,6 +1020,7 @@ const ELEMENTS = [
       plant:  { fact: 'Cobalt is required by nitrogen-fixing bacteria that live in root nodules of legumes — beans, peas, and clover. These bacteria convert atmospheric nitrogen into ammonia that plants can use. Without cobalt, the bacteria can\'t make cobalamin (vitamin B12 equivalent) and nitrogen fixation stops.' },
     
       fuel:   { fact: 'Cobalt is in the cathode of most lithium-ion batteries — NMC (nickel-manganese-cobalt) and NCA (nickel-cobalt-aluminum) chemistries dominate EVs and consumer electronics. Over 70% of cobalt comes from the DRC, raising supply chain and ethical concerns. Battery makers are racing to develop cobalt-free chemistries to reduce dependence.' },
+      animal: { fact: 'Cobalt is essential for all animals that have a gut microbiome — ruminants (cattle, sheep, deer) depend on cobalt-rich soil for the bacteria in their stomachs to synthesise vitamin B12. Sheep grazing cobalt-deficient pastures develop "bush sickness," wasting away despite having plenty of grass. Whales and dolphins have high cobalt levels in their livers from eating fish rich in B12. Every animal with a nervous system ultimately needs cobalt-derived B12 to maintain it.' },
     }
   },
   {
@@ -1018,6 +1047,7 @@ const ELEMENTS = [
       earth:   { fact: 'Copper ore deposits form where volcanic activity brought metal-rich fluids to the surface. Chile (Atacama Desert) holds the world\'s largest reserves. The Copper Age preceded the Bronze Age — humans first smelted copper from ore ~7,000 years ago in the Balkans.' },
       weapon:  { fact: 'Copper transformed warfare in the Bronze Age (copper + tin = bronze). Today, copper is the standard metal for bullet jackets and shell casings — it\'s soft enough to engrave rifling grooves, hard enough to survive the explosion, and doesn\'t corrode. Every rifle bullet is wrapped in copper.' },
       plant:  { fact: 'Copper is essential for the enzyme that transfers electrons in photosynthesis (plastocyanin) and for producing lignin — the tough polymer that makes wood hard. Copper-deficient plants have limp, wilting stems and fail to produce seeds. Vineyard soils are often rich in copper from decades of antifungal sprays.' },
+      animal: { fact: 'Copper makes some animals\' blood blue. Hemocyanin — the oxygen-carrying protein in octopuses, crabs, lobsters, scorpions, and horseshoe crabs — binds oxygen using two copper atoms instead of iron. Horseshoe crab blood (bright blue) is harvested in huge quantities by the pharmaceutical industry because it clots instantly around bacterial toxins, making it the gold standard for testing sterility of injectable drugs.' },
     }
   },
   {
@@ -1029,6 +1059,7 @@ const ELEMENTS = [
       food:  { fact: 'Oysters have more zinc per serving than any food on Earth — six raw oysters deliver 33 mg, over 3× the daily recommended amount. Beef, pumpkin seeds, and chickpeas are also excellent sources. Zinc lozenges may slightly shorten cold duration.' },
       earth:   { fact: 'Zinc sulfide (sphalerite) is the main zinc ore and is often found alongside lead and silver deposits. Australia, China, and Peru are the world\'s largest producers. Zinc coats steel (galvanizing) to prevent rust — most corrugated iron roofs are zinc-coated steel.' },
       plant:  { fact: 'Zinc activates over 300 enzymes in plants and is essential for producing auxins — the hormones that control plant growth and direction. Zinc-deficient plants produce small, distorted leaves and stunted growth. Wheat and rice crops on zinc-poor soils produce much lower yields.' },
+      animal: { fact: 'Zinc is one of the most widely used metals in animal biochemistry. Every animal that reproduces, heals wounds, or fights infection depends on zinc. Oysters — the richest dietary source — accumulate zinc because it\'s essential for the enzymes that build their shells. Zinc fingers (zinc-coordinated protein structures) are how animals\' DNA-reading machinery grips the double helix to switch genes on and off.' },
     }
   },
   {
@@ -1061,6 +1092,7 @@ const ELEMENTS = [
     themes: {
       human:    { fact: 'Selenium is the active component of glutathione peroxidase, your body\'s primary antioxidant enzyme system. It also regulates thyroid hormone production. Selenium deficiency causes Keshan disease — a potentially fatal heart condition endemic in regions with selenium-poor soil.' },
       food:  { fact: 'A single Brazil nut contains 68–91 micrograms of selenium — the entire recommended daily intake. Eating 2–3 Brazil nuts per day is an easy way to hit your selenium target. Tuna, sardines, eggs, and sunflower seeds are also excellent sources.' },
+      animal: { fact: 'Selenium is an antioxidant mineral critical to animal health. Marine mammals — dolphins, seals, whales — accumulate selenium from fish and use it to detoxify mercury in their tissues; selenium and mercury bind together harmlessly, protecting their nervous systems from what would otherwise be a lethal dose. Selenium deficiency in cattle causes white muscle disease; in horses, it causes myopathy. Keshan disease, a selenium-deficiency cardiomyopathy, affects both animals and humans in selenium-poor regions.' },
     }
   },
   {
@@ -1134,6 +1166,7 @@ const ELEMENTS = [
       food:  { fact: 'Legumes — lentils, beans, chickpeas — are by far the richest dietary source of molybdenum. Grains and nuts also contribute. Most people get adequate molybdenum from everyday plant foods without any special effort.' },
       rocket:  { fact: 'Molybdenum disulfide (MoS₂) is a space-grade dry lubricant used in mechanisms that must operate in the vacuum of space, where oil-based lubricants evaporate and conventional lubricants fail. It\'s used in satellite actuators, solar panel deployment mechanisms, and more.' },
       plant:  { fact: 'Molybdenum is essential for nitrogenase — the enzyme that nitrogen-fixing bacteria use to convert atmospheric N₂ into ammonia. Without molybdenum, legumes can\'t partner with Rhizobium bacteria for nitrogen fixation. Plant also need it to reduce nitrate into usable nitrogen compounds.' },
+      animal: { fact: 'Molybdenum is required by at least three enzymes in all animals: sulfite oxidase (detoxifies sulfite), xanthine oxidase (breaks down purines), and aldehyde oxidase (processes drugs and metabolites). Molybdenum deficiency is rare in animals with a mixed diet, but in cattle grazing high-molybdenum pastures, the element blocks copper absorption — causing a condition called "teart" or "molybdenosis," a severe diarrheal disease that devastated English livestock before its cause was identified.' },
     }
   },
   {
@@ -1218,6 +1251,7 @@ const ELEMENTS = [
       human:    { fact: 'Iodine is needed to make thyroid hormones (T3 and T4), which regulate your metabolic rate, body temperature, and growth. Without enough iodine, the thyroid gland enlarges into a goiter. The RDA is just 150 micrograms — about the size of a single grain of salt.' },
       food:  { fact: 'Seaweed is the richest dietary source of iodine — some varieties contain over 1,000× the daily requirement per serving. Iodized salt, dairy, eggs, and seafood also provide it. Landlocked regions historically had severe iodine deficiency before salt iodization.' },
       water:   { fact: 'Seawater contains about 0.06 mg of iodine per litre — low by mineral standards but the ocean is its primary natural reservoir. Deep ocean water is enriched in iodine from decomposing marine organisms. Coastal plants and kelp forests concentrate iodine from seawater by thousands of times.' },
+      animal: { fact: 'Iodine regulates metabolism in all vertebrates through thyroid hormones. Migratory fish (salmon, eels) dramatically alter their thyroid activity when transitioning between freshwater and saltwater — iodine is the chemical switch for these life-phase transformations. Amphibians use iodine-triggered thyroid hormones to control metamorphosis: a tadpole\'s tail is literally dissolved by its own cells under iodine-hormone instruction as it transforms into a frog.' },
     }
   },
   {

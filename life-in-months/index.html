@@ -231,7 +231,7 @@
     flex-shrink: 0;
     grid-column: 1 / -1;
   }
-  footer button {
+  footer button, header button {
     background: transparent;
     border: 1px solid var(--border-ui);
     color: var(--text-2);
@@ -242,9 +242,9 @@
     padding: 3px 10px;
     cursor: pointer;
   }
-  footer button:hover { border-color: var(--border-hover); color: var(--text); }
+  footer button:hover, header button:hover { border-color: var(--border-hover); color: var(--text); }
   input[type="file"] { display: none; }
-  .legend { margin-left: auto; display: flex; gap: 16px; }
+  .legend { margin: 0 auto; display: flex; gap: 16px; }
   .version { font-size: 0.67rem; color: var(--text-3); letter-spacing: 0.06em; margin-left: 16px; }
   .li { display: flex; align-items: center; gap: 5px; font-size: 0.73rem; color: var(--text-3); letter-spacing: 0.05em; }
   .dot { width: 8px; height: 8px; border: 1px solid transparent; flex-shrink: 0; }
@@ -298,6 +298,12 @@
   <h1>Life in Months</h1>
   <span class="born-label">Born</span>
   <input type="text" id="birthdate-display" placeholder="dd/mm/yyyy" />
+  <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
+    <button id="btnImport">LOAD</button>
+    <button id="btnExport">SAVE</button>
+    <button id="btnReset">RESET</button>
+    <input type="file" id="fileInput" accept=".json">
+  </div>
 </header>
 
 <div class="grid-section">
@@ -323,10 +329,6 @@
 
 <footer>
   <a class="back-link" href="../">< Home</a>
-  <button id="btnReset">RESET</button>
-  <button id="btnExport">SAVE</button>
-  <button id="btnImport">LOAD</button>
-  <input type="file" id="fileInput" accept=".json">
   <div class="legend">
     <div class="li"><div class="dot lived"></div>Lived</div>
     <div class="li"><div class="dot life"></div>Life</div>

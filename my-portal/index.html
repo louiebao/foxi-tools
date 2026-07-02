@@ -20,18 +20,6 @@
     --border-hover: #888;
     --accent:       #4a7ab4;
   }
-  .dark {
-    --bg:           #1a1a18;
-    --bg-panel:     #232321;
-    --bg-output:    #1e1e1c;
-    --text:         #e8e8e5;
-    --text-2:       #aaa;
-    --text-3:       #777;
-    --border:       #333;
-    --border-ui:    #444;
-    --border-hover: #666;
-  }
-
   /* ---- shell ---- */
   html { font-size: clamp(17px, 1.3vw, 26px); }
 
@@ -68,24 +56,13 @@
     text-transform: uppercase;
     color: var(--text);
   }
-  #theme-toggle {
-    background: transparent;
-    border: 1px solid var(--border-ui);
-    color: var(--text-2);
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    padding: 3px 8px;
-    cursor: pointer;
-    letter-spacing: 0.04em;
-  }
-  #theme-toggle:hover { border-color: var(--border-hover); color: var(--text); }
   #clock-wrapper {
     position: relative;
     display: flex;
     justify-content: flex-end;
   }
   #clock-area {
-    font-size: 11px;
+    font-size: 0.65rem;
     color: var(--text-3);
     letter-spacing: 0.04em;
     cursor: pointer;
@@ -350,21 +327,21 @@
   /* ---- clock popover ---- */
   #clock-popover {
     position: absolute;
-    top: 28px;
+    top: 2em;
     right: 0;
     z-index: 200;
     background: var(--bg-panel);
     border: 1px solid var(--border);
-    padding: 8px 10px;
-    width: 210px;
+    padding: 0.45em 0.6em;
+    width: 13em;
   }
   .clock-city-row {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 11px;
+    gap: 0.35em;
+    font-size: 0.65rem;
     color: var(--text);
-    margin-bottom: 4px;
+    margin-bottom: 0.25em;
   }
   .clock-city-name { flex: 1; }
   .clock-remove-btn {
@@ -372,17 +349,17 @@
     border: none;
     color: var(--text-3);
     font-family: 'Courier New', monospace;
-    font-size: 10px;
+    font-size: 0.6rem;
     cursor: pointer;
     padding: 1px 3px;
   }
   .clock-remove-btn:hover { color: #9c3030; }
   .clock-section-label {
-    font-size: 10px;
+    font-size: 0.6rem;
     color: var(--text-3);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin: 6px 0 3px;
+    margin: 0.35em 0 0.2em;
   }
   #clock-city-select {
     width: 100%;
@@ -390,20 +367,20 @@
     border: 1px solid var(--border-ui);
     color: var(--text);
     font-family: 'Courier New', monospace;
-    font-size: 11px;
-    padding: 3px 4px;
-    margin-bottom: 5px;
+    font-size: 0.65rem;
+    padding: 0.2em 0.25em;
+    margin-bottom: 0.3em;
   }
   #clock-add-btn { width: 100%; }
   #clock-disable-btn {
     width: 100%;
-    margin-top: 4px;
+    margin-top: 0.25em;
     background: transparent;
     color: var(--text-3);
     border: 1px solid var(--border-ui);
-    padding: 4px 10px;
+    padding: 0.25em 0.6em;
     font-family: 'Courier New', monospace;
-    font-size: 10px;
+    font-size: 0.6rem;
     letter-spacing: 0.04em;
     cursor: pointer;
   }
@@ -482,7 +459,6 @@
 
 <header>
   <div class="header-left">
-    <button id="theme-toggle">&#9728; &#9790;</button>
     <h1 class="header-title">MY PORTAL</h1>
   </div>
   <div id="clock-wrapper">
@@ -598,14 +574,13 @@ function defaultState() {
     version: 1,
     nextLinkId: 0,
     settings: {
-      darkMode: false,
       hasNudgedToExport: false,
       worldClock: { enabled: false, cities: [] },
     },
     cells: DEFAULT_HEADERS.map((h, i) => ({
       id: 'cell-' + i,
       header: h,
-      color: COLORS[i % COLORS.length],
+      color: COLORS[0],
       links: [],
     })),
   };
@@ -668,11 +643,6 @@ function normalizeUrl(raw) {
   return s;
 }
 
-// ---- theme ----
-function applyTheme() {
-  document.body.classList.toggle('dark', !!state.settings.darkMode);
-}
-
 // ---- popover management ----
 function closeActivePopover() {
   if (activePopover) { activePopover.remove(); activePopover = null; }
@@ -680,7 +650,6 @@ function closeActivePopover() {
 
 // ---- render grid ----
 function renderAll() {
-  applyTheme();
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
   state.cells.forEach(cell => grid.appendChild(buildCell(cell)));
@@ -1186,14 +1155,7 @@ function buildExportHTML(dataJson) {
 // ---- init ----
 function init() {
   state = loadState();
-  applyTheme();
   renderAll();
-
-  document.getElementById('theme-toggle').addEventListener('click', () => {
-    state.settings.darkMode = !state.settings.darkMode;
-    applyTheme();
-    save();
-  });
 
   document.getElementById('clock-area').addEventListener('click', openClockPopover);
 
