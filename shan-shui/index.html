@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shan Shui</title>
+</head>
 <!-- Based on {Shan, Shui}* by Lingdong Huang (MIT) https://github.com/lingdong-/shan-shui-inf -->
 <script id="PRNG">
   var Prng = new function() {
@@ -3912,10 +3919,16 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: clamp(17px, 1.3vw, 26px); }
   :root {
-    --bg:      #f8f8f5;
-    --text:    #222;
-    --text-3:  #777;
-    --border:  #d0d0cc;
+    --bg:           #f8f8f5;
+    --bg-panel:     #edeae3;
+    --bg-output:    #f3f1eb;
+    --text:         #222;
+    --text-2:       #666;
+    --text-3:       #777;
+    --border:       #d0d0cc;
+    --border-ui:    #ccc;
+    --border-hover: #888;
+    --accent:       #4a7ab4;
   }
   body {
     font-family: 'Courier New', monospace;
@@ -3979,13 +3992,13 @@
   }
   .header-btn {
     font-family: 'Courier New', monospace;
-    font-size: 0.73rem;
-    letter-spacing: 0.08em;
-    color: var(--text-3);
+    font-size: 0.67rem;
+    letter-spacing: 0.04em;
+    color: var(--text-2);
     background: none;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-ui);
     cursor: pointer;
-    padding: 2px 8px;
+    padding: 4px 10px;
   }
   .header-btn:hover { color: var(--text); border-color: var(--border-hover); }
   #CANVAS_WRAP {
@@ -4007,8 +4020,8 @@
     <p>Procedural Chinese landscape painting</p>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
-    <button class="header-btn" title="Download as SVG" onclick="var n=new Date(),p=n=>String(n).padStart(2,'0'),f=n.getFullYear()+''+p(n.getMonth()+1)+p(n.getDate())+'_'+p(n.getHours())+p(n.getMinutes())+p(n.getSeconds());download(f+'.svg', document.getElementById('BG').innerHTML);">SAVE</button>
-    <button class="header-btn" title="Generate new painting" onclick="location.reload();">REFRESH</button>
+    <button class="header-btn" title="Download as SVG" onclick="var n=new Date(),p=n=>String(n).padStart(2,'0'),f=n.getFullYear()+''+p(n.getMonth()+1)+p(n.getDate())+'_'+p(n.getHours())+p(n.getMinutes())+p(n.getSeconds());download(f+'.svg', document.getElementById('BG').innerHTML);">Save</button>
+    <button class="header-btn" title="Generate new painting" onclick="location.reload();">Refresh</button>
   </div>
 </header>
 

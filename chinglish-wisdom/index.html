@@ -63,36 +63,6 @@
   }
   .back-link:hover { color: var(--text); }
 
-  /* ── Filter bar ── */
-  .filter-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-panel);
-    flex-shrink: 0;
-  }
-  .filter-label {
-    font-size: 0.67rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin-right: 4px;
-  }
-  .chip {
-    background: transparent;
-    color: var(--text-2);
-    border: 1px solid var(--border-ui);
-    padding: 4px 12px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.73rem;
-    letter-spacing: 0.06em;
-    cursor: pointer;
-  }
-  .chip:hover { border-color: var(--border-hover); color: var(--text); }
-  .chip.active { border-color: var(--border-hover); color: var(--text); background: var(--bg); }
-
   /* ── Main / table ── */
   main {
     flex: 1;
@@ -264,22 +234,6 @@
   <span class="version">v1.0.0</span>
 </footer>
 
-<script>
-const chips = document.querySelectorAll('.chip');
-const rows  = document.querySelectorAll('tbody tr');
-
-chips.forEach(chip => {
-  chip.addEventListener('click', () => {
-    chips.forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    const topic = chip.dataset.topic;
-    rows.forEach(row => {
-      const show = topic === 'all' || row.dataset.topic === topic;
-      row.classList.toggle('hidden', !show);
-    });
-  });
-});
-</script>
 
 </body>
 </html>
