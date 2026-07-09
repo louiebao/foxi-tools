@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golden Ratio Checker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: clamp(17px, 1.3vw, 26px); }
+
+  :root {
+    --bg:           #f8f8f5;
+    --bg-panel:     #edeae3;
+    --bg-output:    #f3f1eb;
+    --text:         #222;
+    --text-2:       #666;
+    --text-3:       #777;
+    --border:       #d0d0cc;
+    --border-ui:    #ccc;
+    --border-hover: #888;
+    --accent:       #4a7ab4;
+    --temp-hot:     #c0392b;
+    --temp-warm:    #c8721a;
+    --temp-cold:    #3d6b96;
+  }
+
+  body {
+    font-family: 'Courier New', monospace;
+    font-size: 0.93rem;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 1rem;
+    font-weight: normal;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  header p {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+  }
+
+  main {
+    flex: 1;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .error-msg {
+    font-size: 0.8rem;
+    color: var(--temp-warm);
+    line-height: 1.5;
+  }
+
+  .canvas-wrap {
+    position: relative;
+    border: 1px solid var(--border);
+    background: var(--bg-output);
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    touch-action: none;
+  }
+  .canvas-wrap.has-photo { aspect-ratio: auto; }
+  #canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .empty-state {
+    position: absolute;
+    inset: 12px;
+    border: 1px dashed var(--border-ui);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    font-size: 0.8rem;
+    color: var(--text-3);
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+  .loading-state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-output);
+    color: var(--text-3);
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+  }
+  .hidden { display: none !important; }
+
+  .upload-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .btn {
+    font-family: 'Courier New', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--border-ui);
+    color: var(--text);
+    cursor: pointer;
+    padding: 10px 16px;
+    min-height: 44px;
+  }
+  .btn:hover { border-color: var(--border-hover); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .panel { border: 1px solid var(--border); background: var(--bg-panel); }
+  .panel-header {
+    padding: 7px 14px;
+    font-size: 0.67rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-body { padding: 16px 14px; }
+  .panel-body.placeholder { color: var(--text-3); font-size: 0.8rem; }
+
+  .ratio-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .ratio-big { font-size: 1.3rem; letter-spacing: 0.02em; }
+  .pct { font-size: 0.87rem; }
+  .pct.hot { color: var(--temp-hot); }
+  .pct.warm { color: var(--temp-warm); }
+  .pct.cold { color: var(--temp-cold); }
+  .deviation { font-size: 0.73rem; color: var(--text-3); margin-top: 4px; }
+
+  .temp-slider { margin-top: 14px; }
+  .temp-track {
+    position: relative;
+    height: 10px;
+    border: 1px solid var(--border);
+    display: flex;
+  }
+  .temp-seg { height: 100%; }
+  .temp-seg.cold { flex: 0 0 30%; background: #dde6ee; }
+  .temp-seg.warm { flex: 0 0 15%; background: #f0dfc7; }
+  .temp-seg.hot  { flex: 0 0 10%; background: #ecd3ce; }
+  .temp-marker {
+    position: absolute;
+    top: -3px;
+    width: 3px;
+    height: 16px;
+    background: var(--text);
+    transform: translateX(-1.5px);
+  }
+  .temp-marker.hot { background: var(--temp-hot); }
+  .temp-marker.warm { background: var(--temp-warm); }
+  .temp-marker.cold { background: var(--temp-cold); }
+  .temp-slider-labels {
+    text-align: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: var(--text-3);
+    margin-top: 4px;
+  }
+
+  footer {
+    padding: 10px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.73rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .back-link {
+    font-size: 0.73rem;
+    color: var(--text-3);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .back-link:hover { color: var(--text); }
+  .version { font-size: 0.67rem; color: var(--text-3); letter-spacing: 0.06em; margin-left: auto; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Golden Ratio Checker</h1>
+  <p>Upload a building photo, measure it against 1.618</p>
+</header>
+
+<main>
+  <div id="error-msg" class="error-msg hidden"></div>
+
+  <div class="canvas-wrap" id="canvas-wrap">
+    <canvas id="canvas"></canvas>
+    <div class="empty-state" id="empty-state">Upload a photo to get started</div>
+    <div class="loading-state hidden" id="loading-state">reading photo&hellip;</div>
+  </div>
+
+  <div class="upload-row">
+    <button class="btn" id="upload-btn">Upload Photo</button>
+    <input type="file" id="file-input" accept="image/*" class="hidden">
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">Result</div>
+    <div class="panel-body" id="result-body">
+      <span class="placeholder">&mdash;</span>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <a class="back-link" href="../">&lt; Home</a>
+  <span class="version">v1.0.0</span>
+</footer>
+
+<script>
+(function () {
+'use strict';
+
+/* ────────────────────────────────────────────────────────────────
+   Pure math — no DOM. Guarded so this file can also be loaded in a
+   plain `node` context (see math.test.js) without a document/window.
+   ──────────────────────────────────────────────────────────────── */
+
+const PHI = (1 + Math.sqrt(5)) / 2;
+const HOT_TOLERANCE = 0.03;  // within ±3% of PHI: "hot"
+const WARM_TOLERANCE = 0.12; // within ±12% of PHI: "warm"; beyond that: "cold"
+
+function computeRatio(width, height) {
+  const w = Math.abs(width);
+  const h = Math.abs(height);
+  if (w === 0 || h === 0) return null;
+  return Math.max(w, h) / Math.min(w, h);
+}
+
+function percentDeviation(ratio) {
+  return ((ratio - PHI) / PHI) * 100;
+}
+
+function percentGolden(ratio) {
+  const dev = Math.abs(ratio - PHI) / PHI;
+  return Math.max(0, 1 - dev) * 100;
+}
+
+// Qualitative cold/warm/hot reading of how close a ratio is to PHI — replaces
+// a binary hit/miss verdict with a graduated scale that still doesn't lie:
+// thresholds are fixed, not vibes, and the exact ratio is always shown alongside it.
+function temperatureTier(ratio) {
+  const dev = Math.abs(ratio - PHI) / PHI;
+  if (dev <= HOT_TOLERANCE) return 'hot';
+  if (dev <= WARM_TOLERANCE) return 'warm';
+  return 'cold';
+}
+
+const GoldenRatioMath = {
+  PHI, HOT_TOLERANCE, WARM_TOLERANCE, computeRatio, percentDeviation, percentGolden, temperatureTier,
+};
+(typeof window !== 'undefined' ? window : globalThis).GoldenRatioMath = GoldenRatioMath;
+
+/* ────────────────────────────────────────────────────────────────
+   DOM wiring — only runs in a real browser.
+   ──────────────────────────────────────────────────────────────── */
+
+if (typeof document !== 'undefined' && document.getElementById('canvas')) {
+
+const canvasWrap   = document.getElementById('canvas-wrap');
+const canvas       = document.getElementById('canvas');
+const ctx          = canvas.getContext('2d');
+const emptyState   = document.getElementById('empty-state');
+const loadingState = document.getElementById('loading-state');
+const errorMsg     = document.getElementById('error-msg');
+const uploadBtn     = document.getElementById('upload-btn');
+const fileInput      = document.getElementById('file-input');
+const resultBody    = document.getElementById('result-body');
+
+// App state
+let appState = 'EMPTY'; // EMPTY | READY | DRAGGING | LOCKED
+let bitmap = null;       // decoded ImageBitmap
+let imgW = 0, imgH = 0;  // natural (downscaled) pixel dimensions
+let dispW = 0, dispH = 0; // CSS display size of the canvas
+let dpr = window.devicePixelRatio || 1;
+let dragStart = null;    // {x,y} in image-pixel space
+let dragCurrent = null;  // {x,y} in image-pixel space
+let lockedRect = null;   // {x,y,w,h} in image-pixel space, once locked
+let rafPending = false;
+let lastResult = null; // { ratio, hit, percentGolden, percentDeviation } for the current lock, or null
+
+const MIN_DRAG_PX = 24; // minimum drag distance per-axis, in image pixels, before a lock is allowed
+const MAX_DISPLAY_WIDTH = 1400; // downscale very large photos before drawing
+
+const HEIC_EXTENSIONS = ['.heic', '.heif'];
+
+function setError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.classList.toggle('hidden', !msg);
+}
+
+function looksLikeHeic(file) {
+  const type = (file.type || '').toLowerCase();
+  if (type === 'image/heic' || type === 'image/heif') return true;
+  const name = (file.name || '').toLowerCase();
+  return HEIC_EXTENSIONS.some(ext => name.endsWith(ext));
+}
+
+function resetToEmpty() {
+  appState = 'EMPTY';
+  bitmap = null;
+  dragStart = null;
+  dragCurrent = null;
+  lockedRect = null;
+  lastResult = null;
+  canvasWrap.classList.remove('has-photo');
+  emptyState.classList.remove('hidden');
+  loadingState.classList.add('hidden');
+  canvas.width = 0;
+  canvas.height = 0;
+  renderResult();
+}
+
+async function loadFile(file) {
+  setError('');
+  if (!file) return;
+
+  if (!file.type.startsWith('image/') && !looksLikeHeic(file)) {
+    setError("Couldn't read that file — please upload a photo.");
+    resetToEmpty();
+    return;
+  }
+  if (looksLikeHeic(file)) {
+    setError('This looks like a HEIC photo — try exporting as JPG/PNG first.');
+    resetToEmpty();
+    return;
+  }
+
+  emptyState.classList.add('hidden');
+  loadingState.classList.remove('hidden');
+
+  let decoded;
+  try {
+    decoded = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch (e) {
+    setError("Couldn't read that file — try a different photo.");
+    resetToEmpty();
+    return;
+  }
+
+  let w = decoded.width, h = decoded.height;
+  if (w > MAX_DISPLAY_WIDTH) {
+    const scale = MAX_DISPLAY_WIDTH / w;
+    w = Math.round(w * scale);
+    h = Math.round(h * scale);
+  }
+
+  bitmap = decoded;
+  imgW = w;
+  imgH = h;
+  appState = 'READY';
+  dragStart = null;
+  dragCurrent = null;
+  lockedRect = null;
+  lastResult = null;
+
+  canvasWrap.classList.add('has-photo');
+  loadingState.classList.add('hidden');
+  setupCanvas();
+  drawFrame();
+  renderResult();
+}
+
+function setupCanvas() {
+  dpr = window.devicePixelRatio || 1;
+  const rectW = canvasWrap.clientWidth;
+  dispW = rectW;
+  dispH = Math.round(rectW * (imgH / imgW));
+  canvasWrap.style.height = dispH + 'px';
+  canvas.width = Math.round(dispW * dpr);
+  canvas.height = Math.round(dispH * dpr);
+  canvas.style.width = dispW + 'px';
+  canvas.style.height = dispH + 'px';
+}
+
+function imgToDisplayScale() {
+  return dispW / imgW;
+}
+
+function pointerToImageCoords(evt) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = rect.width ? (imgW / rect.width) : 1;
+  const scaleY = rect.height ? (imgH / rect.height) : 1;
+  return {
+    x: (evt.clientX - rect.left) * scaleX,
+    y: (evt.clientY - rect.top) * scaleY,
+  };
+}
+
+function drawFrame() {
+  if (!bitmap) return;
+  const scale = imgToDisplayScale();
+  ctx.save();
+  ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+  ctx.clearRect(0, 0, imgW, imgH);
+  ctx.drawImage(bitmap, 0, 0, imgW, imgH);
+
+  const rect = appState === 'LOCKED' ? lockedRect : currentDragRect();
+  if (rect) {
+    ctx.lineWidth = 4 / (dpr * scale);
+    ctx.strokeStyle = '#e53e3e'; // high-contrast red — the accent blue was too easy to lose against photo content
+    ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+  }
+  ctx.restore();
+}
+
+function currentDragRect() {
+  if (!dragStart || !dragCurrent) return null;
+  const x = Math.min(dragStart.x, dragCurrent.x);
+  const y = Math.min(dragStart.y, dragCurrent.y);
+  const w = Math.abs(dragCurrent.x - dragStart.x);
+  const h = Math.abs(dragCurrent.y - dragStart.y);
+  return { x, y, w, h };
+}
+
+function scheduleRedraw() {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => {
+    rafPending = false;
+    drawFrame();
+  });
+}
+
+function onPointerDown(evt) {
+  if (appState !== 'READY' && appState !== 'DRAGGING') return; // no-op while LOCKED or EMPTY
+  evt.preventDefault();
+  try { canvas.setPointerCapture(evt.pointerId); } catch (e) { /* capture is a UX nicety, not required for the drag to work */ }
+  dragStart = pointerToImageCoords(evt);
+  dragCurrent = dragStart;
+  appState = 'DRAGGING';
+  scheduleRedraw();
+}
+
+function onPointerMove(evt) {
+  if (appState !== 'DRAGGING') return;
+  dragCurrent = pointerToImageCoords(evt);
+  scheduleRedraw();
+}
+
+function onPointerUp(evt) {
+  if (appState !== 'DRAGGING') return;
+  dragCurrent = pointerToImageCoords(evt);
+  const rect = currentDragRect();
+
+  if (!rect || rect.w < MIN_DRAG_PX || rect.h < MIN_DRAG_PX) {
+    // degenerate drag: reject, no lock, no log entry
+    appState = 'READY';
+    dragStart = null;
+    dragCurrent = null;
+    scheduleRedraw();
+    return;
+  }
+
+  lockedRect = rect;
+  appState = 'LOCKED';
+  dragStart = null;
+  dragCurrent = null;
+
+  const ratio = GoldenRatioMath.computeRatio(rect.w, rect.h);
+  lastResult = {
+    ratio,
+    tier: GoldenRatioMath.temperatureTier(ratio),
+    percentGolden: GoldenRatioMath.percentGolden(ratio),
+    percentDeviation: GoldenRatioMath.percentDeviation(ratio),
+  };
+
+  scheduleRedraw();
+  renderResult();
+}
+
+function measureAgain() {
+  if (appState !== 'LOCKED') return;
+  appState = 'READY';
+  lockedRect = null;
+  dragStart = null;
+  dragCurrent = null;
+  lastResult = null;
+  scheduleRedraw();
+  renderResult();
+}
+
+function renderResult() {
+  if (appState !== 'LOCKED' || !lastResult) {
+    resultBody.innerHTML = '<span class="placeholder">&mdash;</span>';
+    resultBody.classList.add('placeholder');
+    return;
+  }
+  resultBody.classList.remove('placeholder');
+  const tier = lastResult.tier; // 'hot' | 'warm' | 'cold'
+  const tierLabel = tier.toUpperCase();
+  // Slider is centered on PHI: COLD — WARM — HOT — WARM — COLD, symmetric
+  // around a signed deviation clamped to ±TRACK_RANGE% so the golden point
+  // sits in the middle rather than at one end.
+  const TRACK_RANGE = 30; // percent deviation shown at each far edge
+  const dev = Math.max(-TRACK_RANGE, Math.min(TRACK_RANGE, lastResult.percentDeviation));
+  const markerPos = ((dev + TRACK_RANGE) / (TRACK_RANGE * 2)) * 100;
+  resultBody.innerHTML =
+    '<div class="ratio-row">' +
+      '<span class="ratio-big">' + lastResult.ratio.toFixed(3) + '</span>' +
+      '<span class="pct ' + tier + '">' + lastResult.percentGolden.toFixed(1) + '% golden</span>' +
+    '</div>' +
+    '<div class="temp-slider" role="img" aria-label="' + lastResult.percentGolden.toFixed(1) + '% golden, ' + tierLabel + '">' +
+      '<div class="temp-track">' +
+        '<div class="temp-seg cold"></div>' +
+        '<div class="temp-seg warm"></div>' +
+        '<div class="temp-seg hot"></div>' +
+        '<div class="temp-seg warm"></div>' +
+        '<div class="temp-seg cold"></div>' +
+        '<div class="temp-marker ' + tier + '" style="left:' + markerPos + '%"></div>' +
+      '</div>' +
+      '<div class="temp-slider-labels">1.618</div>' +
+    '</div>' +
+    '<div style="margin-top:14px"><button class="btn" id="again-btn">Measure Again</button></div>';
+  document.getElementById('again-btn').addEventListener('click', measureAgain);
+}
+
+uploadBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (file) loadFile(file);
+});
+
+canvas.addEventListener('pointerdown', onPointerDown);
+canvas.addEventListener('pointermove', onPointerMove);
+canvas.addEventListener('pointerup', onPointerUp);
+canvas.addEventListener('pointercancel', onPointerUp);
+
+window.addEventListener('resize', () => {
+  if (bitmap) { setupCanvas(); scheduleRedraw(); }
+});
+
+resetToEmpty();
+
+} // end DOM guard
+})();
+</script>
+
+</body>
+</html>

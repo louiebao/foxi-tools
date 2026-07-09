@@ -37,3 +37,80 @@ v1 ships and you've validated the overall experience. Surfaced by `/plan-eng-rev
 **Context:** Scoped out of v1 because users need to understand the concept before they can enjoy building one — v1 teaches it, v2 builds on that. Approach C from the original design doc (`/office-hours` 2026-06-29). Architecture from v1 (sql.js already loaded, REPLACE chain structure already displayed) is the right starting point. Surfaced by `/plan-eng-review` (2026-06-30).
 
 **Depends on:** sql-quine v1 shipped and validated.
+
+---
+
+## golden-ratio: perspective correction (Approach B)
+**What:** Hand-rolled 4-point homography (~20 lines, no OpenCV — too heavy for this repo's
+zero-install ethos) to de-skew angled facade photos before measuring, plus multiple
+measurement presets (full facade, window bands, door-to-height) selectable up front.
+
+**Why:** Outside-voice review during /plan-eng-review flagged perspective/keystone distortion
+from ground-level phone photography as the biggest actual source of measurement error —
+bigger than the gaming problem v1's honesty mechanism (lock-on-release + attempt log)
+targets. A genuinely golden facade shot at a typical phone angle can measure far from 1.618
+purely from distortion, and vice versa. v1 ships with only a UI hint ("shoot straight-on")
+as a stopgap.
+
+**Context:** Approach B from the original design doc (`/office-hours` 2026-07-07). Reuses
+Approach A's canvas/upload/attempt-log foundation entirely, adds a math module. Do this after
+v1 ships and you've confirmed the perspective-error problem is actually hitting real users
+(not just a theoretical concern) — the hint may turn out to be sufficient in practice.
+Surfaced by `/plan-eng-review` (2026-07-08).
+
+**Depends on:** golden-ratio v1 shipped and validated.
+
+---
+
+## golden-ratio: keyboard-accessible measurement
+**What:** An alternative input method (e.g. numeric width/height fields, or arrow-key
+nudging of a focused rectangle) for placing the measurement rectangle without pointer/touch
+drag.
+
+**Why:** The canvas drag-to-measure interaction is inherently pointer/touch-based and is
+documented in the design doc as not keyboard-operable in v1 — a real, known accessibility
+gap rather than a silently ignored one. Upload Photo, example links, and Measure Again are
+keyboard-focusable in v1; the core measurement action itself is not.
+
+**Context:** Surfaced by `/plan-design-review` (2026-07-08) during the Responsive &
+Accessibility pass. Do this once v1 ships and the core interaction is validated — the right
+input pattern (numeric fields vs. keyboard-nudge) may become clearer after seeing how the
+drag UX actually feels in practice.
+
+**Depends on:** golden-ratio v1 shipped and validated.
+
+---
+
+## golden-ratio: desktop side-by-side layout enhancement
+**What:** At wide viewports (900px+), move the RESULT and ATTEMPTS panels from stacked
+(below the canvas) to a side-by-side layout next to the canvas.
+
+**Why:** v1 ships mobile-first, single-column at every viewport width — the correct default
+given the tool's "point your phone at a building" pitch. A wider desktop layout is a pure
+progressive enhancement, not a requirement; desktop users just see more whitespace in v1.
+
+**Context:** Surfaced by `/plan-design-review` (2026-07-08). Low priority — do this only if
+the tool sees enough desktop usage to justify it. Reuses the same RESULT/ATTEMPTS panel
+components from v1, just repositioned above the breakpoint.
+
+**Depends on:** golden-ratio v1 shipped and validated.
+
+---
+
+## golden-ratio: live viewfinder mode (Approach C)
+**What:** `getUserMedia` camera mode alongside upload — tap 4 points on a live/paused camera
+frame, ratio appears instantly while framing the shot, instead of uploading a file after the
+fact.
+
+**Why:** Flagged by the independent second-opinion subagent during /office-hours as the
+coolest version of this tool not yet considered — the "whoa" moment happens while framing the
+shot on the street, not after digging through a camera roll. Most novel differentiator vs.
+every existing golden-ratio overlay tool (all of which are upload-based).
+
+**Context:** Approach C from the original design doc (`/office-hours` 2026-07-07). Deferred
+because it cuts directly against the explicit "keep it small, architecture only, done well"
+v1 decision — biggest build, most platform risk (cross-browser/mobile camera API quirks,
+HTTPS required when hosted). Same measurement UX as Approach A once a frame is captured.
+Surfaced by `/plan-eng-review` (2026-07-08).
+
+**Depends on:** golden-ratio v1 shipped and validated.
