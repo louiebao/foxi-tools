@@ -117,6 +117,22 @@ Each tool gets its own layout inside a shared shell. The shell is always:
 
 The `body` is always `display: flex; flex-direction: column; height: 100dvh; overflow: hidden` so tools fill the viewport without scroll on the page level. Use `100dvh` (not `100vh`) to account for mobile browser chrome. Tools manage their own internal scrolling.
 
+The header itself is `display: flex; justify-content: space-between; align-items: flex-start`,
+with the title block wrapped so it can sit next to a future right-aligned element without
+restructuring later:
+
+```html
+<header>
+  <div class="header-left">
+    <h1>Tool Name</h1>
+    <p>One-line tagline</p>
+  </div>
+</header>
+```
+```css
+.header-left { display: flex; flex-direction: column; gap: 4px; }
+```
+
 ### Common main layouts
 
 - **Editor (two-pane):** `grid-template-columns: 1fr 100px 1fr` — input | action column | output
@@ -163,6 +179,39 @@ Two variants only.
 ```
 
 No `border-radius`. No gradient. No shadow. Disabled state is `opacity: 0.35`, never `display: none`.
+
+**Touch targets:** interactive elements (buttons, links that act like buttons, form controls)
+should have `min-height: 44px` — most of the padding values above land short of this on their
+own. Added after golden-ratio's build (2026-07-10): its buttons are the first in the repo to
+hit this deliberately, worth making the baseline now that phone use is a real interaction
+mode for these tools, not just desktop.
+
+```css
+.btn-primary, .btn-secondary {
+  min-height: 44px;
+}
+```
+
+---
+
+## Focus States
+
+Every interactive element needs a visible focus ring for keyboard navigation — `--accent`
+already exists for exactly this ("Focus outlines, active nav underlines, selected state
+borders" per the Accent section above), but no tool used it in practice until golden-ratio.
+This is the pattern, now the baseline:
+
+```css
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+```
+
+Use `:focus-visible`, not `:focus` — it skips the ring on mouse clicks and only shows it for
+keyboard navigation, which is what you actually want.
 
 ---
 
@@ -234,3 +283,9 @@ Exception: tool-specific animations that communicate state (e.g., the Life in Mo
 6. Buttons: primary for the single main action, secondary for everything else
 7. Textareas: `var(--bg)` for editable, `var(--bg-output)` for read-only
 8. Test at `100dvh` — tools should not cause page-level scroll
+9. Wrap header `h1`+tagline in `.header-left` (`header` itself is `display: flex`) — leaves
+   room for a right-aligned element later and keeps the title-block spacing consistent
+10. Add `:focus-visible` rings (`--accent`) and `min-height: 44px` to every button/interactive
+    link — see Focus States and the Buttons touch-target note above
+11. Footer includes `<span class="version">v1.0.0</span>` next to the home link, right-aligned
+    (`margin-left: auto`) — bump it when the tool changes meaningfully after shipping

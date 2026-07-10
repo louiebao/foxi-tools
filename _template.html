@@ -132,6 +132,8 @@
   .pane-body { padding: 12px 10px; display: flex; flex-direction: column; gap: 8px; }
 
   /* ── Buttons ─────────────────────────────────────────────────── */
+  /* min-height:44px is a touch-target minimum — keep it on both variants
+     even where padding alone would already clear it, so it can't regress. */
   /* Primary — one per tool, the main action */
   .btn-primary {
     width: 100%;
@@ -139,6 +141,7 @@
     color: var(--bg);
     border: none;
     padding: 9px 14px;
+    min-height: 44px;
     font-family: 'Courier New', monospace;
     font-size: 0.67rem;
     letter-spacing: 0.1em;
@@ -147,6 +150,7 @@
   }
   .btn-primary:hover { opacity: 0.75; }
   .btn-primary:disabled { opacity: 0.35; cursor: default; }
+  .btn-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* Secondary — copy, clear, save, supporting actions */
   .btn-secondary {
@@ -154,6 +158,7 @@
     color: var(--text-2);
     border: 1px solid var(--border-ui);
     padding: 4px 10px;
+    min-height: 44px;
     font-family: 'Courier New', monospace;
     font-size: 0.67rem;
     letter-spacing: 0.04em;
@@ -161,6 +166,7 @@
   }
   .btn-secondary:hover:not(:disabled) { border-color: var(--border-hover); color: var(--text); }
   .btn-secondary:disabled { opacity: 0.35; cursor: default; }
+  .btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Textareas ───────────────────────────────────────────────── */
   textarea {
@@ -204,6 +210,7 @@
     letter-spacing: 0.04em;
   }
   .back-link:hover { color: var(--text); }
+  .back-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Footer ──────────────────────────────────────────────────── */
   footer {
@@ -211,7 +218,11 @@
     border-top: 1px solid var(--border);
     font-size: 0.73rem;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
+  .version { font-size: 0.67rem; color: var(--text-3); letter-spacing: 0.06em; margin-left: auto; }
 </style>
 </head>
 <body>
@@ -261,6 +272,7 @@
 
 <footer>
   <a class="back-link" href="../">< Home</a>
+  <span class="version">v1.0.0</span><!-- CHANGE if this tool starts at a different version -->
 </footer>
 
 <script>
