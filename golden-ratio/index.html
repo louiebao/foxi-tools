@@ -35,10 +35,14 @@
   }
 
   header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     padding: 16px 24px 12px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
+  .header-left { display: flex; flex-direction: column; gap: 4px; }
   header h1 {
     font-size: 1rem;
     font-weight: normal;
@@ -49,7 +53,6 @@
     font-size: 0.73rem;
     color: var(--text-3);
     letter-spacing: 0.06em;
-    margin-top: 4px;
   }
 
   main {
@@ -204,8 +207,10 @@
 <body>
 
 <header>
-  <h1>Golden Ratio Checker</h1>
-  <p>Upload a building photo, measure it against 1.618</p>
+  <div class="header-left">
+    <h1>Golden Ratio Checker</h1>
+    <p>Upload a building photo, measure it against 1.618</p>
+  </div>
 </header>
 
 <main>
