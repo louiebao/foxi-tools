@@ -114,3 +114,43 @@ HTTPS required when hosted). Same measurement UX as Approach A once a frame is c
 Surfaced by `/plan-eng-review` (2026-07-08).
 
 **Depends on:** golden-ratio v1 shipped and validated.
+
+---
+
+## rare-earth: sat-thumbnail hover previews
+**What:** Show a small pre-baked satellite-crop thumbnail image in the hover tooltip
+alongside the text blurb, instead of text-only.
+
+**Why:** Flagged by the independent second-opinion subagent during `/office-hours` as the
+coolest version of this tool not yet considered — turns rare-earth from "index of links"
+into "browsable curiosity cabinet." Hovering would preview the actual weirdness (Richat
+Structure's bullseye, Nazca lines) before clicking through to Google Earth — the highest
+"whoa" factor of any considered enhancement for this tool.
+
+**Context:** Approach C from the original design doc (`/office-hours` 2026-07-10). Deferred
+because ~20 satellite thumbnail images raise licensing/attribution questions and would be
+the first tool in this repo needing a companion asset folder instead of a single `.html`
+file — a bigger structural change than v1's scope. Surfaced by `/plan-eng-review`
+(2026-07-11).
+
+**Depends on:** rare-earth v1 shipped and stable.
+
+---
+
+## rare-earth: Google Maps fallback link
+**What:** Add a secondary `?q={lat},{lon}` Google Maps link alongside the primary Google
+Earth 3D link on each dot.
+
+**Why:** Mitigates the risk (flagged by the outside voice during `/plan-eng-review`) that a
+Google Earth link verified working on desktop/mobile at authoring time could still fail for
+some real visitor's specific device/browser combination — the design doc itself
+acknowledges broken Earth links "fail silently."
+
+**Context:** v1 ships a single Google Earth link per dot — manual desktop+mobile
+verification of every link before shipping (Next Steps #3) is the v1 mitigation. Deferred
+adding a second link because it doubles the interactive surface per dot on a design system
+that discourages extra chrome, for a risk that hasn't been proven real in practice yet.
+Surfaced by `/plan-eng-review` (2026-07-11).
+
+**Depends on:** rare-earth v1 shipped; revisit only if broken/unreliable Earth links turn
+out to be a real problem for actual visitors.
