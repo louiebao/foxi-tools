@@ -84,30 +84,20 @@ function assertTrue(actual, label) {
 
 // ── validateLocations: lat/lon range + required fields ──────────────────
 {
-  const valid = [{ name: 'A', lat: 10, lon: 20, category: 'natural', blurb: 'x', earthUrl: 'https://x' }];
+  const valid = [{ name: 'A', lat: 10, lon: 20, blurb: 'x', earthUrl: 'https://x' }];
   assertEqual(M.validateLocations(valid).length, 0, 'validateLocations: valid entry passes clean');
 
-  const badLat = [{ name: 'A', lat: 95, lon: 20, category: 'natural', blurb: 'x', earthUrl: 'https://x' }];
+  const badLat = [{ name: 'A', lat: 95, lon: 20, blurb: 'x', earthUrl: 'https://x' }];
   assertEqual(M.validateLocations(badLat).length, 1, 'validateLocations: catches lat > 90');
 
-  const badLatNeg = [{ name: 'A', lat: -91, lon: 20, category: 'natural', blurb: 'x', earthUrl: 'https://x' }];
+  const badLatNeg = [{ name: 'A', lat: -91, lon: 20, blurb: 'x', earthUrl: 'https://x' }];
   assertEqual(M.validateLocations(badLatNeg).length, 1, 'validateLocations: catches lat < -90');
 
-  const badLon = [{ name: 'A', lat: 10, lon: 181, category: 'natural', blurb: 'x', earthUrl: 'https://x' }];
+  const badLon = [{ name: 'A', lat: 10, lon: 181, blurb: 'x', earthUrl: 'https://x' }];
   assertEqual(M.validateLocations(badLon).length, 1, 'validateLocations: catches lon > 180');
 
   const missingFields = [{ lat: 10, lon: 20 }];
-  assertTrue(M.validateLocations(missingFields).length >= 3, 'validateLocations: catches missing name/category/blurb/earthUrl');
-}
-
-// ── matchesCategory: filter predicate ────────────────────────────────────
-{
-  const dot = { category: 'natural' };
-  assertEqual(M.matchesCategory(dot, new Set()), true, 'matchesCategory: no active filters -> matches everything');
-  assertEqual(M.matchesCategory(dot, new Set(['natural'])), true, 'matchesCategory: matching single filter');
-  assertEqual(M.matchesCategory(dot, new Set(['manmade'])), false, 'matchesCategory: non-matching single filter');
-  assertEqual(M.matchesCategory(dot, new Set(['natural', 'mysterious'])), true, 'matchesCategory: matches within multi-filter union');
-  assertEqual(M.matchesCategory(dot, new Set(['manmade', 'mysterious'])), false, 'matchesCategory: no match across multi-filter union');
+  assertTrue(M.validateLocations(missingFields).length >= 2, 'validateLocations: catches missing name/blurb/earthUrl');
 }
 
 console.log('');
