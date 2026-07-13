@@ -119,6 +119,22 @@
     outline-offset: 1px;
   }
 
+  /* Screen-reader-only description text — visually hidden, not display:none,
+     so it stays in the accessibility tree without rendering. Deliberately
+     NOT an SVG <title>: that element triggers the browser's own native
+     tooltip on hover, duplicating the custom .tooltip-box below. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* ── Tooltip ─────────────────────────────────────────────────── */
   .tooltip-box {
     position: fixed;
@@ -326,6 +342,13 @@ const ttLabel = document.getElementById('tt-label');
 const ttCoords = document.getElementById('tt-coords');
 const ttBlurb = document.getElementById('tt-blurb');
 
+// Holds one visually-hidden span per dot (screen-reader description text,
+// referenced via aria-describedby). Plain HTML on purpose — see the
+// .sr-only comment above for why this isn't an SVG <title>.
+const descContainer = document.createElement('div');
+descContainer.className = 'sr-only';
+document.body.appendChild(descContainer);
+
 const activeFilters = new Set();
 let tapArmed = null; // location currently in "first tap shown, awaiting second tap" state (touch only)
 
@@ -396,13 +419,16 @@ LOCATIONS.forEach((loc, i) => {
   visible.setAttribute('cy', y);
   visible.setAttribute('r', 2.6); // Safari: set via attribute, not CSS `r`
 
-  const desc = document.createElementNS(svgNS, 'title');
-  desc.setAttribute('id', `loc-desc-${i}`);
-  desc.textContent = `${loc.name}: ${loc.blurb}`;
+  // Plain HTML span, not an SVG <title> — <title> triggers the browser's
+  // own native tooltip on hover, which duplicated the custom .tooltip-box.
+  const desc = document.createElement('span');
+  desc.className = 'sr-only';
+  desc.id = `loc-desc-${i}`;
+  desc.textContent = loc.blurb;
+  descContainer.appendChild(desc);
 
   group.appendChild(visible);
   group.appendChild(hit);
-  group.appendChild(desc);
   svg.appendChild(group);
 
   // Hover (mouse)
