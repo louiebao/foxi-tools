@@ -4,6 +4,7 @@
 When the user's request matches an available skill, invoke it via the Skill tool. When in doubt, invoke the skill.
 
 Key routing rules:
+- Add a place to the rare-earth map / "what's interesting in <region>" → invoke /add-rare-earth-location
 - Product ideas/brainstorming → invoke /office-hours
 - Strategy/scope → invoke /plan-ceo-review
 - Architecture → invoke /plan-eng-review
