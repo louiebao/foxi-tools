@@ -128,8 +128,8 @@ the correction is on record. End the message with the `Co-Authored-By` trailer.
 
 ## Autonomous / scheduled mode
 
-When run unattended (a scheduled routine, no human to answer questions), the interactive
-steps change:
+When run unattended (the scheduled monthly job, no human to answer questions), the
+interactive steps change:
 
 - **No `AskUserQuestion`.** Never wait for a human. Decide with an explicit quality bar and
   proceed.

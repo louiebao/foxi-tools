@@ -1,50 +1,30 @@
-# Monthly scheduling
+# Monthly scheduling (local)
 
-**Active mechanism: a local launchd job on the Mac.** The cloud routine was abandoned — its
-egress proxy blocks `server.arcgisonline.com`, so imagery verification (the quality gate)
-can't run there. Everything works locally, so the schedule moved to the Mac.
+The monthly place-finder runs on the Mac via a launchd job. Everything — research, imagery
+verification (local browser), commit, push — happens locally.
 
-## Local launchd job (active)
+## The job
 
 - **Agent:** `com.foxi.rare-earth-monthly` — `~/Library/LaunchAgents/com.foxi.rare-earth-monthly.plist`
   (machine-specific, not tracked).
-- **Runs:** `scripts/run-monthly.sh` (tracked, portable) monthly on the **6th at 08:23 local**.
-  launchd runs a missed job on next wake, so a sleeping Mac still catches up.
-- **What it does:** headless `claude --dangerously-skip-permissions -p "<routine-prompt>"` in
-  the repo — follows `SKILL.md` autonomous mode, verifies with the local browser, and commits
-  + pushes straight to `main`.
+- **Runs:** `scripts/run-monthly.sh` (tracked, portable) on the **6th of each month at 08:23
+  local**. launchd runs a missed job on next wake, so a sleeping Mac still catches up.
+- **What it does:** headless `claude --dangerously-skip-permissions -p "<prompt>"` in the repo
+  — follows `SKILL.md` autonomous mode, verifies with the local browser, commits, and pushes
+  straight to `main`. The prompt is the text after the `---` in `routine-prompt.md`.
 - **Delivery:** direct push to `main` over the existing passphraseless SSH key — **no gh, no
-  new credentials** (the owner's call: public, low-stakes, fun repo). The runner FATALs early
-  if non-interactive SSH push is broken.
+  new credentials** (owner's call: public, low-stakes, fun repo). The runner FATALs early if
+  non-interactive SSH push is broken.
 - **Log:** `~/Library/Logs/rare-earth-monthly.log`.
 
-Operate it:
+## Operate it
+
 ```bash
-launchctl list | grep foxi                                   # is it registered?
-launchctl kickstart -k gui/$(id -u)/com.foxi.rare-earth-monthly   # run now (validation)
-launchctl unload ~/Library/LaunchAgents/com.foxi.rare-earth-monthly.plist  # disable
-tail -f ~/Library/Logs/rare-earth-monthly.log                # watch a run
+launchctl list | grep foxi                                        # is it registered?
+launchctl kickstart -k gui/$(id -u)/com.foxi.rare-earth-monthly   # run now
+launchctl unload ~/Library/LaunchAgents/com.foxi.rare-earth-monthly.plist  # turn off
+tail -f ~/Library/Logs/rare-earth-monthly.log                     # watch a run
 ```
 
-## Cloud routine (disabled, kept for reference)
-
-`trig_019xx3oRopcE7u22nVC1V1Zg` on claude.ai — set `enabled: false`. To revive it you'd need
-the cloud egress to allow `server.arcgisonline.com`. `verify.html` is library-free now, so
-that single host is all it would need.
-
-## Config
-
-- **name:** rare-earth monthly place finder
-- **schedule:** `23 22 5 * *` UTC = **08:23 on the 6th of each month, Australia/Melbourne**
-  (AEST/UTC+10; shifts to 09:23 during AEDT summer — immaterial for a monthly job)
-- **repo:** https://github.com/louiebao/foxi-tools
-- **model:** claude-sonnet-5
-- **environment_id:** env_015XQBqjn8R8WpBiJHppVRAw (Default)
-- **allowed_tools:** Bash, Read, Write, Edit, Glob, Grep, WebSearch, WebFetch
-- **output:** PR-gated (never pushes to main); first-run capability self-check files an issue
-  and stops if the cloud env can't browse/verify/push.
-- **prompt:** `routine-prompt.md` — now reference-based: it points the cloud agent at the
-  committed `SKILL.md` (single source of truth) and restates the guardrails inline. The skill
-  is tracked in git, so the cloud agent's checkout has it.
-
-Generate a fresh UUID for `events[].data.uuid` on each create attempt.
+To change the schedule, edit `StartCalendarInterval` in the plist and reload
+(`launchctl unload` then `launchctl load -w`).

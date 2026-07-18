@@ -1,8 +1,8 @@
 #!/bin/bash
 # Monthly rare-earth place-finder — invoked by the launchd agent
 # com.foxi.rare-earth-monthly. Runs Claude Code headless to find, verify (local
-# browser), and open a PR for new curious coordinates. Everything runs on this
-# Mac, which is why it works where the cloud routine's egress proxy did not.
+# browser), and push new curious coordinates. Research, imagery verification,
+# and the push all run locally on this Mac.
 #
 # The launchd plist (~/Library/LaunchAgents/com.foxi.rare-earth-monthly.plist) is
 # machine-specific and not tracked; this script is portable (paths are derived).
