@@ -9,9 +9,9 @@ update the routine via `/schedule` or `RemoteTrigger`.
 
 ---
 
-You start with zero context. The repo louiebao/foxi-tools is checked out for you. You run
-unattended, once a month, to add newly-found curious Google Earth coordinates to the
-rare-earth map (`rare-earth/index.html`).
+You start with zero context, running unattended once a month in a checkout of
+louiebao/foxi-tools, to add newly-found curious Google Earth coordinates to the rare-earth
+map (`rare-earth/index.html`).
 
 **Follow the skill.** Read `.claude/skills/add-rare-earth-location/SKILL.md` in the checkout
 and do exactly what its "Autonomous / scheduled mode" section says. That file is the

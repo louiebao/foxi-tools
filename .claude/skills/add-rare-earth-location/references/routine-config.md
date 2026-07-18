@@ -1,17 +1,35 @@
-# Monthly routine — config
+# Monthly scheduling
 
-Status: **created** (id `trig_019xx3oRopcE7u22nVC1V1Zg`), first run 2026-08-06 08:23 Melbourne.
+**Active mechanism: a local launchd job on the Mac.** The cloud routine was abandoned — its
+egress proxy blocks `server.arcgisonline.com`, so imagery verification (the quality gate)
+can't run there. Everything works locally, so the schedule moved to the Mac.
 
-## Prerequisites
+## Local launchd job (active)
 
-1. **GitHub connected** — done (was HTTP 401 until the account was linked to claude.ai Code).
-2. **Egress allowlist** — the cloud environment's proxy must allow **`server.arcgisonline.com`**
-   (the satellite tiles). The first manual run failed here: the proxy 403'd both the tiles and
-   `unpkg.com`. `verify.html` was since rewritten library-free, so `unpkg.com` is no longer
-   needed — `server.arcgisonline.com` is the only host to allow. Without it, the routine's
-   self-check will (correctly) file an "environment gap" issue and add nothing.
+- **Agent:** `com.foxi.rare-earth-monthly` — `~/Library/LaunchAgents/com.foxi.rare-earth-monthly.plist`
+  (machine-specific, not tracked).
+- **Runs:** `scripts/run-monthly.sh` (tracked, portable) monthly on the **6th at 08:23 local**.
+  launchd runs a missed job on next wake, so a sleeping Mac still catches up.
+- **What it does:** headless `claude --dangerously-skip-permissions -p "<routine-prompt>"` in
+  the repo — follows `SKILL.md` autonomous mode, verifies with the local browser, opens a PR
+  via `gh`.
+- **Prerequisite:** `gh auth login` (one-time). The runner FATALs early if gh isn't
+  authenticated, rather than half-running.
+- **Log:** `~/Library/Logs/rare-earth-monthly.log`.
 
-Re-run to validate after allowlisting: `RemoteTrigger action:run` on the id above.
+Operate it:
+```bash
+launchctl list | grep foxi                                   # is it registered?
+launchctl kickstart -k gui/$(id -u)/com.foxi.rare-earth-monthly   # run now (validation)
+launchctl unload ~/Library/LaunchAgents/com.foxi.rare-earth-monthly.plist  # disable
+tail -f ~/Library/Logs/rare-earth-monthly.log                # watch a run
+```
+
+## Cloud routine (disabled, kept for reference)
+
+`trig_019xx3oRopcE7u22nVC1V1Zg` on claude.ai — set `enabled: false`. To revive it you'd need
+the cloud egress to allow `server.arcgisonline.com`. `verify.html` is library-free now, so
+that single host is all it would need.
 
 ## Config
 
