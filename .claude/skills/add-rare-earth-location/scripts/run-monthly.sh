@@ -20,9 +20,13 @@ exec >>"$LOG" 2>&1
 echo "===== $(date '+%Y-%m-%d %H:%M:%S') run start ====="
 
 command -v claude >/dev/null || { echo "FATAL: claude CLI not on PATH"; exit 1; }
-command -v gh >/dev/null && gh auth status >/dev/null 2>&1 || { echo "FATAL: gh not authenticated (run: gh auth login)"; exit 1; }
 
 cd "$REPO" || { echo "FATAL: repo not found at $REPO"; exit 1; }
+# Delivery is a direct push to main over the existing (passphraseless) SSH key —
+# no gh, no new credentials. Bail early if non-interactive push auth is broken,
+# since there'd be no terminal to enter a passphrase.
+GIT_SSH_COMMAND='ssh -o BatchMode=yes' git ls-remote origin >/dev/null 2>&1 \
+  || { echo "FATAL: non-interactive SSH to origin failed; cannot push"; exit 1; }
 git checkout main >/dev/null 2>&1
 git pull --ff-only origin main || echo "WARN: git pull failed; continuing on local main"
 

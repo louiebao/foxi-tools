@@ -139,17 +139,16 @@ steps change:
   subject; and you can see the subject (or independently confirm it). If in doubt, drop it.
   **Adding nothing is a correct outcome** — the well of good curiosities is shallow and most
   runs should add 0–2, never a filler quota.
-- **Output is a PR, never a direct push to `main`.** Branch, commit, push, open a PR with
-  `gh`. Put the before/after context in the PR body: each place's name, coordinate, why it's
-  interesting, and the imagery screenshot proving the crosshair is on the subject. A human
-  merges. If zero survivors, open no PR; report "nothing cleared the bar this run."
+- **Commit and push straight to `main`.** This is a public, low-stakes, fun repo — verified
+  additions go in directly (that's the owner's call; no PR gate). Commit each add with a
+  message naming the place, coordinate, why it's interesting, and any coordinate corrected vs
+  a published source; end with the `Co-Authored-By` trailer; then `git push origin main`. If
+  zero survivors, push nothing and report "nothing cleared the bar this run."
 - **First-run capability self-check (mandatory).** Before adding anything, confirm the
   environment can actually do the job: (a) web search works, (b) a headless browser can
-  render `verify.html` / ESRI tiles and screenshot them, (c) `gh`/git can push a branch and
-  open a PR. If any is missing, open a GitHub issue titled "rare-earth automation:
-  environment gap" listing what's unavailable, then STOP — do **not** add unverified places.
-  The imagery check is the whole quality gate; skipping it silently is the one unacceptable
-  failure mode.
+  render `verify.html` / ESRI tiles and screenshot them, (c) `git push` to `main` works. If
+  any is missing, STOP and report the gap — do **not** add unverified places. The imagery
+  check is the whole quality gate; skipping it silently is the one unacceptable failure mode.
 
 ## Don't
 

@@ -11,10 +11,11 @@ can't run there. Everything works locally, so the schedule moved to the Mac.
 - **Runs:** `scripts/run-monthly.sh` (tracked, portable) monthly on the **6th at 08:23 local**.
   launchd runs a missed job on next wake, so a sleeping Mac still catches up.
 - **What it does:** headless `claude --dangerously-skip-permissions -p "<routine-prompt>"` in
-  the repo — follows `SKILL.md` autonomous mode, verifies with the local browser, opens a PR
-  via `gh`.
-- **Prerequisite:** `gh auth login` (one-time). The runner FATALs early if gh isn't
-  authenticated, rather than half-running.
+  the repo — follows `SKILL.md` autonomous mode, verifies with the local browser, and commits
+  + pushes straight to `main`.
+- **Delivery:** direct push to `main` over the existing passphraseless SSH key — **no gh, no
+  new credentials** (the owner's call: public, low-stakes, fun repo). The runner FATALs early
+  if non-interactive SSH push is broken.
 - **Log:** `~/Library/Logs/rare-earth-monthly.log`.
 
 Operate it:
