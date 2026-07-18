@@ -84,17 +84,23 @@ function assertTrue(actual, label) {
 
 // ── validateLocations: lat/lon range + required fields ──────────────────
 {
-  const valid = [{ name: 'A', lat: 10, lon: 20, blurb: 'x', earthUrl: 'https://x' }];
+  const valid = [{ name: 'A', lat: 10, lon: 20, blurb: 'x', earthUrl: 'https://x', added: '2026-01-01' }];
   assertEqual(M.validateLocations(valid).length, 0, 'validateLocations: valid entry passes clean');
 
-  const badLat = [{ name: 'A', lat: 95, lon: 20, blurb: 'x', earthUrl: 'https://x' }];
+  const badLat = [{ name: 'A', lat: 95, lon: 20, blurb: 'x', earthUrl: 'https://x', added: '2026-01-01' }];
   assertEqual(M.validateLocations(badLat).length, 1, 'validateLocations: catches lat > 90');
 
-  const badLatNeg = [{ name: 'A', lat: -91, lon: 20, blurb: 'x', earthUrl: 'https://x' }];
+  const badLatNeg = [{ name: 'A', lat: -91, lon: 20, blurb: 'x', earthUrl: 'https://x', added: '2026-01-01' }];
   assertEqual(M.validateLocations(badLatNeg).length, 1, 'validateLocations: catches lat < -90');
 
-  const badLon = [{ name: 'A', lat: 10, lon: 181, blurb: 'x', earthUrl: 'https://x' }];
+  const badLon = [{ name: 'A', lat: 10, lon: 181, blurb: 'x', earthUrl: 'https://x', added: '2026-01-01' }];
   assertEqual(M.validateLocations(badLon).length, 1, 'validateLocations: catches lon > 180');
+
+  const missingAdded = [{ name: 'A', lat: 10, lon: 20, blurb: 'x', earthUrl: 'https://x' }];
+  assertEqual(M.validateLocations(missingAdded).length, 1, 'validateLocations: catches missing added date');
+
+  const badAdded = [{ name: 'A', lat: 10, lon: 20, blurb: 'x', earthUrl: 'https://x', added: '7/13/26' }];
+  assertEqual(M.validateLocations(badAdded).length, 1, 'validateLocations: catches malformed added date');
 
   const missingFields = [{ lat: 10, lon: 20 }];
   assertTrue(M.validateLocations(missingFields).length >= 2, 'validateLocations: catches missing name/blurb/earthUrl');

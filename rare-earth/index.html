@@ -146,6 +146,7 @@
   }
   .tooltip-box .tt-label { font-weight: bold; letter-spacing: 0.04em; }
   .tooltip-box .tt-coords { color: var(--text-2-inverse); font-size: 0.58rem; margin: 2px 0 4px; }
+  .tooltip-box .tt-added { color: var(--text-2-inverse); font-size: 0.58rem; letter-spacing: 0.04em; margin-top: 6px; }
 
   footer {
     padding: 10px 24px;
@@ -201,6 +202,7 @@
   <div class="tt-label" id="tt-label"></div>
   <div class="tt-coords" id="tt-coords"></div>
   <div id="tt-blurb"></div>
+  <div class="tt-added" id="tt-added"></div>
 </div>
 
 <footer>
@@ -236,6 +238,11 @@ function validateLocations(locations) {
     if (!loc.name) errors.push(`[${i}] missing name`);
     if (!loc.blurb) errors.push(`[${i}] ${loc.name || '(unnamed)'}: missing blurb`);
     if (!loc.earthUrl) errors.push(`[${i}] ${loc.name || '(unnamed)'}: missing earthUrl`);
+    // `added` is the date the dot was placed (YYYY-MM-DD) — shown in the tooltip
+    // and how new (cloud-agent) dots are told apart from the originals.
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(loc.added || '')) {
+      errors.push(`[${i}] ${loc.name || '(unnamed)'}: missing or malformed added date (want YYYY-MM-DD): ${loc.added}`);
+    }
   });
   return errors;
 }
@@ -271,37 +278,37 @@ const RareEarthMath = { VIEWBOX_WIDTH, VIEWBOX_HEIGHT, projectPoint, validateLoc
 
 const LOCATIONS = [
   { name: 'Desert Carrier Target', lat: 38.5975, lon: 87.7415, blurb: 'A full-scale mock-up of a US aircraft carrier in the Taklamakan Desert, used for anti-ship missile targeting practice.',
-    earthUrl: 'https://earth.google.com/web/@38.5975,87.7415,1200a,1000d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@38.5975,87.7415,1200a,1000d,35y,0h,0t,0r', added: '2026-07-15' },
   { name: 'The Boneyard', lat: 32.1709, lon: -110.8552, blurb: 'The world\'s largest aircraft storage facility — over 4,000 retired military planes parked in the Arizona desert.',
-    earthUrl: 'https://earth.google.com/web/@32.1709,-110.8552,780a,3000d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@32.1709,-110.8552,780a,3000d,35y,0h,0t,0r', added: '2026-07-15' },
   { name: 'Nouadhibou Boat Overload', lat: 20.9125, lon: -17.0394, blurb: 'A working fishing port in Mauritania packed with far more boats than the harbor seems built for.',
-    earthUrl: 'https://earth.google.com/web/@20.9125,-17.0394,5a,3000d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@20.9125,-17.0394,5a,3000d,35y,0h,0t,0r', added: '2026-07-16' },
   // 90h (east-up) is deliberate — the buildings spell ANTIBODY along a
   // roughly south-to-north axis, so a north-up view stands the word on end.
   // Heading 90 turns it upright and readable. Don't normalise this to 0h.
   { name: 'Antibody Building', lat: 31.6634, lon: 117.9053, blurb: 'A biotech campus in Hefei, China, where the buildings themselves are laid out to spell the company\'s name — ANTIBODY, legible from orbit.',
-    earthUrl: 'https://earth.google.com/web/@31.6634,117.9053,50a,1200d,35y,90h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@31.6634,117.9053,50a,1200d,35y,90h,0t,0r', added: '2026-07-16' },
   { name: 'Boat in the City', lat: 22.3041, lon: 114.1899, blurb: 'A full-size concrete ship marooned among the apartment towers of Hong Kong — the Whampoa, a shopping mall built in the shape of an ocean liner.',
-    earthUrl: 'https://earth.google.com/web/@22.3041,114.1899,10a,1200d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@22.3041,114.1899,10a,1200d,35y,0h,0t,0r', added: '2026-07-16' },
   { name: 'Badlands Guardian', lat: 50.0106, lon: -110.1134, blurb: 'An eroded hill in Alberta, Canada that from above resembles a human head wearing a full Indigenous headdress, complete with what looks like an earbud.',
-    earthUrl: 'https://earth.google.com/web/@50.0106,-110.1134,730a,3000d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@50.0106,-110.1134,730a,3000d,35y,0h,0t,0r', added: '2026-07-16' },
   { name: 'Homebush Shipwreck', lat: -33.8332, lon: 151.0767, blurb: 'The SS Ayrfield, a rusted steel hull abandoned in Homebush Bay, Sydney — now a "floating forest" with mangroves growing out of its deck.',
-    earthUrl: 'https://earth.google.com/web/@-33.8332,151.0767,5a,500d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@-33.8332,151.0767,5a,500d,35y,0h,0t,0r', added: '2026-07-16' },
   // Centred BETWEEN the two pandas so both fit the frame at 2000d. GEM lists
   // 39.9711,113.4840 but flags it "approximate" — it lands ~490m south, off
   // the artwork entirely. Imagery wins over an approximate gazetteer fix.
   { name: 'Panda Solar Farm', lat: 39.9754, lon: 113.4855, blurb: 'A 50-megawatt solar plant near Datong, Shanxi, with its arrays laid out as two giant pandas — black monocrystalline panels for the dark patches, pale thin-film for the rest.',
-    earthUrl: 'https://earth.google.com/web/@39.9754,113.4855,994a,2000d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@39.9754,113.4855,994a,2000d,35y,0h,0t,0r', added: '2026-07-17' },
   { name: 'Palmanova', lat: 45.9054, lon: 13.3099, blurb: 'A fortress town in northeast Italy, built by the Venetian Republic in 1593 as a perfect nine-pointed star — three concentric rings of ramparts with streets radiating from a central hexagonal piazza.',
-    earthUrl: 'https://earth.google.com/web/@45.9054,13.3099,20a,2500d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@45.9054,13.3099,20a,2500d,35y,0h,0t,0r', added: '2026-07-18' },
   { name: 'Uffington White Horse', lat: 51.5779, lon: -1.5668, blurb: 'A prehistoric chalk figure cut into an English hillside — a wildly stylised horse of flowing, disconnected lines, about 110m long. Britain\'s oldest hill figure at roughly 3,000 years, kept visible by locals re-chalking it across millennia.',
-    earthUrl: 'https://earth.google.com/web/@51.5779,-1.5668,213a,800d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@51.5779,-1.5668,213a,800d,35y,0h,0t,0r', added: '2026-07-18' },
   { name: 'Guitar Forest', lat: -33.86747, lon: -63.98694, blurb: 'A guitar over a kilometre long formed from thousands of cypress and eucalyptus trees, planted by an Argentine farmer as a memorial to his late wife. He is afraid of flying and has only ever seen it in photographs.',
-    earthUrl: 'https://earth.google.com/web/@-33.86747,-63.98694,200a,2500d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@-33.86747,-63.98694,200a,2500d,35y,0h,0t,0r', added: '2026-07-18' },
   { name: 'El Ojo', lat: -34.25217, lon: -58.82983, blurb: 'A near-perfectly circular island, about 118m across, floating inside a matching ring of water in the Paraná Delta. It slowly rotates on its own axis, and the shearing keeps both island and channel round.',
-    earthUrl: 'https://earth.google.com/web/@-34.25217,-58.82983,12a,600d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@-34.25217,-58.82983,12a,600d,35y,0h,0t,0r', added: '2026-07-18' },
   { name: 'Alien Face', lat: -72.0100, lon: 168.5778, blurb: 'Dark rock outcrops against Antarctic snow form a face-like pattern, visible only from orbit.',
-    earthUrl: 'https://earth.google.com/web/@-72.0100,168.5778,1500a,3000d,35y,0h,0t,0r' },
+    earthUrl: 'https://earth.google.com/web/@-72.0100,168.5778,1500a,3000d,35y,0h,0t,0r', added: '2026-07-13' },
 ];
 
 /* ────────────────────────────────────────────────────────────────
@@ -321,6 +328,7 @@ const tooltip = document.getElementById('tooltip');
 const ttLabel = document.getElementById('tt-label');
 const ttCoords = document.getElementById('tt-coords');
 const ttBlurb = document.getElementById('tt-blurb');
+const ttAdded = document.getElementById('tt-added');
 
 // Holds one visually-hidden span per dot (screen-reader description text,
 // referenced via aria-describedby). Plain HTML on purpose — see the
@@ -341,6 +349,7 @@ function showTooltip(loc, x, y) {
   ttLabel.textContent = loc.name;
   ttCoords.textContent = formatCoords(loc.lat, loc.lon);
   ttBlurb.textContent = loc.blurb;
+  ttAdded.textContent = loc.added ? `Added on ${loc.added}` : '';
   tooltip.style.display = 'block';
   positionTooltip(x, y);
 }
@@ -396,7 +405,7 @@ LOCATIONS.forEach((loc, i) => {
   const desc = document.createElement('span');
   desc.className = 'sr-only';
   desc.id = `loc-desc-${i}`;
-  desc.textContent = loc.blurb;
+  desc.textContent = loc.added ? `${loc.blurb} Added on ${loc.added}.` : loc.blurb;
   descContainer.appendChild(desc);
 
   group.appendChild(visible);

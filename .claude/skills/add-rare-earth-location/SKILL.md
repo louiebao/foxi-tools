@@ -93,13 +93,16 @@ Append to the `LOCATIONS` array in `rare-earth/index.html`:
 
 ```js
 { name: '<Name>', lat: <LAT>, lon: <LON>, blurb: '<one or two sentences, factual with a touch of wonder>',
-  earthUrl: 'https://earth.google.com/web/@...' },
+  earthUrl: 'https://earth.google.com/web/@...', added: '<YYYY-MM-DD>' },
 ```
 
 - **NO `pixelNudge`.** The basemap is generated from Natural Earth with the *same* projection
   as `projectPoint`, so dots and coastlines align by construction. Dots plot straight from
   lat/lon. If a dot looks misplaced, the coordinate is wrong — fix the coordinate, never add
   a position fudge. (See memory `rare-earth-basemap-nudge` for the history.)
+- **`added` is required** — the date you add the dot, `YYYY-MM-DD`. It shows in the tooltip
+  ("Added on …") and is how newer dots are told apart from the originals. `validateLocations`
+  rejects a missing or malformed date, so the tests will fail without it.
 - Blurb voice: concise, factual, one vivid detail. Match the existing entries. No email, no
   attribution.
 
