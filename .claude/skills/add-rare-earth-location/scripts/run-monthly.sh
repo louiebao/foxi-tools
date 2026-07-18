@@ -9,8 +9,11 @@
 set -u
 
 # launchd hands us a minimal PATH; add the user + Homebrew bins we need
-# (claude, git, gh, node) without hardcoding a home directory.
-export PATH="$HOME/.local/bin:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+# (claude, git, node) without hardcoding a home directory. ~/.bun/bin is
+# required: the browse binary cold-starts its daemon by spawning `bun`, which
+# lives there and is otherwise off-PATH — without it the imagery check (the
+# quality gate) fails on a fresh run. Verified by cold-start reproduction.
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"          # .../add-rare-earth-location
 REPO="$(cd "$SKILL_DIR" && git rev-parse --show-toplevel)"
