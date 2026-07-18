@@ -112,6 +112,30 @@
     vector-effect: non-scaling-stroke;
   }
 
+  /* Newly-added dots wear a halo ring so recent additions (e.g. the monthly
+     job's) stand out among the older ones. A dot counts as "new" for ~45 days
+     after its `added` date, so a batch glows until roughly the next run, then
+     quietly becomes an ordinary dot — no upkeep. The gentle pulse draws the
+     eye; it's the Life-in-Months-style functional-animation exception to the
+     no-motion rule, and it flattens to a static ring under reduced-motion. */
+  .dot-new-ring {
+    fill: none;
+    stroke: var(--dot-red);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: dot-new-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes dot-new-pulse {
+    0%, 100% { opacity: 0.85; }
+    50%      { opacity: 0.28; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dot-new-ring { animation: none; opacity: 0.7; }
+  }
+
   /* Screen-reader-only description text — visually hidden, not display:none,
      so it stays in the accessibility tree without rendering. Deliberately
      NOT an SVG <title>: that element triggers the browser's own native
@@ -353,11 +377,23 @@ function formatCoords(lat, lon) {
   return `${Math.abs(lat).toFixed(4)}°${latDir}, ${Math.abs(lon).toFixed(4)}°${lonDir}`;
 }
 
+// "New" = the most recent batch only (the latest `added` date), so the newest
+// additions always stand out no matter how young or old the whole map is — an
+// absolute "last N days" rule would light up everything while the map is new.
+// The batch stops glowing once a newer one lands, or after NEW_DAYS if the job
+// adds nothing for a long stretch (so a stale map doesn't glow forever).
+const NEW_DAYS = 60;
+const _newestAddedMs = Math.max(...LOCATIONS.map(l => Date.parse(l.added) || 0));
+function isRecentlyAdded(added) {
+  const t = Date.parse(added);
+  return !Number.isNaN(t) && t === _newestAddedMs && (Date.now() - _newestAddedMs) < NEW_DAYS * 864e5;
+}
+
 function showTooltip(loc, x, y) {
   ttLabel.textContent = loc.name;
   ttCoords.textContent = formatCoords(loc.lat, loc.lon);
   ttBlurb.textContent = loc.blurb;
-  ttAdded.textContent = loc.added ? `Added on ${loc.added}` : '';
+  ttAdded.textContent = loc.added ? `Added on ${loc.added}${isRecentlyAdded(loc.added) ? '  · new' : ''}` : '';
   tooltip.style.display = 'block';
   positionTooltip(x, y);
 }
@@ -408,6 +444,17 @@ LOCATIONS.forEach((loc, i) => {
   visible.setAttribute('cy', y);
   visible.setAttribute('r', 2.6); // Safari: set via attribute, not CSS `r`
 
+  // Halo ring on recently-added dots (see .dot-new-ring). Sits under the
+  // visible dot, drawn first so the solid dot stays crisp on top.
+  let newRing = null;
+  if (isRecentlyAdded(loc.added)) {
+    newRing = document.createElementNS(svgNS, 'circle');
+    newRing.setAttribute('class', 'dot-new-ring');
+    newRing.setAttribute('cx', x);
+    newRing.setAttribute('cy', y);
+    newRing.setAttribute('r', 6);
+  }
+
   // Plain HTML span, not an SVG <title> — <title> triggers the browser's
   // own native tooltip on hover, which duplicated the custom .tooltip-box.
   const desc = document.createElement('span');
@@ -416,6 +463,7 @@ LOCATIONS.forEach((loc, i) => {
   desc.textContent = loc.added ? `${loc.blurb} Added on ${loc.added}.` : loc.blurb;
   descContainer.appendChild(desc);
 
+  if (newRing) group.appendChild(newRing);
   group.appendChild(visible);
   group.appendChild(hit);
   svg.appendChild(group);
