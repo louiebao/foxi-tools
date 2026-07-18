@@ -1,7 +1,10 @@
 # Verifying a coordinate against imagery
 
 The exact `/browse` commands for step 3 of the skill. `verify.html` (in the skill root)
-renders ESRI World Imagery centred on a lat/lon with a red crosshair.
+renders ESRI World Imagery centred on a lat/lon with a red crosshair. It is library-free —
+it places map tiles itself, so the only network host it needs is `server.arcgisonline.com`
+(no CDN). That's what lets it run behind a restrictive egress proxy once that host is
+allowed; the cloud routine depends on this.
 
 ## Setup
 

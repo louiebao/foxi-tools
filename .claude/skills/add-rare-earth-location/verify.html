@@ -3,32 +3,56 @@
      confirm a candidate coordinate lands ON its subject before adding it.
      Usage:  file://<abs-path>/verify.html?lat=<LAT>&lon=<LON>&z=<ZOOM>&name=<LABEL>
      z: 14 wide (~7km) -> 18 tight (~450m). Drive it via the /browse skill; see
-     references/verify-imagery.md. Self-contained except Leaflet + ESRI tiles (needs network). -->
+     references/verify-imagery.md.
+
+     Library-free by design: it computes Web-Mercator tile positions itself and places
+     <img> tiles directly, so the ONLY external host it needs is the tile server
+     (server.arcgisonline.com). No map library / CDN — this is what lets it run behind a
+     restrictive egress proxy (e.g. the cloud routine) once that one host is allowed. -->
 <meta charset="utf-8">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-  html,body{margin:0;height:100%}
-  #m{height:100%}
-  .xh{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:500;pointer-events:none}
+  html,body{margin:0;height:100%;background:#111;overflow:hidden}
+  #tiles{position:absolute;left:50%;top:50%}          /* origin = viewport centre */
+  #tiles img{position:absolute;width:256px;height:256px;user-select:none}
+  .xh{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none}
   .xh div{position:absolute;background:#ff2d2d}
   .xh .v{width:2px;height:60px;left:-1px;top:-30px}
   .xh .h{height:2px;width:60px;top:-1px;left:-30px}
   .xh .r{width:44px;height:44px;left:-22px;top:-22px;background:none;border:2px solid #ff2d2d;border-radius:50%}
-  #lbl{position:absolute;bottom:8px;left:8px;z-index:500;background:#000;color:#fff;
+  #lbl{position:absolute;bottom:8px;left:8px;z-index:10;background:#000;color:#fff;
        font:12px monospace;padding:4px 8px}
 </style>
-<div id="m"></div>
+<div id="tiles"></div>
 <div class="xh"><div class="v"></div><div class="h"></div><div class="r"></div></div>
 <div id="lbl"></div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  const p = new URLSearchParams(location.search);
-  const lat = parseFloat(p.get('lat')), lon = parseFloat(p.get('lon'));
-  const z = parseInt(p.get('z') || '16');
+  var p = new URLSearchParams(location.search);
+  var lat = parseFloat(p.get('lat')), lon = parseFloat(p.get('lon'));
+  var z = parseInt(p.get('z') || '16');
+  var TILE = 256, n = Math.pow(2, z);
+  // Web Mercator: fractional tile coordinates of the centre point.
+  var xt = n * (lon + 180) / 360;
+  var latR = lat * Math.PI / 180;
+  var yt = n * (1 - Math.log(Math.tan(latR) + 1 / Math.cos(latR)) / Math.PI) / 2;
+  var cx = Math.floor(xt), cy = Math.floor(yt);
+  var fx = (xt - cx) * TILE, fy = (yt - cy) * TILE;   // centre point's offset inside its tile
+  var host = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile';
+  var el = document.getElementById('tiles'), R = 3, total = 0, done = 0;
+  function fin(){ if (done >= total) window.__tilesDone = true; }
+  for (var dx = -R; dx <= R; dx++) for (var dy = -R; dy <= R; dy++) {
+    var tx = cx + dx, ty = cy + dy;
+    if (tx < 0 || ty < 0 || tx >= n || ty >= n) continue;
+    var img = document.createElement('img');
+    // Place each tile so the centre point lands exactly at the viewport centre (the origin).
+    img.style.left = (dx * TILE - fx) + 'px';
+    img.style.top  = (dy * TILE - fy) + 'px';
+    total++;
+    img.onload = function(){ done++; fin(); };
+    img.onerror = function(){ done++; fin(); };
+    img.src = host + '/' + z + '/' + ty + '/' + tx;   // ESRI order: z/y/x
+    el.appendChild(img);
+  }
   document.getElementById('lbl').textContent =
     (p.get('name') || '') + '  @ ' + lat + ', ' + lon + '  z' + z;
-  const map = L.map('m', { center: [lat, lon], zoom: z, zoomControl: false, attributionControl: false });
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-             { maxZoom: 19 }).addTo(map);
-  map.whenReady(() => setTimeout(() => { window.__tilesDone = true; }, 2500));
+  setTimeout(function(){ window.__tilesDone = true; }, 5000);   // fallback if a tile stalls
 </script>

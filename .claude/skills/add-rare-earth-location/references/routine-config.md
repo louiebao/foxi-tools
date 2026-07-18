@@ -1,16 +1,17 @@
-# Monthly routine — config (ready to create)
+# Monthly routine — config
 
-The `RemoteTrigger create` body below is validated and ready. It failed only on a missing
-GitHub connection (HTTP 401: "Connect your GitHub account before saving a routine that uses
-a GitHub repository").
+Status: **created** (id `trig_019xx3oRopcE7u22nVC1V1Zg`), first run 2026-08-06 08:23 Melbourne.
 
-## Prerequisite (one-time, user action)
+## Prerequisites
 
-Connect your GitHub account to claude.ai Code / install the Claude GitHub App on the repo:
-https://claude.ai/code/onboarding?magic=github-app-setup
+1. **GitHub connected** — done (was HTTP 401 until the account was linked to claude.ai Code).
+2. **Egress allowlist** — the cloud environment's proxy must allow **`server.arcgisonline.com`**
+   (the satellite tiles). The first manual run failed here: the proxy 403'd both the tiles and
+   `unpkg.com`. `verify.html` was since rewritten library-free, so `unpkg.com` is no longer
+   needed — `server.arcgisonline.com` is the only host to allow. Without it, the routine's
+   self-check will (correctly) file an "environment gap" issue and add nothing.
 
-Once connected, re-run the create (via `/schedule` or `RemoteTrigger action:create`) with the
-body below — it will succeed unchanged.
+Re-run to validate after allowlisting: `RemoteTrigger action:run` on the id above.
 
 ## Config
 
